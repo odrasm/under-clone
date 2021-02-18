@@ -1,0 +1,2 @@
+export DIB_OPENSTACK_MODULES=${DIB_OPENSTACK_MODULES:-barbican cinder cloudkitty congress designate glance heat ironic keystone magnum manila mistral monasca neutron nova octavia swift trove watcher}
+

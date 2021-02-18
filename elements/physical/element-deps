@@ -1,0 +1,6 @@
+block-device
+bootloader
+dib-python
+disable-nouveau
+modprobe
+package-installs

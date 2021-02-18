@@ -1,0 +1,33 @@
+#!/usr/local/bin/dib-python
+# dib-lint: disable=indent
+# dib-lint indent requirements causes issue with pep8
+
+import os
+import json
+
+def main():
+    path = os.getenv('DIB_DOCKER_DAEMON_JSON_FILE', '/etc/docker/daemon.json')
+    json_conf = os.getenv('DIB_DOCKER_DAEMON_JSON', '{}')
+    json_append = os.getenv('DIB_DOCKER_DAEMON_JSON_APPEND', '{}')
+
+    try:
+        with open(path) as f:
+            cfg = json.load(f)
+    except:
+        cfg = json.loads('{}')
+
+    cfg.update(json.loads(json_conf))
+    cfg.update(json.loads(json_append))
+
+    if not os.path.exists('/etc/docker'):
+        os.makedirs('/etc/docker')
+
+    with open(path, "w") as f:
+        json.dump(cfg, f, indent=4, sort_keys=True)
+
+    print('Docker daemon.json:')
+    print(json.dumps(cfg, indent=4, sort_keys=True))
+
+
+if __name__ == '__main__':
+    main()

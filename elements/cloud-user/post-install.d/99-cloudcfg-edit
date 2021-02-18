@@ -1,0 +1,39 @@
+#!/usr/local/bin/dib-python
+# dib-lint: disable=indent
+# dib-lint indent requirements causes issue with pep8
+  
+import os
+import yaml
+
+def main():
+    path = os.getenv('DIB_CLOUD_INIT_CONFIG_FILE', '/etc/cloud/cloud.cfg')
+    name = os.getenv('DIB_CLOUD_INIT_DEFAULT_USER_NAME', 'cloud')
+    shell = os.getenv('DIB_CLOUD_INIT_DEFAULT_USER_SHELL', '/bin/bash')
+    gecos = os.getenv('DIB_CLOUD_INIT_DEFAULT_USER_GECOS')
+    password = os.getenv('DIB_CLOUD_INIT_DEFAULT_USER_PASSWORD')
+    ssh_pwauth = os.getenv('DIB_CLOUD_INIT_ENABLE_SSH_PASSWORD')
+    disable_root = os.getenv('DIB_CLOUD_INIT_DISABLE_ROOT', 'True')
+
+    with open(path) as f:
+        cfg = yaml.safe_load(f)
+
+    user = cfg['system_info'].get('default_user')
+
+    user.update(name = name)
+    print('Cloud-init user set to %s' % (name))
+    if gecos:
+        user.update(gecos = gecos)
+    if password:
+        user.update(plain_text_passwd = password)
+        user.update(lock_passwd = False)
+        print('Cloud-init password set')
+    if ssh_pwauth and ssh_pwauth.lower() not in ['0', 'no', 'false']:
+        cfg.update(ssh_pwauth = True)
+    cfg.update(disable_root = (disable_root.lower() in ['1', 'yes', 'true']))
+
+    with open(path, "w") as f:
+        yaml.dump(cfg, f, default_flow_style=False)
+
+
+if __name__ == '__main__':
+    main()

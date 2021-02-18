@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+# underground bootstrap (install fluctus + kind)
+
+# fluctus deploy baremetal
+
+# ansible kind  

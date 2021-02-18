@@ -1,0 +1,14 @@
+diff --git a/cloudinit/net/sysconfig.py b/cloudinit/net/sysconfig.py
+index 310cdf01..f696858c 100644
+--- a/cloudinit/net/sysconfig.py
++++ b/cloudinit/net/sysconfig.py
+@@ -600,7 +600,8 @@ class Renderer(renderer.Renderer):
+             iface_name = iface['name']
+             iface_cfg = iface_contents[iface_name]
+             iface_cfg['VLAN'] = True
+-            iface_cfg['PHYSDEV'] = iface_name[:iface_name.rfind('.')]
++            iface_cfg['PHYSDEV'] = iface['vlan-raw-device']
++            iface_cfg['VID'] = iface['vlan_id']
+ 
+             iface_subnets = iface.get("subnets", [])
+             route_cfg = iface_cfg.routes

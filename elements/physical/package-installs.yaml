@@ -1,0 +1,7 @@
+---
+acpid:
+initramfs:
+open-vm-tools:
+  uninstall: True
+qemu-guest-agent:
+  uninstall: True

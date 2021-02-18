@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+
+echo "
+[NetDev]
+Name=public
+Kind=veth
+[Peer]
+Name=publicpeer
+" > /etc/systemd/network/10-veth-public
+
+echo "
+[NetDev]
+Name=internal
+Kind=veth
+[Peer]
+Name=internalpeer
+" > /etc/systemd/network/10-veth-internal
+
+echo "
+[NetDev]
+Name=baremetal
+Kind=veth
+[Peer]
+Name=baremetalpeer
+" > /etc/systemd/network/10-veth-baremetal

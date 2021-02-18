@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+# dib-lint: disable=indent
+# dib-lint indent requirements causes issue with pep8
+  
+import os
+import json
+import jinja2
+
+def jinja2_raise(msg):
+    raise Exception(msg)
+
+def main():
+    debug_trace = int(os.getenv('DIB_DEBUG_TRACE', '0'))>0
+    build_dir = os.getenv('TMP_BUILD_DIR')
+    hooks_dir = os.getenv('TMP_HOOKS_PATH')
+
+    # Create Jinja2 environment
+    env = jinja2.Environment()
+    env.globals['raise'] = jinja2_raise
+
+    # Load final block device configuration
+    block_device_json = os.path.join(build_dir, 'states', 'block-device', 'config.json')
+    with open(block_device_json) as f:
+            block_device = json.load(f)
+
+    if debug_trace:
+        print('Final block device from $TMP_HOOKS_PATH/states/block-device/config.json:')
+        print(json.dumps(block_device, indent=4))
+
+    # Collect all lvm definitions
+    growpart_input = { 'lvs': [] }
+    for node in block_device:
+        if 'lvm' in node and 'lvs' in node['lvm']:
+            growpart_input['lvs'] = node['lvm']['lvs']
+
+    # Load default Jinja2 template for cloud-init grwopart
+    growpart_template_path = os.path.join(hooks_dir, 'growpart-template.cfg.j2')
+    with open(growpart_template_path) as f:
+        growpart_cfg_j2 = env.from_string(f.read())
+
+    # Write growpart.cfg
+    growpart_cfg = growpart_cfg_j2.render(growpart_input)
+    growpart_cfg_path = os.path.join(hooks_dir, 'growpart.cfg')
+    with open(growpart_cfg_path, "w") as f:
+        f.write(growpart_cfg)
+
+    if debug_trace:
+        print('Final growpart.cfg:')
+        print(growpart_cfg)
+
+
+if __name__ == '__main__':
+    main()

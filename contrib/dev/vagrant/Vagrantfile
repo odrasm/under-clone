@@ -1,0 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_EXPERIMENTAL'] = 'disks'
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+
+  # Disable default synced folder
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  # Sync all source project
+  config.vm.synced_folder "../../..", "/usr/local/src/underground", type: "nfs"
+
+  # Create a private network
+  config.vm.network "private_network", ip: "192.168.33.10", nic_type: "virtio"
+
+  # Create a neutron network
+  config.vm.network "private_network", ip: "192.168.44.254", nic_type: "virtio", auto_config: false
+
+  # Create a baremetal network
+  config.vm.network "private_network", ip: "192.168.55.254", nic_type: "virtio", auto_config: false
+
+  config.vm.provider :virtualbox do |vb|
+    # Use Host DNS for VPN
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    # Nested Virtualisation
+    #vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
+    vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all", "--nicpromisc3", "allow-all"]
+    vb.memory = 6000
+    vb.cpus = 2
+  end
+
+  # Initialize VM
+  config.vm.provision  "bootstrap", type:'ansible_local' do |ansible|
+    ansible.install_mode = "pip"
+    ansible.version = "2.9.8"
+    ansible.verbose = true
+    ansible.install = true
+    ansible.limit = "dev"
+    ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+    ansible.config_file = '/usr/local/src/underground/etc/ansible.cfg'
+    ansible.playbook = '/usr/local/src/underground/ansible/site.yaml'
+    ansible.sudo = true
+    ansible.inventory_path = '/usr/local/src/underground/ansible/inventory'
+    ansible.host_key_checking = false
+  end
+end

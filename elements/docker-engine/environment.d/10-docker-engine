@@ -1,0 +1,4 @@
+export DIB_DOCKER_VERSION=${DIB_DOCKER_VERSION:-}
+export DIB_DOCKER_LOCK=${DIB_DOCKER_LOCK:-${DIB_DOCKER_VERSION:+true}}
+export DIB_DOCKER_DAEMON_JSON=${DIB_DOCKER_DAEMON_JSON:-$(cat /tmp/in_target.d/docker-daemon.json)}
+export DIB_BOOTLOADER_CMDLINE=${DIB_BOOTLOADER_CMDLINE:-"cgroup_enable=memory swapaccount=1"}

@@ -1,13 +1,19 @@
 ---
-cluster_name: kind
+kind_version: v0.11.1
+kubectl_version: v1.21.0
+cluster_name: underground
 kind_create: false
 kind_destroy: false
 # valid values are ipv4, ipv6, dual
 kind_ip_family: ipv4
-kind_home_dir: '{{ansible_env.HOME}}/.kind'
+kind_apiServerPort: 8080
+kind_home_dir: '{{ ansible_env.HOME }}/.kind'
+kubectl_config_file: '{{ ansible_env.HOME }}/.kube/config'
 kind_cluster_config: "kind-cluster-config.yml"
 kind_create_config: true
-kind_custom_registry: true
+kubectl_create_config: true
+kind_worker_enabled: false
+kind_custom_registry: false
 kind_custom_registry_aliases:
 - example.com
 - example.org

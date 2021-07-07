@@ -1,0 +1,64 @@
+---
+### ANSIBLE
+ansible_python_interpreter: python3
+#ansible_port: 22
+#ansible_user: ubuntu #UBUNTU18
+#ansible_ssh_pass: 'password'
+#ansible_become_password: 'password'
+#ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+#ansible_ssh_private_key_file: "$HOME/.ssh/underground_keys"
+
+underground_rsa_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEowIBAAKCAQEAvdhAFcTgWHIcv1yE/fDnkk2OngWXNZ87ZqtxsPzQYRqj9E7C
+    +7Xd6M9MTmx4+ffoq6fkgTlsc78s1HE49D3SyPHTFntfdnIgp3rvfLNjMedkV7hq
+    rRxjSsFR8eMMpVZ7NEt/UuPatH31ILAK9eBRo8/1pydZJQnn0wW52qcGL3i+neTO
+    rPpAfuTfkEamqOpYvdqyS+KrP6lueofgS8rJHLy7J9XBH5Fo8zz75uuDIYjIzwC0
+    pY4euhRfUhfsRvnUSyO0CFAUkBiBHR+jH4GIo2zBOoxn7ZvU2LlOHfIvs8cr8jiT
+    Y7HMV3FKtsMyExiIWNJ5ddK8IOBp80KX5P2sPwIDAQABAoIBAFo3cfzmWlato8us
+    g+bJnMKB6Mxfi8QHr4rS3mxlOAFtT4zCARbtDk+cc36xPaxMi11Ho+dlCozWxM8Q
+    HyiyWID1qoJ8jpkTE0GDwltYRENq2tx03vz1CJp11CNG6rOHrXTki9UwQraTRPIL
+    tqmxuBpIsUyF/m8Djg9SIUgvJ1lXDZ7m9yWSq/xRD16MFKRP+Uqyhouv3UM4HFxA
+    RZYqOEV9Go/+OldCqKc5KCKhbeHRjWerpzM9wq7Eo+wMyPxXTZdJdwmwvNeeLYoC
+    EE+iFdYPMDbwQ+ZJLFUZalQ+0eUo95kPwZS1f92/avoTlZAcUncv7Ggfem8SSEhc
+    M9jQgsECgYEA8SqUSUDb+7s51JHLjcUboddR6hf/Neg94r1pkL4IE7nf+V6Ln0dT
+    Nt5fk34gTlg37iOyKvewXy2GWlTcMhJOhQNXU9MDG5Hl88g6/lin5neLI0mw0/2G
+    +MRgYDmxMuyH1g27O8BHZhqcSDMKgY0ICN5LMZttfCMsZl6YjAgjm20CgYEAyYWO
+    z6CDZKpw4bNbC93JFDDPh1Atj56oo7R3RITie6bxzKkPpzmGdy3Fzj0uwt1xWHTI
+    qWJVgzX0pbLaoCfo2CL7JO7wuYhVGVTDz5Jro67EK8xsWyJHmqnWEs06ju2PuEBc
+    Pmp50KzChovjLEB50qKOWmWTU3e2lXp0jLWOztsCgYEAseu15q1BHmCsc5T0Va1b
+    i3TtbAU0NbMXJRaUsUJhdxwkjzcfTu0yCULZxFjCwMn4yWnwYh7GMhHGExKUOSSk
+    ZSFn5eHBYy+qNMY+L7N8e10qe2g8WsmqMBHBAHzPrEAwns0WmyhqBHwRXHq7f4Rq
+    rxBA7WI7zd+tPAECDh1bF6kCgYA/MWF6HER3obbqH7sSOocejLvXG75dxgvt4d5w
+    nxcCXXR/kBg3gSN4ZeMcbDUoqBYt/dkavJpCHf5Mo4xJIpqyhC2rBD56f5Tn75vD
+    kI+ucVRUw7LK1TIM/usBVFfjj/08cvo6HFt8o2AQnvcq3kEVWyI2mJmdV/HqZ876
+    fMh+dwKBgHh4xTYGEpVMo1PkEPHFn26zy5H/UVvHn3Og4y19PqS10l2TyAkx2wPb
+    /+lXlu+IE2RR3Ni31mFZAABhxcYS2iixc9tz3d3GNwoqjKzbLMSfxXqSsgmXIq71
+    iXtsT5lTlUsIvHZxEHv2zP0icvOJ0mJtvxLymQlr1LfkNA//TEK6
+    -----END RSA PRIVATE KEY-----
+
+underground_rsa_pub: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC92EAVxOBYchy/XIT98OeSTY6eBZc1nztmq3Gw/NBhGqP0TsL7td3oz0xObHj59+irp+SBOWxzvyzUcTj0PdLI8dMWe192ciCneu98s2Mx52RXuGqtHGNKwVHx4wylVns0S39S49q0ffUgsAr14FGjz/WnJ1klCefTBbnapwYveL6d5M6s+kB+5N+QRqao6li92rJL4qs/qW56h+BLyskcvLsn1cEfkWjzPPvm64MhiMjPALSljh66FF9SF+xG+dRLI7QIUBSQGIEdH6MfgYijbME6jGftm9TYuU4d8i+zxyvyOJNjscxXcUq2wzITGIhY0nl10rwg4GnzQpfk/aw/ Generated-by-Nova
+underground_rsa_key_file: 'underground_keys'
+underground_rsa_pub_file: 'underground_keys.pub'
+
+### IDM
+idm:
+  ipa: "idm.cloud.e4.lan"
+
+### DOCKER REGISTRY
+docker:
+  insecure_registries: "nexus01.cloud.e4.lan:8082"
+  registry_mirrors: "https://registry.cloud.e4.lan"
+  namespace: "underground"
+
+### PYPI REPO
+pypi:
+  index: "https://pypi.cloud.e4.lan/repository/pypi/"
+  index_url: "https://pypi.cloud.e4.lan/repository/pypi/simple/"
+  upload_url: "https://pypi.cloud.e4.lan/repository/pypi-local/"
+
+underground:
+    dir: "/opt/underground/"
+    version: "1.0"
+    debug: no
+    uid: 3000

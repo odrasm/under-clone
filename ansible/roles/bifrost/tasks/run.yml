@@ -1,0 +1,38 @@
+---
+- name: start bifrost container
+  tags: bifrost-run
+  docker_container:
+    name: bifrost_underground
+    image: "{{ bifrost.image }}"
+    #    state: "{{ bifrost_state }}"
+    # recreate: "{{ bifrost.recreate }}"
+    exposed_ports:
+        - "{{ bifrost.web_exposed_port }}"
+    published_ports:
+        - "{{ bifrost.web_published_port }}:{{ bifrost.web_exposed_port }}"
+    env:
+      container: 'docker'
+    tmpfs:
+      - /tmp
+      - /run
+      - /run/lock
+    volumes:
+      - bifrost_httpboot:/httpboot
+      - bifrost_mysql:/var/lib/mysql
+      - bifrost_tftpboot:/tftpboot
+      - bifrost_ironic:/etc/ironic
+      - bifrost_ironiclib:/var/lib/ironic
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    capabilities:
+      - sys_admin
+      - net_admin
+      - syslog
+      - net_broadcast
+      - sys_module
+    privileged: "{{ bifrost.privileged }}"
+    stop_signal: 'SIGRTMIN+3'
+    debug: "{{ underground.debug }}"
+    pull: no
+    restart_policy: unless-stopped
+    #labels: "underground_version={{ underground.version }}"
+

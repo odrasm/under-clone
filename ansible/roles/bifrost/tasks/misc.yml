@@ -1,0 +1,36 @@
+---
+- name: ensure build dir exists
+  file:
+    path: "{{ underground.dir }}/build/bifrost"
+    state: directory
+
+- name: copy bifrost Dockerfile to builder
+  template:
+    src: Dockerfile.j2
+    dest: "{{ underground.dir }}/build/bifrost/Dockerfile"
+
+- name: Copy overlay dir
+  copy:
+    src: "overlay"
+    dest: "{{ underground.dir }}/build/bifrost/"
+
+- name: Copy scripts dir
+  copy:
+     src: "scripts"
+     dest: "{{ underground.dir }}/build/bifrost/"
+
+- name: Copy config template
+  template:
+    src: localhost.j2
+    dest: "{{ underground.dir }}/build/bifrost/localhost"
+
+- name: ensure key dir exists
+  file:
+    path: "{{ underground.dir }}/build/bifrost/keys"
+    state: directory
+
+- name: bifrost genkey
+  openssh_keypair:
+     path: "{{ underground.dir }}/build/bifrost/keys/id_rsa"
+     size: 2048
+

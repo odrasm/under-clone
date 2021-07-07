@@ -7,6 +7,13 @@
     - "{{ kind_home_dir }}"
     - "{{ kind_home_dir }}/{{ cluster_name }}"
 
+
+- name: Install python library
+  pip:
+    name:
+      - openshift
+      - kubernetes
+
 - name: Check if KinD is installed
   command:
     argv:
@@ -16,10 +23,26 @@
   ignore_errors: True
   changed_when: False
 
+- name: Check if kubectl is installed
+  command:
+    argv:
+      - kubectl
+      - version
+      - --client=true
+      - --short=true
+  register: kubectl_result
+  ignore_errors: True
+  changed_when: False
+
 - name: Set KinD Linux download binary
   set_fact:
       kind_download_binary: "https://github.com/kubernetes-sigs/kind/releases/download/{{ kind_version }}/kind-linux-amd64"
   when: kind_result.rc != 0 and (ansible_os_family == "RedHat" or ansible_os_family == "CentOS" or ansible_os_family == "Debian")
+
+- name: Set kubectl Linux download binary
+  set_fact:
+      kubectl_download_binary: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
+  when: kubectl_result.rc != 0 and (ansible_os_family == "RedHat" or ansible_os_family == "CentOS" or ansible_os_family == "Debian")
 
 - name: Create user local bin directory
   file:
@@ -38,6 +61,24 @@
   when: kind_result.rc != 0
   register: downloaded_kind
 
+- name: Download kubectl binary
+  get_url:
+    url: "{{ kubectl_download_binary }}"
+    dest: "/usr/local/bin/kubectl"
+    mode: "0755"
+  become: yes
+  when: kubectl_result.rc != 0
+  register: downloaded_kubectl
+
 - name: set kind binary fact
   set_fact:
     kind_binary: /usr/local/bin/kind
+
+- name: set kubectl binary fact
+  set_fact:
+    kubectl_binary: /usr/local/bin/kubectl
+
+
+
+
+

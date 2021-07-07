@@ -1,0 +1,37 @@
+---
+- name: Install pre-reqs
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: '{{ pkgreq }}'
+
+- name: Add docker GPG key
+  apt_key:
+    data: "{{ ubuntu_gpg_key }}"
+  when: ansible_facts['distribution'] == "Ubuntu"
+
+- name: Add docker apt repo
+  template:
+    dest: /etc/apt/sources.list.d/docker.list
+    group: root
+    mode: 0644
+    owner: root
+    src: sources.list.j2
+  when: ansible_facts['distribution'] == "Ubuntu"
+
+- name: Add docker yum repo
+  template:
+    dest: /etc/yum.repos.d/docker-ce.repo
+    group: root
+    mode: 0644
+    owner: root
+    src: docker-ce.repo.j2
+  when: ansible_facts['distribution'] == "CentOS"
+
+- name: Install docker
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: '{{ pkgdocker }}'

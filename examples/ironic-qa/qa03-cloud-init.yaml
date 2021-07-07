@@ -1,0 +1,100 @@
+#cloud-config
+network:
+  version: 2
+  ethernets:
+    enp17s0f0:
+      dhcp4: true
+      match:
+        macaddress: ac:1f:6b:c3:2b:80
+      mtu: 1500
+    enp17s0f1:
+      match:
+        macaddress: ac:1f:6b:c3:2b:81
+      mtu: 1500
+    enp97s0f1:
+      match:
+        macaddress: 3c:fd:fe:ea:cc:19
+      mtu: 9000
+    enp81s0f1:
+      match:
+        macaddress: 3c:fd:fe:ea:cb:e9
+      mtu: 9000
+    enp97s0f0:
+      match:
+        macaddress: 3c:fd:fe:ea:cc:18
+      mtu: 9000
+    enp81s0f0:
+      match:
+        macaddress: 3c:fd:fe:ea:cb:e8
+      mtu: 9000
+    enp17s0f2:
+      match:
+        macaddress: ac:1f:6b:c3:2b:82
+      mtu: 1500
+    enp17s0f3:
+      match:
+        macaddress: ac:1f:6b:c3:2b:83
+      mtu: 1500
+  bonds:
+    blue:
+      interfaces: [enp17s0f1]
+      mtu: 1500
+      parameters:
+        mode: active-backup
+    orange:
+      interfaces: [enp97s0f1,enp81s0f1]
+      mtu: 9000
+      parameters:
+        mode: 802.3ad
+        transmit-hash-policy: layer3+4
+        mii-monitor-interval: 100
+        lacp-rate: fast
+    green:
+      interfaces: [enp97s0f0,enp81s0f0]
+      mtu: 9000
+      parameters:
+        mode: 802.3ad
+        transmit-hash-policy: layer3+4
+        mii-monitor-interval: 100
+        lacp-rate: fast
+    yellow:
+      interfaces: [enp17s0f2,enp17s0f3]
+      mtu: 1500
+      parameters:
+        mode: 802.3ad
+        transmit-hash-policy: layer3+4
+        mii-monitor-interval: 100
+        lacp-rate: fast
+  vlans:
+    public:
+      id: 1836
+      link: blue
+      mtu: 1500
+      addresses: [172.18.36.103/24]
+      gateway4: 172.18.36.1
+      nameservers:
+        addresses: [172.18.36.201,172.18.36.202,172.18.36.203]
+    baremetal:
+      id: 103
+      link: blue
+      mtu: 1500
+    api:
+      id: 100
+      link: orange
+      mtu: 1500
+      addresses: [100.64.2.203/24]
+    tunnel:
+      id: 103
+      link: orange
+      mtu: 9000
+      addresses: [100.67.1.103/24]
+    storage:
+      id: 104
+      link: orange
+      mtu: 9000
+      addresses: [100.65.1.103/24]
+    cluster:
+      id: 101
+      link: green
+      mtu: 9000
+      addresses: [100.66.1.103/24]

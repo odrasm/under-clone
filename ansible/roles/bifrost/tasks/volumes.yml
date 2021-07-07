@@ -1,0 +1,20 @@
+---
+- name: Create a volume
+  docker_volume:
+    name: bifrost_httpboot
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_mysql
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_tftpboot
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_ironic
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_ironiclib

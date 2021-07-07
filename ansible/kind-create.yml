@@ -1,15 +1,11 @@
 ---
-- name: underground
+- name: kind-underground
   hosts: localhost
   connection: local
-
-  collections:
-    - community.kubernetes
-
+  become: True
   vars:
     ansible_python_interpreter: '{{ ansible_playbook_python }}'
     cluster_name: underground
     kind_create: true
-
   roles:
     - role: kind

@@ -1,0 +1,11 @@
+---
+pkgmgr: yum
+
+pkgpython:
+  - epel-release
+  - python2-pip
+  - python-virtualenv
+  - python2-setuptools
+  - libselinux-python
+  - python3-virtualenv
+  - python-passlib

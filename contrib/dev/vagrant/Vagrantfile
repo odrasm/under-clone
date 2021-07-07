@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/focal64"
 
   # Disable default synced folder
-  config.vm.synced_folder '.', '/vagrant', disabled: true
+  config.vm.synced_folder '.', '/vagrant', disabled: false
 
   # Sync all source project
   config.vm.synced_folder "../../..", "/usr/local/src/underground", type: "nfs"
@@ -38,12 +38,11 @@ Vagrant.configure("2") do |config|
     ansible.version = "2.9.8"
     ansible.verbose = true
     ansible.install = true
-    ansible.limit = "dev"
-    ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+    ansible.limit = "devel"
+    ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/get-pip.py | sudo python3"
     ansible.config_file = '/usr/local/src/underground/etc/ansible.cfg'
-    ansible.playbook = '/usr/local/src/underground/ansible/site.yaml'
-    ansible.sudo = true
+    ansible.playbook = '/usr/local/src/underground/ansible/bifrost-builder.yml'
+    ansible.become = true
     ansible.inventory_path = '/usr/local/src/underground/ansible/inventory'
-    ansible.host_key_checking = false
   end
 end

@@ -1,0 +1,4 @@
+---
+certdir: /usr/local/share/ca-certificates/
+
+certcmd: update-ca-certificates

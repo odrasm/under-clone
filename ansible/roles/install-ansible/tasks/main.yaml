@@ -1,0 +1,89 @@
+---
+# If install_ansible_version is not defined (note; not *empty*) it
+# should be "latest"
+- name: Set ansible default version to latest
+  set_fact:
+    app.ansible_version: latest
+  when: app.ansible_version is not defined
+
+
+#centos bug
+- name: install setuptools_rust
+  pip:
+    name: setuptools_rust
+    state: present
+  when: ansible_facts['distribution'] == "CentOS"
+
+- name: Install ansible
+  pip:
+    name: '{{ install_ansible_name | default("ansible") }}'
+    version: '{{ app.ansible_version | default(omit) }}'
+    state: '{{ _install_ansible_state | default(omit) }}'
+    #executable: /usr/local/bin/pip3
+
+- name: Ansible version check
+  command: 'ansible-playbook --version'
+  register: _ansible_version_check
+
+- name: Sanity check Ansible version
+  debug:
+    msg: '{{ _ansible_version_check.stdout }}'
+
+- name: Ansible cmd version check
+  command: 'ansible --version'
+  register: _ansible_version_check
+
+- name: Sanity check Ansible version
+  debug:
+    msg: '{{ _ansible_version_check.stdout }}'
+
+- name: Ensure /etc/ansible and /etc/ansible/hosts
+  file:
+    state: directory
+    path: /etc/ansible/hosts
+
+- name: Ensure /etc/ansible/inventory_plugins
+  file:
+    state: directory
+    path: /etc/ansible/inventory_plugins
+
+- name: Ensure /var/cache/ansible
+  file:
+    state: directory
+    path: /var/cache/ansible
+    owner: root
+    group: root
+    mode: 0770
+
+- name: Ensure ansible log dir is writable
+  file:
+    path: /var/log/ansible
+    state: directory
+    owner: root
+    group: adm
+    mode: 0775
+
+- name: Copy ansible.cfg in to place
+  template:
+    src: ansible.cfg.j2
+    dest: /etc/ansible/ansible.cfg
+
+- name: Copy yamlgroup inventory in place
+  copy:
+    src: inventory_plugins/yamlgroup.py
+    dest: /etc/ansible/inventory_plugins/yamlgroup.py
+
+- name: Setup log rotation
+  include_role:
+    name: logrotate
+  vars:
+    logrotate_file_name: /var/log/ansible/ansible.log
+
+- name: Verify ansible install
+  command: ansible --version
+
+- name: Install Ansible collections
+  include_tasks: install_ansible_collection.yaml
+
+- name: Install extra pkgs
+  include_tasks: install_extra_pkgs.yaml

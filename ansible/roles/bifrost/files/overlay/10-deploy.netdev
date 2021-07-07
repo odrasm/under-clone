@@ -1,0 +1,5 @@
+[NetDev]
+Name=virbr0-nic
+Kind=veth
+[Peer]
+Name=virbr0

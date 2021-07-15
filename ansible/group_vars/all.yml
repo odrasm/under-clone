@@ -62,3 +62,27 @@ underground:
     version: "1.0"
     debug: no
     uid: 3000
+
+
+underground_python: "python3"
+# Valid options are: ['git', 'pip']
+install_source: "git"
+openstack_release: "victoria"
+
+#git_server: "https://git.cloud.e4.lan"
+git_server: "https://github.com"
+git_repos_directory: "/usr/local/src"
+
+config_dir: "/etc/underground"
+config_owner_user: "{{ ansible_effective_user_id }}"
+config_owner_group: "{{ ansible_effective_group_id }}"
+
+log_dir: "/var/log/underground"
+
+underground_deploy_network_interface: "enp0s10"
+underground_dnsmasq_dns_servers: "192.168.55.1"
+underground_dhcp_pool_start: "192.168.55.30"
+underground_dhcp_pool_end: "192.168.55.40"
+underground_baremetal_image: 'vanilla'
+underground_cluster_name: 'underground'
+

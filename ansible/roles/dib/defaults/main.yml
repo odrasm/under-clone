@@ -1,0 +1,15 @@
+---
+project_group: "openstack"
+project_name: "diskimage-builder"
+
+config_dir: "/etc/underground/"
+underground_python: 'python3'
+
+install_source: 'pip'
+underground_build_source: "{{ install_source }}"
+
+dib_build_source: "{{ install_source }}"
+  #dib_build_source_version: "3.12.0"
+dib_build_source_version: "master"
+dib_build_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
+

@@ -1,0 +1,17 @@
+- name: Cloning diskimage-builder source repository
+  git:
+    repo: "{{ dib_build_git_repository }}"
+    dest: "{{ git_repos_directory }}/{{ project_name }}"
+    update: yes
+    version: "{{ dib_build_source_version }}"
+
+- name: Install required packages
+  become: true
+  package:
+    name:
+      - libffi-dev
+      - libssl-dev
+
+- name: Install diskimage-builder
+  become: true
+  command: "{{ underground_python }} -m pip install {{ git_repos_directory }}/{{ project_name }}"

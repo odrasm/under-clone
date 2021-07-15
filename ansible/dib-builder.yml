@@ -1,0 +1,5 @@
+- hosts: localhost
+  name: "Base: configure diskimage-builder"
+  roles:
+    - dib
+  become: True

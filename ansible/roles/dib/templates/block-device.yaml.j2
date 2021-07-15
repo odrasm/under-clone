@@ -1,0 +1,125 @@
+---
+{%- set default_partitions=partitions|default([]) %}
+{%- set custom_partitions=globals.partitions|default([])+builds[role].partitions|default([]) %}
+{%- set target_partitions=[] %}
+{%- for partition in default_partitions %}
+{%- if not custom_partitions|selectattr('name','equalto',partition.name)|list|first %}
+{%- do target_partitions.append(partition) %}
+{%- endif %}
+{%- endfor %}
+{%- for partition in custom_partitions %}
+{%- set default_part=default_partitions|selectattr('name','equalto',partition.name)|list|first %}
+{%- if default_part %}
+{%- do default_part.update(partition) %}
+{%- do partition.update(default_part) %}
+{%- endif %}
+{%- endfor %}
+{%- set target_partitions=target_partitions+custom_partitions %}
+{%- set atomic=builds[role].atomic|default(globals.atomic|default(False)) %}
+- local_loop:
+    name: image0
+ 
+- partitioning:
+    base: image0
+    label: gpt
+    partitions:
+      - name: ESP
+        type: 'EF00'
+        size: 2GiB
+        mkfs:
+          type: vfat
+          mount:
+            mount_point: /boot/efi
+            fstab:
+              options: "defaults"
+              fsck-passno: 1
+      - name: BSP
+        type: 'EF02'
+        size: 8MiB
+      - name: boot
+        flags: [ boot ]
+        size: 2GiB
+        mkfs:
+          type: xfs
+          mount:
+            mount_point: /boot
+            fstab:
+              options: "defaults"
+              fsck-passno: 1
+      - name: system-disk
+        size: 100%
+ 
+- lvm:
+    name: lvm
+    base: [ system-disk ]
+    pvs:
+      - name: pv
+        base: system-disk
+        options: [ "--force" ]
+    vgs:
+      - name: system
+        base: [ "pv" ]
+        options: [ "--force" ]
+    lvs:
+{%- for partition in target_partitions %}
+{%- if partition.name == 'root' and atomic %}
+      - name: blue
+        base: system
+{%- if partition.extents is defined %}
+        extents: {{ partition.extents[:-4]|int // 2 }}
+{%- else %}
+        size: {{ partition.size }}
+{%- endif %}
+      - name: green
+        base: system
+{%- if partition.extents is defined %}
+        extents: {{ 100 // ( 200 / partition.extents[:-4]|int - 1 ) }}
+{%- else %}
+        size: {{ partition.size }}
+{%- endif %}
+{%- else %}
+      - name: {{ partition.name }}
+        base: system
+{%- if partition.extents is defined %}
+        extents: {{ partition.extents }}
+{%- else %}
+        size: {{ partition.size }}
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+
+{%- for partition in target_partitions %}
+{%- if partition.name == 'root' and atomic %}
+- mkfs:
+    name: fs_blue
+    base: blue
+    type: {{ partition.type|default('xfs') }}
+    label: "img-rootfs"
+    mount:
+        mount_point: /
+        fstab:
+            options: "{{ partition.options|default('defaults') }}"
+            fsck-passno: {% if partition.type|default('xfs') == 'xfs' %}0{% else %}1{% endif %}
+- mkfs:
+    name: fs_green
+    base: green
+    type: {{ partition.type|default('xfs') }}
+    label: "img-shadowfs"
+    mount:
+        mount_point: /usr/shadow
+        fstab:
+            options: "noauto,{{ partition.options|default('defaults') }}"
+            fsck-passno: {% if partition.type|default('xfs') == 'xfs' %}0{% else %}2{% endif %}
+{%- elif partition.name != 'swap' %}
+- mkfs:
+    name: fs_{{ partition.name }}
+    base: {{ partition.name }}
+    type: {{ partition.type|default('xfs') }}
+    label: "{% if partition.name == 'root' %}img-shadowfs{% else %}{{ partition.label|default(partition.name) }}{% endif %}"
+    mount:
+        mount_point: {{ partition.mount }}
+        fstab:
+            options: "{{ partition.options|default('defaults') }}"
+            fsck-passno: {% if partition.type|default('xfs') == 'xfs' %}0{% else %}2{% endif %}
+{%- endif %}
+{%- endfor %}

@@ -1,0 +1,8 @@
+---
+packages_custom:
+  - qemu-utils
+  - parted
+  - hdparm
+  - util-linux
+  - genisoimage
+  - debootstrap

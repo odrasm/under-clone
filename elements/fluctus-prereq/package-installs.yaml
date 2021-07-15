@@ -1,0 +1,7 @@
+---
+snapd:
+  uninstall: true
+lxd:
+  uninstall: true
+ufw:
+  uninstall: true

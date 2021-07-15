@@ -28,9 +28,20 @@ Vagrant.configure("2") do |config|
     # Nested Virtualisation
     #vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
     vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all", "--nicpromisc3", "allow-all"]
-    vb.memory = 6000
-    vb.cpus = 2
+    vb.memory = 10192
+    vb.cpus = 4
+
+  config.disksize.size = '100GB'
+  #config.vm.disk :disk, size: "100GB", primary:true
+
   end
+
+  # Initialize VM
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y python3-pip
+    #python3 -m pip install 'ansible<2.10'
+  SHELL
 
   # Initialize VM
   config.vm.provision  "bootstrap", type:'ansible_local' do |ansible|
@@ -41,8 +52,27 @@ Vagrant.configure("2") do |config|
     ansible.limit = "devel"
     ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/get-pip.py | sudo python3"
     ansible.config_file = '/usr/local/src/underground/etc/ansible.cfg'
-    ansible.playbook = '/usr/local/src/underground/ansible/bifrost-builder.yml'
+    ansible.playbook = '/usr/local/src/underground/ansible/dib-builder.yml'
     ansible.become = true
     ansible.inventory_path = '/usr/local/src/underground/ansible/inventory'
+    ansible.extra_vars = {
+      underground_action: "bootstrap"
+    }
   end
+  # Initialize VM
+  config.vm.provision  "build", type:'ansible_local' do |ansible|
+    ansible.version = "2.9.8"
+    ansible.verbose = true
+    ansible.install = false
+    ansible.limit = "devel"
+    ansible.config_file = '/usr/local/src/underground/etc/ansible.cfg'
+    ansible.playbook = '/usr/local/src/underground/ansible/dib-builder.yml'
+    ansible.become = true
+    ansible.inventory_path = '/usr/local/src/underground/ansible/inventory'
+    ansible.extra_vars = {
+      underground_action: "build",
+      underground_baremetal_image: "talos"
+    }
+  end
+
 end

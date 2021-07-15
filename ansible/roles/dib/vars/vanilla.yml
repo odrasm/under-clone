@@ -1,0 +1,39 @@
+---
+dib_init_element: "cloud-init"
+dib_env_vars:
+  http_proxy: "{{ lookup('env','http_proxy') }}"
+  https_proxy: "{{ lookup('env','https_proxy') }}"
+  LANG: C
+  LC_ALL: C
+  LC_MESSAGES: C
+  DIB_DEV_USER_USERNAME: "e4user"
+  DIB_DEV_USER_PASSWORD: "000000"
+  DIB_DEV_USER_PWDLESS_SUDO: "yes"
+
+dib_underground_elements_path: /usr/local/src/underground/elements
+dib_extra_elements_path: []
+
+dib_trace: false
+dib_uncompressed: false
+dib_clearenv: false
+dib_notmpfs: false
+dib_offline: false
+dib_skipbase: false
+dib_arch: "amd64"
+dib_imagename: "{{ config_dir }}/images/vanilla"
+dib_imagetype: "raw"
+#dib_imagesize:
+#dib_imagecache: true
+#dib_maxresize:
+#dib_mintmpfs:
+#dib_mkfsopts:
+#dib_qemuopts:
+#dib_rootlabel:
+#dib_rdelement:
+#dib_installtype:
+dib_packages: "htop,vim"
+dib_os_release: "bionic"
+dib_os_element: "ubuntu-minimal"
+dib_elements: "devuser cloud-init physical"
+
+dib_partitioning: "file:///usr/local/src/underground/ansible/roles/dib/vars/disk_vanilla.yml"

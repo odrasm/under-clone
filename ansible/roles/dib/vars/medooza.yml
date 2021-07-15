@@ -1,0 +1,40 @@
+---
+dib_init_element: "cloud-init"
+dib_env_vars:
+  http_proxy: "{{ lookup('env','http_proxy') }}"
+  https_proxy: "{{ lookup('env','https_proxy') }}"
+  LANG: C
+  LC_ALL: C
+  LC_MESSAGES: C
+  DIB_DEV_USER_USERNAME: "e4user"
+  DIB_DEV_USER_PASSWORD: "000000"
+  DIB_DEV_USER_PWDLESS_SUDO: "yes"
+  DIB_BLOCK_DEVICE: "efi"
+
+dib_underground_elements_path: /usr/local/src/underground/elements
+dib_extra_elements_path: []
+
+dib_trace: true
+dib_uncompressed: false
+dib_clearenv: false
+dib_notmpfs: false
+dib_offline: false
+dib_skipbase: false
+dib_arch: "amd64"
+dib_imagename: "{{ config_dir }}/images/medooza"
+dib_imagetype: "raw"
+dib_imagesize: 50G
+dib_imagecache: false
+#dib_maxresize:
+#dib_mintmpfs:
+#dib_mkfsopts:
+#dib_qemuopts:
+#dib_rootlabel:
+#dib_rdelement:
+#dib_installtype:
+dib_packages: "vim"
+dib_os_release: "8"
+dib_os_element: "centos"
+dib_elements: "devuser cloud-init block-device-efi-lvm bootloader"
+
+dib_partitioning: "file:///usr/local/src/underground/ansible/roles/dib/vars/disk_medooza.yml"

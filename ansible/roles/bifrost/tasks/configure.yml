@@ -1,7 +1,8 @@
 ---
-- name: run command configure in bifrost container
-  shell: docker exec bifrost_underground bash -l -c "/usr/local/bin/configure.sh"
-  become: True
-  register: configure
-
-- debug: msg= "{{ configure.stdout }}"
+- name: Create Bifrost Template
+  template:
+    dest: "{{ git_repos_directory }}/{{ project_name }}/playbooks/inventory/group_vars/{{ item }}"
+    src: "localhost.j2"
+  loop:
+    - localhost
+    - target

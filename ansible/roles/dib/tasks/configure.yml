@@ -1,0 +1,6 @@
+---
+- include_vars: "{{ config_dir }}/{{ underground_baremetal_image }}.yml"
+  failed_when: false
+
+- include_vars: "{{ underground_baremetal_image }}.yml"
+- 

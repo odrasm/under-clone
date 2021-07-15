@@ -1,6 +1,8 @@
 ---
+- name: misc op
+  include_tasks: misc.yml
+
 - name: Build bifrost image and push it to a private repo
-  tags: bifrost-build
   docker_image:
     build:
       path: "{{ underground.dir }}/build/bifrost"

@@ -1,5 +1,5 @@
 - hosts: localhost
   name: "Base: configure bifrost-builder"
   roles:
-    - bifrost
+    - bifrost-builder
   become: True

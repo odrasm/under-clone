@@ -1,0 +1,4 @@
+---
+- name: Install diskimage-builder
+  become: true
+  command: "{{ underground_python }} -m pip install diskimage-builder=={{ dib_build_source_version }}"

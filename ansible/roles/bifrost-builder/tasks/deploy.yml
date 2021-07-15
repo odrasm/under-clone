@@ -1,6 +1,8 @@
 ---
+- name: create volumes
+  include_tasks: deploy_misc.yml
+
 - name: start bifrost container
-  tags: bifrost-run
   docker_container:
     name: bifrost_underground
     image: "{{ bifrost.image }}"
@@ -29,6 +31,7 @@
       - syslog
       - net_broadcast
       - sys_module
+    network_mode: 'host'
     privileged: "{{ bifrost.privileged }}"
     stop_signal: 'SIGRTMIN+3'
     debug: "{{ underground.debug }}"

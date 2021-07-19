@@ -1,5 +1,0 @@
-- hosts: localhost
-  name: "Base: configure bifrost"
-  roles:
-    - bifrost
-  become: True

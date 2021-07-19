@@ -1,14 +1,15 @@
 ---
-kind_version: v0.11.1
-kubectl_version: v1.21.0
+kind_version: "v0.11.1"
+kind_node_image: "kindest/node:v1.21.1"
+kubectl_version: "v1.21.0"
 cluster_name: "{{ underground_cluster_name }}"
 kind_create: false
 kind_destroy: false
 # valid values are ipv4, ipv6, dual
 kind_ip_family: ipv4
-kind_apiServerPort: 8080
-kind_home_dir: '{{ ansible_env.HOME }}/.kind'
-kubectl_config_file: '{{ ansible_env.HOME }}/.kube/config'
+kind_apiServerPort: 8888
+kind_home_dir: "{{ config_dir }}/kind"
+kubectl_config_file: "{{ config_dir }}/kube/config"
 kind_cluster_config: "kind-cluster-config.yml"
 kind_create_config: true
 kubectl_create_config: true

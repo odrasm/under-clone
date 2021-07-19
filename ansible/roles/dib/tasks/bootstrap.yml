@@ -1,2 +1,20 @@
 ---
-- include_tasks: install.yml
+- name: Install required packages
+  become: true
+  package:
+    name: "{{ packages_all }}"
+  when: packages_all is defined
+
+- name: Install custom packages
+  become: true
+  package:
+    name: "{{ packages_custom }}"
+  when: packages_custom is defined
+
+- name: Manages Python library dependencies
+  become: true
+  pip:
+    name: "{{ packages_python }}"
+  when: packages_python is defined
+
+- include_tasks: "{{ underground_build_source }}.yml"

@@ -1,7 +1,0 @@
----
-dependencies:
-  - role: gather-facts
-  - role: install-certificates
-  - role: install-python
-  - role: install-docker
-    #  - role: install-ansible

@@ -1,11 +1,10 @@
-{% raw %}
 ---
 # The ironic API URL for bifrost operations.  Defaults to localhost.
 # ironic_url: "http://localhost:6385/"
 
 # The network interface that bifrost will be operating on.  Defaults
 # to virbr0 in roles, can be overridden here.
-network_interface: "enp0s10"
+network_interface: "{{ underground_deploy_network_interface }}"
 
 # password to use between services
 #service_password: aSecretPassword473z
@@ -31,10 +30,12 @@ mysql_password:
 # IPA Image parameters.  If these are changed, they must be changed in
 # Both localhost and baremetal groups.  Presently the defaults
 # in each role should be sufficient for proper operation.
+{% raw %}
 # ipa_kernel: "{{http_boot_folder}}/ipa.kernel"
 # ipa_ramdisk: "{{http_boot_folder}}/ipa.initramfs"
 # ipa_kernel_url: "http://{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv4']['address'] }}:{{file_url_port}}/ipa.kernel"
 # ipa_ramdisk_url: "http://{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv4']['address'] }}:{{file_url_port}}/ipa.initramfs"
+{% endraw %}
 
 # The http_boot_folder defines the root folder for the webserver.
 # If this setting is changed, it must be applied to both the baremetal
@@ -48,7 +49,9 @@ mysql_password:
 # disk, then the image generation will not take place, otherwise an image
 # will be generated using diskimage-builder.
 # deploy_image_filename: "deployment_image.qcow2"
+{% raw %}
 # deploy_image: "{{http_boot_folder}}/{{deploy_image_filename}}"
+{% endraw %}
 
 # Setting to utilize diskimage-builder to create a bootable image.
 create_image_via_dib: "{{ not use_cirros | default(false) | bool }}"
@@ -60,12 +63,14 @@ create_ipa_image: false
 # Dnsmasq default route for clients. If not defined, dnsmasq will push to
 # clients as default route the same IP of the dnsmasq server.
 # Default: undefined
+{% raw %}
 # dnsmasq_router: "{{ ipv4_gateway }}"
+{% endraw %}
 
 # Dnsmasq default nameserver for clients. If not defined, this setting
 # will be ignored.
 # Default: undefined
-# dnsmasq_dns_servers: 8.8.8.8,8.8.4.4
+dnsmasq_dns_servers: "{{ underground_dnsmasq_dns_servers }}"
 
 # CUSTOM
 #ipa_kernel_upstream_url: "https://tarballs.opendev.org/openstack/ironic-python-agent/dib/files/ipa-centos8-master.initramfs"
@@ -87,15 +92,15 @@ create_ipa_image: false
 #dib_packages: "python-dev,openssh-server"
 
 # NETWORK
-dhcp_pool_start: "192.168.55.30"
-dhcp_pool_end: "192.168.55.40"
-dhcp_lease_time: "12h"
-dhcp_static_mask: "255.255.255.0"
+dhcp_pool_start: "{{ underground_dhcp_pool_start }}"
+dhcp_pool_end: "{{ underground_dhcp_pool_end }}"
+#dhcp_lease_time: "12h"
+#dhcp_static_mask: "255.255.255.0"
 
 # ENV
-enable_venv: "true"
-bifrost_venv_dir: "/opt/stack/bifrost"
-ironic_tftp_master_path: "/httpboot/master_images"
+#enable_venv: "true"
+#bifrost_venv_dir: "/opt/stack/bifrost"
+#ironic_tftp_master_path: "/httpboot/master_images"
 
 # OPTIONAL
 staging_drivers_include: "true"
@@ -113,4 +118,3 @@ inventory_dns: "true"
 #upper_constraints_file: "/test.txt"
 #constraints_extra_args: false
 #pip_opts: "{{ lookup('env', 'PIP_OPTS') | default('') }}"
-{% endraw %}

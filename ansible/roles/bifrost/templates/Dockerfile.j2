@@ -36,9 +36,9 @@ ARG USER=user
 RUN useradd -rm -d /home/user -s /bin/bash -g root -G sudo -u 1001 user
 ARG ENABLE_VENV=true
 
-RUN mkdir -p /bifrost/playbooks/host_vars
-COPY localhost /bifrost/playbooks/inventory/group_vars/localhost
-COPY localhost /bifrost/playbooks/inventory/group_vars/target
+#RUN mkdir -p /bifrost/playbooks/host_vars
+#COPY localhost /bifrost/playbooks/inventory/group_vars/localhost
+#COPY localhost /bifrost/playbooks/inventory/group_vars/target
 
 #DIBTEST
 ARG usedib="$usedib"
@@ -53,14 +53,14 @@ RUN mkdir -p /root/.ssh
 COPY keys/id_rsa /root/.ssh/
 COPY keys/id_rsa.pub /root/.ssh/
 RUN chmod 700 /root/.ssh && chmod 600 /root/.ssh/id_rsa && chmod 600 /root/.ssh/id_rsa.pub && chown -R root. /root/.ssh
-RUN mkdir -p /bifrost/host_configs
+#RUN mkdir -p /bifrost/host_configs
 
 RUN echo "source /opt/stack/bifrost/bin/activate" > /root/.bash_aliases
 ENV container docker
 ENV PATH="/root/.local/bin:/opt/stack/bifrost/bin:${PATH}"
-ENV BIFROST_INVENTORY_SOURCE=/bifrost/host_configs/servers.yml
-ENV OS_ENDPOINT="http://localhost:6385/"
-ENV OS_AUTH_TYPE=none
+ENV BIFROST_INVENTORY_SOURCE=-/etc/baremetal/servers.yml
+#ENV OS_ENDPOINT="http://localhost:6385/"
+#ENV OS_AUTH_TYPE=none
 ENV ANSIBLE_COLLECTIONS_PATHS="/opt/stack/bifrost/collections/"
 
 #TESINGMODE

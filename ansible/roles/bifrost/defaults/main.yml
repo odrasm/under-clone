@@ -1,9 +1,23 @@
-project_group: "openstack"
-project_name: "bifrost"
+---
+bifrost:
+  image: "{{ docker.insecure_registries }}/underground/underground-bifrost:1.0"
+  web_exposed_port: 6385
+  web_published_port: 6385
+  privileged: true
+  recreate: false
+  uid: "{{ underground.uid }}"
 
-bifrost_source: "{{ install_source }}"
-  #bifrost_source_version: "stable/{{ openstack_release }}"
-bifrost_source_version: "11.0.0"
-bifrost_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
+  #bifrost_state: "{{ 'stopped' if underground_action in ['stop','destroy'] else 'started'  }}"
+  #bifrost_build: "{{ 'true' if underground_action in ['build'] else 'false' }}"
 
-bifrost_venv: "/opt/stack/bifrost"
+bifrost_version: '11.0.0'
+ansible_version: '!=2.8.9,<2.9'
+testing: false
+cli: false
+usedib: false
+bifrost_tag: '1.0'
+
+bifrost_skip_install: false
+use_cirros: true
+bifrost_push: 'yes'
+openrc_file: "/root/openrc"

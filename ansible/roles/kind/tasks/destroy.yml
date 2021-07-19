@@ -1,4 +1,5 @@
 ---
+- include_tasks: "configure.yml"
 
 - name: "Delete KinD cluster {{ cluster_name }}"
   command:
@@ -15,7 +16,7 @@
     msg: "Error while deleting test resources"
   when: delete_test_res.rc != 0
 
-- name: "Remove KinD config directory for cluster {{ cluster_name }}"
-  file:
-    path: "{{ kind_home_dir + '/' + cluster_name }}"
-    state: absent
+    #- name: "Remove KinD config directory for cluster {{ cluster_name }}"
+    #  file:
+    #    path: "{{ kind_home_dir + '/' + cluster_name }}"
+    #    state: absent

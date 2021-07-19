@@ -1,0 +1,37 @@
+---
+- name: Ensuring source directory exist
+  file:
+    path: "{{ git_repos_directory }}"
+    state: directory
+    mode: "1777"
+
+- name: Create underground config directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ config_owner_user }}"
+    group: "{{ config_owner_group }}"
+  loop:
+    - "{{ config_dir }}"
+    - "{{ config_dir }}/baremetal"
+    - "{{ config_dir }}/bifrost"
+    - "{{ config_dir }}/kube"
+    - "{{ config_dir }}/kind"
+
+- name: Create a log dir
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ config_owner_user }}"
+    group: "{{ config_owner_group }}"
+  loop:
+    - "{{ log_dir }}/ironic"
+    - "{{ log_dir }}/ironic-inspector"
+
+- name: Write underground globals.yml
+  copy:
+    content: "{{ underground_globals|to_nice_yaml(explicit_start=true) }}"
+    dest: "{{ config_dir }}/globals.yml"
+  when: underground_globals is defined

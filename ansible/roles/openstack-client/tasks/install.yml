@@ -1,0 +1,12 @@
+---
+- name: Install OpenStack clients
+  become: true
+  command: "{{ underground_python }} -m pip install {{ item }} -c https://releases.openstack.org/constraints/upper/{{ openstack_release }}"
+  loop:
+    - python-ironicclient
+    - python-ironic-inspector-client
+    - python-cinderclient
+    - python-glanceclient
+    - python-keystoneclient
+    - python-swiftclient
+

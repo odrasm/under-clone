@@ -1,2 +1,10 @@
 ---
+- include_vars: "{{ item }}"
+  with_items:
+    - "{{ ansible_system }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_distribution }}.yml"
+  failed_when: false
+
 - include_tasks: "{{ underground_action }}.yml"
+

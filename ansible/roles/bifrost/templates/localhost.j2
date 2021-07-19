@@ -7,7 +7,7 @@
 network_interface: "{{ underground_deploy_network_interface }}"
 
 # password to use between services
-#service_password: aSecretPassword473z
+service_password: "{{ underground_service_password }}"
 # mysql_username: Default mysql admin username
 mysql_username: root
 # mysql_password: Default mysql admin user password
@@ -54,7 +54,10 @@ mysql_password:
 {% endraw %}
 
 # Setting to utilize diskimage-builder to create a bootable image.
-create_image_via_dib: "{{ not use_cirros | default(false) | bool }}"
+{% raw %}
+# create_image_via_dib: "{{ not use_cirros | default(false) | bool }}"
+{% endraw %}
+create_image_via_dib: false
 dib_image_type: vm
 
 # Create IPA image instead of downloading an pre-made IPA image.
@@ -103,6 +106,7 @@ dhcp_pool_end: "{{ underground_dhcp_pool_end }}"
 #ironic_tftp_master_path: "/httpboot/master_images"
 
 # OPTIONAL
+use_cirros: "{{ use_cirros }}"
 staging_drivers_include: "true"
 cleaning: "true"
 cleaning_disk_erase: "false"

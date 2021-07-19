@@ -19,11 +19,6 @@
      src: "scripts"
      dest: "{{ underground.dir }}/build/bifrost/"
 
-- name: Copy config template
-  template:
-    src: localhost.j2
-    dest: "{{ underground.dir }}/build/bifrost/localhost"
-
 - name: ensure key dir exists
   file:
     path: "{{ underground.dir }}/build/bifrost/keys"
@@ -33,4 +28,22 @@
   openssh_keypair:
      path: "{{ underground.dir }}/build/bifrost/keys/id_rsa"
      size: 2048
+
+- name: Build bifrost image and push it to a private repo
+  docker_image:
+    build:
+      path: "{{ underground.dir }}/build/bifrost"
+      nocache: no
+      args:
+        bifrost_version: "{{ bifrost_version }}"
+        ansible_version: "{{ ansible_version }}"
+        testing: "{{ testing }}"
+        cli: "{{ cli }}"
+        usedib: "{{ usedib }}"
+    name: "{{ docker.insecure_registries }}/underground/underground-bifrost"
+    debug: yes
+    tag: '1.0'
+    push: "{{ bifrost_push }}"
+    source: build
+    force_source: yes
 

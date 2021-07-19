@@ -1,0 +1,12 @@
+---
+dependencies:
+  - role: gather-facts
+  - role: install-python
+    when: underground_action in ['bootstrap']
+  - role: install-docker
+    when: underground_action in ['bootstrap']
+  - role: install-certificates
+    when: underground_action in ['bootstrap']
+  - role: openstack-client
+    when: underground_action in ['bootstrap']
+

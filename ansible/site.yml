@@ -1,0 +1,33 @@
+---
+- name: Common roles
+  hosts: underground
+  roles:
+    - role: common
+      tags: common
+      become: True
+   
+- hosts: "underground"
+  name: "underground images tools"
+  roles:
+    - role: dib
+      become: True
+      tags: dib
+
+- hosts: "underground"
+  name: "install underground baremetal"
+  roles:
+    - role: bifrost
+      become: True
+      tags: bifrost
+
+- hosts: "underground"
+  name: "install underground kubernetes"
+  roles:
+    - role: kind
+      become: True
+      tags: kind
+      vars:
+        ansible_python_interpreter: '{{ ansible_playbook_python }}'
+        kind_create: "{{ false if underground_action is 'destroy' else 'true' }}"
+        cluster_name: "{{ underground_cluster_name }}"
+

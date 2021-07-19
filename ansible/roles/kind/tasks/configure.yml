@@ -1,75 +1,4 @@
 ---
-- name: Create KinD Home Dir
-  file:
-    state: directory
-    name: "{{ item }}"
-  loop:
-    - "{{ kind_home_dir }}"
-    - "{{ kind_home_dir }}/{{ cluster_name }}"
-
-
-- name: Install python library
-  pip:
-    name:
-      - openshift
-      - kubernetes
-
-- name: Check if KinD is installed
-  command:
-    argv:
-      - kind
-      - version
-  register: kind_result
-  ignore_errors: True
-  changed_when: False
-
-- name: Check if kubectl is installed
-  command:
-    argv:
-      - kubectl
-      - version
-      - --client=true
-      - --short=true
-  register: kubectl_result
-  ignore_errors: True
-  changed_when: False
-
-- name: Set KinD Linux download binary
-  set_fact:
-      kind_download_binary: "https://github.com/kubernetes-sigs/kind/releases/download/{{ kind_version }}/kind-linux-amd64"
-  when: kind_result.rc != 0 and (ansible_os_family == "RedHat" or ansible_os_family == "CentOS" or ansible_os_family == "Debian")
-
-- name: Set kubectl Linux download binary
-  set_fact:
-      kubectl_download_binary: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
-  when: kubectl_result.rc != 0 and (ansible_os_family == "RedHat" or ansible_os_family == "CentOS" or ansible_os_family == "Debian")
-
-- name: Create user local bin directory
-  file:
-    path: /usr/local/bin
-    state: directory
-  become: yes
-  become_user: root
-  when: kind_result.rc != 0
-
-- name: Download KinD binary
-  get_url:
-    url: "{{ kind_download_binary }}"
-    dest: "/usr/local/bin/kind"
-    mode: "0755"
-  become: yes
-  when: kind_result.rc != 0
-  register: downloaded_kind
-
-- name: Download kubectl binary
-  get_url:
-    url: "{{ kubectl_download_binary }}"
-    dest: "/usr/local/bin/kubectl"
-    mode: "0755"
-  become: yes
-  when: kubectl_result.rc != 0
-  register: downloaded_kubectl
-
 - name: set kind binary fact
   set_fact:
     kind_binary: /usr/local/bin/kind
@@ -78,7 +7,25 @@
   set_fact:
     kubectl_binary: /usr/local/bin/kubectl
 
+- name: "Check if {{ cluster_name }} already exists"
+  docker_container_info:
+    name: "{{ cluster_name + '-control-plane' }}"
+  register: cluster_check_result
 
+- name : Create KinD Cluster dir
+  file:
+    path: "{{ kind_home_dir + '/' + cluster_name }}"
+    state: directory
 
+- name: Create KinD Config
+  template:
+    dest: "{{ kind_home_dir + '/' + cluster_name + '/' + kind_cluster_config }}"
+    src: 'kind-cluster-config.yml.j2'
+    mode: "755"
+  when: kind_create_config
 
+- name: "Set {{ cluster_name }} config file"
+  set_fact:
+    kind_cluster_config_file: "{{ kind_home_dir + '/' + cluster_name + '/' + kind_cluster_config }}"
+  when: kind_create_config
 

@@ -79,10 +79,10 @@ config_owner_group: "{{ ansible_effective_group_id }}"
 
 log_dir: "/var/log/underground"
 
-underground_deploy_network_interface: "enp0s10"
-underground_dnsmasq_dns_servers: "192.168.55.1"
-underground_dhcp_pool_start: "192.168.55.30"
-underground_dhcp_pool_end: "192.168.55.40"
+underground_deploy_network_interface: "ens5"
+underground_service_password: "Passw0rd!"
+underground_dnsmasq_dns_servers: "100.122.0.136"
+underground_dhcp_pool_start: "100.122.0.10"
+underground_dhcp_pool_end: "100.122.0.20"
 underground_baremetal_image: 'vanilla'
 underground_cluster_name: 'underground'
-

@@ -1,8 +1,35 @@
 ---
-- name: Create Bifrost Template
+- name: ensure config dir exists
+  file:
+    path: "{{ config_dir }}/baremetal"
+    state: directory
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_httpboot
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_mysql
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_tftpboot
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_ironic
+
+- name: Create a volume
+  docker_volume:
+    name: bifrost_ironiclib
+
+- name: Copy config template
   template:
-    dest: "{{ git_repos_directory }}/{{ project_name }}/playbooks/inventory/group_vars/{{ item }}"
-    src: "localhost.j2"
-  loop:
-    - localhost
-    - target
+    src: localhost.j2
+    dest: "{{ config_dir }}/bifrost/localhost"
+
+- name: Copy config template
+  template:
+    src: localhost.j2
+    dest: "{{ config_dir }}/bifrost/target"

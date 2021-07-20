@@ -133,6 +133,7 @@ Commands:
                              --include-images to also destroy underground images
                              --include-dev to also destroy dev mode repos
     deploy               Deploy and start all underground containers
+    post-deploy          customize underground containers
     stop                 Stop underground containers
     prune                Prune orphaned underground images and docker volumes
     build                Build underground custom containers
@@ -163,6 +164,7 @@ bootstrap
 configure
 destroy
 deploy
+post-deploy
 stop
 prune
 build
@@ -353,6 +355,11 @@ EOF
         ACTION="Deploying Playbooks"
         PLAYBOOK="${BASEDIR}/ansible/site.yml"
         EXTRA_OPTS="$EXTRA_OPTS -e underground_action=deploy"
+        ;;
+(post-deploy)
+        ACTION="Customize Containers"
+        PLAYBOOK="${BASEDIR}/ansible/site.yml"
+        EXTRA_OPTS="$EXTRA_OPTS -e underground_action=post-deploy"
         ;;
 (stop)
         ACTION="Stop underground containers"

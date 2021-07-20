@@ -1,0 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#ENV['VAGRANT_EXPERIMENTAL'] = 'disks'
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2004"
+
+  # Disable default synced folder
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  # Sync all source project
+  config.vm.synced_folder "../../..", "/usr/local/src/underground", type: "nfs"
+
+  # Create a private network
+  config.vm.network "private_network", ip: "192.168.33.10", nic_type: "virtio"
+
+  # Create a baremetal network
+  config.vm.network "private_network", ip: "192.168.55.10", nic_type: "virtio", auto_config: true
+
+  config.vm.provider :libvirt do |vb|
+    vb.memory = 8192
+    vb.cpus = 2
+
+  #config.disksize.size = '100GB'
+  #config.vm.disk :disk, size: "100GB", primary:true
+
+  end
+
+  # Initialize VM
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y python3-pip git
+    git clone -b stable/victoria https://opendev.org/openstack/bifrost
+    bifrost/bifrost-cli testenv --release victoria --count 1 --memory 1024 --disk 10 --domain-type qemu --driver ipmi -o ironic.yml
+    bifrost/bifrost-cli install --testenv --release victoria --hardware-types ipmi --cleaning-disk-erase -e install_dib=true
+    ln -s /opt/stack/bifrost/bin/ansible-playbook /usr/local/bin
+    ln -s /opt/stack/bifrost/bin/disk-image-create /usr/local/bin
+    mkdir -p /var/log/underground
+    chmod 755 /var/log/underground
+    /usr/local/bin/ansible-playbook -i /usr/local/src/underground/ansible/inventory/aio -e underground_action=build -e underground_baremetal_image=fluctus -e dib_imagetype=qcow2 -e dib_imagesize=5G -e dib_imagename=/httpboot/deployment_image.qcow2 /usr/local/src/underground/ansible/site.yml -t dib
+    md5sum /httpboot/deployment_image.qcow2 > /httpboot/deployment_image.qcow2.CHECKSUMS
+    ssh-keygen -f
+    BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i bifrost/playbooks/inventory/bifrost_inventory.py bifrost/playbooks/enroll-dynamic.yaml
+    BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i bifrost/playbooks/inventory/bifrost_inventory.py bifrost/playbooks/deploy-dynamic.yaml
+  SHELL
+
+end

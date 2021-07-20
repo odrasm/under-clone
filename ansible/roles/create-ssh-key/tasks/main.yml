@@ -2,17 +2,17 @@
 - name: Ensure directory ~/.ssh exists
   file:
     state: directory
-    path: "~/.ssh"
+    path: "{{ config_dir }}/keys"
     mode: 0700
 
 - name: Create local SSH RSA key certificate
   copy:
-    dest: "~/.ssh/{{ talos_rsa_key_file }}"
-    content: "{{ talos_rsa_key }}"
+    dest: "{{ config_dir }}/keys/{{ underground_rsa_key_file }}"
+    content: "{{ underground_rsa_key }}"
     mode: 0600
 
 - name: Create local SSH RSA public certificate
   copy:
-    dest: "~/.ssh/{{ talos_rsa_pub_file }}"
-    content: "{{ talos_rsa_pub }}"
+    dest: "{{ config_dir }}/keys/{{ underground_rsa_pub_file }}"
+    content: "{{ underground_rsa_pub }}"
     mode: 0644

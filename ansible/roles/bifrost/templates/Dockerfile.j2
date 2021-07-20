@@ -1,5 +1,8 @@
 FROM ubuntu:20.04
 
+LABEL maintainer Federico Pinca <federico.pinca@e4company.com>
+LABEL "underground_version"="{{ underground.version }}"
+
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -y apt-utils \
@@ -41,13 +44,14 @@ ARG ENABLE_VENV=true
 #COPY localhost /bifrost/playbooks/inventory/group_vars/target
 
 #DIBTEST
-ARG usedib="$usedib"
-RUN if [ $usedib = false ] ; then echo "Not in dib mode" ; else sed -e 's/create_image_via_dib: "false"/create_image_via_dib: "true"/' -i /bifrost/playbooks/inventory/group_vars/localhost && sed -e 's/create_image_via_dib: "false"/create_image_via_dib: "true"/' -i /bifrost/playbooks/inventory/group_vars/target  ; fi
+#ARG usedib="$usedib"
+#RUN if [ $usedib = false ] ; then echo "Not in dib mode" ; else sed -e 's/create_image_via_dib: "false"/create_image_via_dib: "true"/' -i /bifrost/playbooks/inventory/group_vars/localhost && sed -e 's/create_image_via_dib: "false"/create_image_via_dib: "true"/' -i /bifrost/playbooks/inventory/group_vars/target  ; fi
 
 COPY overlay/enroll.sh /usr/local/bin/
 COPY overlay/deploy.sh /usr/local/bin/
 COPY overlay/redeploy.sh /usr/local/bin/
 COPY overlay/configure.sh /usr/local/bin/
+COPY build_arg.yml /tmp/build_arg.yml
 RUN chmod +x /usr/local/bin/*
 RUN mkdir -p /root/.ssh
 COPY keys/id_rsa /root/.ssh/
@@ -58,27 +62,29 @@ RUN chmod 700 /root/.ssh && chmod 600 /root/.ssh/id_rsa && chmod 600 /root/.ssh/
 RUN echo "source /opt/stack/bifrost/bin/activate" > /root/.bash_aliases
 ENV container docker
 ENV PATH="/root/.local/bin:/opt/stack/bifrost/bin:${PATH}"
-ENV BIFROST_INVENTORY_SOURCE=-/etc/baremetal/servers.yml
+#ENV BIFROST_INVENTORY_SOURCE=-/etc/baremetal/servers.yml
 #ENV OS_ENDPOINT="http://localhost:6385/"
 #ENV OS_AUTH_TYPE=none
 ENV ANSIBLE_COLLECTIONS_PATHS="/opt/stack/bifrost/collections/"
 
 #TESINGMODE
-ARG testing="$testing"
-COPY overlay/10-deploy.netdev /etc/systemd/network/10-deploy.netdev
-COPY overlay/11-deploy.network /etc/systemd/network/11-deploy.network
-RUN if [ $testing = false ] ; then echo "Not in testing mode" ; else systemctl enable systemd-networkd ; fi
+#ARG testing="$testing"
+#COPY overlay/10-deploy.netdev /etc/systemd/network/10-deploy.netdev
+#COPY overlay/11-deploy.network /etc/systemd/network/11-deploy.network
+#RUN if [ $testing = false ] ; then echo "Not in testing mode" ; else systemctl enable systemd-networkd ; fi
 
 #CLI
-ARG cli="$cli"
-RUN if [ $cli = false ] ; then echo "Not needed cli for testing purpose" ; else /usr/bin/wget -c https://raw.githubusercontent.com/openstack/bifrost/master/bifrost-cli -O /bifrost/bifrost-cli && chmod +x /bifrost/bifrost-cli && /usr/bin/wget -c https://raw.githubusercontent.com/openstack/bifrost/master/bifrost/cli.py -O /bifrost/bifrost/cli.py ; fi
+#ARG cli="$cli"
+#RUN if [ $cli = false ] ; then echo "Not needed cli for testing purpose" ; else /usr/bin/wget -c https://raw.githubusercontent.com/openstack/bifrost/master/bifrost-cli -O /bifrost/bifrost-cli && chmod +x /bifrost/bifrost-cli && /usr/bin/wget -c https://raw.githubusercontent.com/openstack/bifrost/master/bifrost/cli.py -O /bifrost/bifrost/cli.py ; fi
 
 RUN bash /bifrost/scripts/env-setup.sh
+RUN ansible-playbook -vvvv -i /bifrost/playbooks/inventory/target /bifrost/playbooks/install.yaml -e @/tmp/build_arg.yml
 
 #FIX
 #RUN ln -s /usr/bin/python3 /usr/bin/python
 #RUN /usr/bin/python -m pip install jsonpatch==1.25 openstacksdk==0.46 shade==1.33
 
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 6385
 ENTRYPOINT [ "/lib/systemd/systemd" ]

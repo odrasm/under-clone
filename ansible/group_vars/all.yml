@@ -41,6 +41,8 @@ underground_rsa_pub: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC92EAVxOBYchy/XIT98Oe
 underground_rsa_key_file: 'underground_keys'
 underground_rsa_pub_file: 'underground_keys.pub'
 
+test_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDV9hTSZNcNl3dEj7S3BH0oy3x1bwlsn6Mf0NwLkplIU+FArqQpAxetyuskXHZ+xltNja6nGaYDBXcXC+AxiNxvV4dM0cL02foTpBUQ/graP3UvNtORiXTHdQ9jW/h2m/kVtim4YSkPvQYoemDMGrUhd6cZCnQ5V29m7thxQythaH8RQDbjiuxbkYTlcNA1ElzOEoAo38DIB+/eWi/HC0ji1m/kRhXLTDUNuOLDcp8sCXpMrPcX/3hjKaS2qmY9+mWQi1YKOt+oiuriHJ+vfnjnpQCukIDXzOTXRLw00WKVVxmO2vI7m7OTVqWfeds+Lf/8Lf/GJ6dEugIaYDKCqan5 federico.pinca@e4company.com
+
 ### IDM
 idm:
   ipa: "idm.cloud.e4.lan"
@@ -79,8 +81,16 @@ config_owner_group: "{{ ansible_effective_group_id }}"
 
 log_dir: "/var/log/underground"
 
-underground_deploy_network_interface: "ens5"
+underground_external_network_interface: "ens3"
+underground_deploy_network_interface: "ens4"
+underground_baremetal_network_interface: "baremetal"
+underground_public_network_interface: "public"
+
+underground_public_ip: "172.18.37.107"
+underground_baremetal_ip: "100.122.0.136"
+
 underground_service_password: "Passw0rd!"
+
 underground_dnsmasq_dns_servers: "100.122.0.136"
 underground_dhcp_pool_start: "100.122.0.10"
 underground_dhcp_pool_end: "100.122.0.20"

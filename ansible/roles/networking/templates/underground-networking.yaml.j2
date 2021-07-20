@@ -1,0 +1,9 @@
+network:
+  version: 2
+{% if underground_deploy_network_interface is defined %}
+{% endif %}
+  bridges:
+    baremetal:
+      interfaces: [ {{ underground_deploy_network_interface|default('') }} ]
+      parameters:
+        stp: false

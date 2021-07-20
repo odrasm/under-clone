@@ -9,6 +9,11 @@
     src: Dockerfile.j2
     dest: "{{ underground.dir }}/build/bifrost/Dockerfile"
 
+- name: copy bifrost build_arg to builder
+  template:
+    src: build_arg.yml.j2
+    dest: "{{ underground.dir }}/build/bifrost/build_arg.yml"
+
 - name: Copy overlay dir
   copy:
     src: "overlay"

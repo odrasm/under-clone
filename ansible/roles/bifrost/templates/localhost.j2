@@ -4,7 +4,7 @@
 
 # The network interface that bifrost will be operating on.  Defaults
 # to virbr0 in roles, can be overridden here.
-network_interface: "{{ underground_deploy_network_interface }}"
+network_interface: "{{ underground_baremetal_network_interface }}"
 
 # password to use between services
 service_password: "{{ underground_service_password }}"
@@ -106,6 +106,7 @@ dhcp_pool_end: "{{ underground_dhcp_pool_end }}"
 #ironic_tftp_master_path: "/httpboot/master_images"
 
 # OPTIONAL
+install_dib: "false"
 use_cirros: "{{ use_cirros }}"
 staging_drivers_include: "true"
 cleaning: "true"

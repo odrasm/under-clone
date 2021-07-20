@@ -9,4 +9,6 @@ dependencies:
     when: underground_action in ['bootstrap']
   - role: openstack-client
     when: underground_action in ['bootstrap']
+  - role: networking
+    when: underground_action in ['bootstrap']
 

@@ -1,0 +1,92 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_EXPERIMENTAL'] = 'disks'
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+
+  # Disable default synced folder
+  config.vm.synced_folder '.', '/vagrant', disabled: false
+
+  # Sync all source project
+  config.vm.synced_folder "../../..", "/usr/local/src/underground", type: "nfs"
+
+  # Create a private network
+  config.vm.network "private_network", ip: "192.168.33.10", nic_type: "virtio"
+
+  # Create a baremetal network
+  config.vm.network "private_network", ip: "192.168.55.10", nic_type: "virtio", auto_config: true
+
+  config.vm.provider :virtualbox do |vb|
+    # Use Host DNS for VPN
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    # Nested Virtualisation
+    #vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
+    vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all", "--nicpromisc3", "allow-all"]
+    vb.memory = 10192
+    vb.cpus = 4
+
+  config.disksize.size = '100GB'
+  #config.vm.disk :disk, size: "100GB", primary:true
+
+  end
+
+  # Initialize VM
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y python3-pip
+  SHELL
+
+  # Initialize Underground
+  config.vm.provision  "bootstrap", type:'ansible_local' do |ansible|
+    ansible.install_mode = "pip"
+    ansible.version = "2.9.8"
+    ansible.verbose = true
+    ansible.install = true
+    ansible.limit = "underground"
+    ansible.pip_install_cmd = "curl https://bootstrap.pypa.io/get-pip.py | sudo python3"
+    ansible.config_file = '/usr/local/src/underground/etc/ansible.cfg'
+    ansible.playbook = '/usr/local/src/underground/ansible/dib-builder.yml'
+    ansible.become = true
+    ansible.inventory_path = '/usr/local/src/underground/ansible/inventory'
+    ansible.tags = "dib"
+    ansible.extra_vars = {
+      underground_action: "bootstrap"
+    }
+  end
+  # Initialize DIB
+  config.vm.provision  "build", type:'ansible_local' do |ansible|
+    ansible.version = "2.9.8"
+    ansible.verbose = true
+    ansible.install = false
+    ansible.limit = "underground"
+    ansible.config_file = '/usr/local/src/underground/etc/ansible.cfg'
+    ansible.playbook = '/usr/local/src/underground/ansible/dib-builder.yml'
+    ansible.become = true
+    ansible.inventory_path = '/usr/local/src/underground/ansible/inventory'
+    ansible.extra_vars = {
+    ansible.tags = "dib"
+      underground_action: "configure",
+      underground_baremetal_image: "fluctus"
+    }
+  end
+  # Build DIB
+  config.vm.provision  "build", type:'ansible_local' do |ansible|
+    ansible.version = "2.9.8"
+    ansible.verbose = true
+    ansible.install = false
+    ansible.limit = "underground"
+    ansible.config_file = '/usr/local/src/underground/etc/ansible.cfg'
+    ansible.playbook = '/usr/local/src/underground/ansible/dib-builder.yml'
+    ansible.become = true
+    ansible.inventory_path = '/usr/local/src/underground/ansible/inventory'
+    ansible.extra_vars = {
+    ansible.tags = "dib"
+      underground_action: "build",
+      underground_baremetal_image: "fluctus"
+    }
+  end
+
+end

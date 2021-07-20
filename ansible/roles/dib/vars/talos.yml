@@ -24,7 +24,7 @@ dib_arch: "amd64"
 dib_imagename: "{{ config_dir }}/images/talos"
 dib_imagetype: "raw"
 dib_imagesize: 50G
-dib_imagecache: false
+#dib_imagecache:
 #dib_maxresize:
 #dib_mintmpfs:
 #dib_mkfsopts:

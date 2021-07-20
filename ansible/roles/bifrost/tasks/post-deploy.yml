@@ -1,6 +1,6 @@
 ---
 - name: run command configure in bifrost container
-  shell: docker exec bifrost_underground bash -l -c "/opt/stack/bifrost/bin/ansible-playbook -vvvv -i /bifrost/playbooks/inventory/target /bifrost/playbooks/install.yaml -e skip_install={{ bifrost_skip_install }}" > /var/log/underground/bifrost-post-deploy.log
+  shell: docker exec bifrost_underground bash -l -c "/opt/stack/bifrost/bin/ansible-playbook -vvvv -i /bifrost/playbooks/inventory/target /bifrost/playbooks/install.yaml -e skip_install={{ bifrost_skip_install }} -e skip_package_install={{ bifrost_skip_install }}" > /var/log/underground/bifrost-post-deploy.log
   become: True
   register: configure1
   ignore_errors: yes
@@ -8,22 +8,22 @@
 - debug: msg= "{{ configure1.stdout }}"
   ignore_errors: yes
 
-- name: run command configure in bifrost container
-  shell: docker exec bifrost_underground bash -l -c "/opt/stack/bifrost/bin/ansible-playbook -vvvv -i /bifrost/playbooks/inventory/target /bifrost/playbooks/install.yaml -e skip_install={{ bifrost_skip_install }}" > /var/log/underground/bifrost-post-deploy.log
-  become: True
-  register: configure2
+    #- name: run command configure in bifrost container
+    #  shell: docker exec bifrost_underground bash -l -c "/opt/stack/bifrost/bin/ansible-playbook -vvvv -i /bifrost/playbooks/inventory/target /bifrost/playbooks/install.yaml -e skip_install={{ bifrost_skip_install }} -e skip_package_install={{ bifrost_skip_install }}" > /var/log/underground/bifrost-post-deploy.log
+    #  become: True
+    #  register: configure2
 
-- debug: msg= "{{ configure2.stdout }}"
+    #- debug: msg= "{{ configure2.stdout }}"
 
-- name: commit local bifrost image
-  shell: "docker commit bifrost_underground {{ bifrost.image }}"
-  become: True
-  when: configure2 is changed
+    #- name: commit local bifrost image
+    #  shell: "docker commit bifrost_underground {{ bifrost.image }}"
+    #  become: True
+    #  when: configure2 is changed
 
 - name: copy ironic openrc
   shell: "docker cp bifrost_underground:{{ openrc_file }} {{ config_dir }}/bifrost/openrc"
   become: True
-  when: configure2 is changed
+  when: configure1 is changed
 
 - name: set openrc permission
   file:

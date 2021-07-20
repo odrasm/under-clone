@@ -1,0 +1,25 @@
+---
+- name: Check for Netplan
+  stat:
+    path: /etc/netplan
+  register: check_netplan
+
+- name: Create systemd network directory
+  become: true
+  file:
+    path: /etc/systemd/network
+    state: directory
+    mode: '0755'
+
+- name: Create Netplan Underground External Interfaces
+  become: true
+  template:
+    src: "underground-networking.yaml.j2"
+    dest: "/etc/netplan/90-underground-networking.yaml"
+    mode: '0644'
+  when: check_netplan.stat.exists and check_netplan.stat.isdir
+
+- name: Apply Netplan
+  become: true
+  command: netplan apply
+  when: check_netplan.stat.exists and check_netplan.stat.isdir

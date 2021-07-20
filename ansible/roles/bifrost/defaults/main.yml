@@ -17,7 +17,7 @@ cli: false
 usedib: false
 bifrost_tag: '1.0'
 
-bifrost_skip_install: false
+bifrost_skip_install: true
 use_cirros: true
 bifrost_push: 'yes'
 openrc_file: "/root/openrc"

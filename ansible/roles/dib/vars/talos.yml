@@ -6,10 +6,11 @@ dib_env_vars:
   LANG: C
   LC_ALL: C
   LC_MESSAGES: C
-  DIB_DEV_USER_USERNAME: "e4user"
-  DIB_DEV_USER_PASSWORD: "000000"
-  DIB_DEV_USER_PWDLESS_SUDO: "yes"
-  DIB_BLOCK_DEVICE: "efi"
+  DIB_CLOUD_INIT_ALLOW_SSH_PWAUTH: "1"
+  DIB_CLOUD_INIT_DATASOURCES: "ConfigDrive, OpenStack"
+  DIB_CLOUD_INIT_DEFAULT_USER_NAME: "e4user"
+  DIB_CLOUD_INIT_DEFAULT_USER_PASSWORD: "000000"
+  DIB_CLOUD_INIT_ENABLE_SSH_PASSWORD: "1"
 
 dib_underground_elements_path: /usr/local/src/underground/elements
 dib_extra_elements_path: []
@@ -22,8 +23,8 @@ dib_offline: false
 dib_skipbase: false
 dib_arch: "amd64"
 dib_imagename: "{{ config_dir }}/images/talos"
-dib_imagetype: "raw"
-dib_imagesize: 50G
+dib_imagetype: "qcow2"
+dib_imagesize: 3G
 #dib_imagecache:
 #dib_maxresize:
 #dib_mintmpfs:
@@ -32,9 +33,9 @@ dib_imagesize: 50G
 #dib_rootlabel:
 #dib_rdelement:
 #dib_installtype:
-dib_packages: "vim"
-dib_os_release: "8"
-dib_os_element: "centos"
-dib_elements: "devuser cloud-init block-device-efi-lvm bootloader"
+dib_packages: "htop,vim"
+dib_os_release: "focal"
+dib_os_element: "ubuntu"
+dib_elements: "block-device-gpt vm bootloader cloud-init cloud-init-datasources"
 
-dib_partitioning: "file:///usr/local/src/underground/ansible/roles/dib/vars/disk_talos.yml"
+#dib_partitioning: "file:///usr/local/src/underground/ansible/roles/dib/vars/disk_talos.yml"

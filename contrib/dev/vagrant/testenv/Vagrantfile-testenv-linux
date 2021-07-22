@@ -33,17 +33,22 @@ Vagrant.configure("2") do |config|
     apt-get update
     apt-get install -y python3-pip git
     git clone -b stable/victoria https://opendev.org/openstack/bifrost
-    bifrost/bifrost-cli testenv --release victoria --count 1 --memory 1024 --disk 10 --domain-type qemu --driver ipmi -o ironic.yml
+    rm -f /home/vagrant/baremetal-inventory.json
+    rm -f /home/vagrant/ironic.yml
+    bifrost/bifrost-cli testenv --release victoria --count 1 --memory 4096 --disk 20 --domain-type qemu --driver ipmi -o ironic.yml
     bifrost/bifrost-cli install --testenv --release victoria --hardware-types ipmi --cleaning-disk-erase -e install_dib=true
     ln -s /opt/stack/bifrost/bin/ansible-playbook /usr/local/bin
     ln -s /opt/stack/bifrost/bin/disk-image-create /usr/local/bin
     mkdir -p /var/log/underground
-    chmod 755 /var/log/underground
-    /usr/local/bin/ansible-playbook -i /usr/local/src/underground/ansible/inventory/aio -e underground_action=build -e underground_baremetal_image=fluctus -e dib_imagetype=qcow2 -e dib_imagesize=5G -e dib_imagename=/httpboot/deployment_image.qcow2 /usr/local/src/underground/ansible/site.yml -t dib
+    chmod 777 /var/log/underground
+    rm -rf /httpboot/deployment_image.*
+    /usr/local/bin/ansible-playbook -i /usr/local/src/underground/ansible/inventory/aio -e underground_action=build -e underground_baremetal_image=fluctus -e dib_imagetype=qcow2 -e dib_imagesize=3G -e dib_imagename=/httpboot/deployment_image.qcow2 /usr/local/src/underground/ansible/site.yml -t dib
     md5sum /httpboot/deployment_image.qcow2 > /httpboot/deployment_image.qcow2.CHECKSUMS
-    ssh-keygen -f
-    BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i bifrost/playbooks/inventory/bifrost_inventory.py bifrost/playbooks/enroll-dynamic.yaml
-    BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i bifrost/playbooks/inventory/bifrost_inventory.py bifrost/playbooks/deploy-dynamic.yaml
+    ssh-keygen -q -t rsa -N '' <<< ""$'\n'"n" >/dev/null 2>&1
+    source /opt/stack/bifrost/bin/activate ; source /home/vagrant/openrc ; BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i /home/vagrant/bifrost/playbooks/inventory/bifrost_inventory.py /home/vagrant/bifrost/playbooks/enroll-dynamic.yaml
+    source /opt/stack/bifrost/bin/activate ; source /home/vagrant/openrc ; BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i /home/vagrant/bifrost/playbooks/inventory/bifrost_inventory.py /home/vagrant/bifrost/playbooks/deploy-dynamic.yaml
+    echo "PER GUARDARE OUTPUT DEL DISKIMAGECREATE: vagrant ssh -c 'sudo tail /var/log/underground/fluctus.log  -n 1000 -F'"
+    echo "PER GUARDARE OUTPUT DEL DEPLOY: vagrant ssh -c 'sudo tail /var/log/libvirt/baremetal_logs/testvm1_console.log -F'"
   SHELL
 
 end

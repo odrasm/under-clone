@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
     rm -rf /httpboot/deployment_image.*
     /usr/local/bin/ansible-playbook -i /usr/local/src/underground/ansible/inventory/aio -e underground_action=build -e underground_baremetal_image=fluctus -e dib_imagetype=qcow2 -e dib_imagesize=3G -e dib_imagename=/httpboot/deployment_image.qcow2 /usr/local/src/underground/ansible/site.yml -t dib
     md5sum /httpboot/deployment_image.qcow2 > /httpboot/deployment_image.qcow2.CHECKSUMS
-    ssh-keygen -q -t rsa -N '' <<< ""$'\n'"y" >/dev/null 2>&1
+    ssh-keygen -q -t rsa -N '' <<< ""$'\n'"n" >/dev/null 2>&1
     source /opt/stack/bifrost/bin/activate ; source /home/vagrant/openrc ; BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i /home/vagrant/bifrost/playbooks/inventory/bifrost_inventory.py /home/vagrant/bifrost/playbooks/enroll-dynamic.yaml
     source /opt/stack/bifrost/bin/activate ; source /home/vagrant/openrc ; BIFROST_INVENTORY_SOURCE=/home/vagrant/baremetal-inventory.json ansible-playbook -vvvv -i /home/vagrant/bifrost/playbooks/inventory/bifrost_inventory.py /home/vagrant/bifrost/playbooks/deploy-dynamic.yaml
     echo "PER GUARDARE OUTPUT DEL DISKIMAGECREATE: vagrant ssh -c 'sudo tail /var/log/underground/fluctus.log  -n 1000 -F'"

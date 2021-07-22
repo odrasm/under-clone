@@ -7,7 +7,7 @@ dib_env_vars:
   LC_ALL: C
   LC_MESSAGES: C
   DIB_CLOUD_INIT_ALLOW_SSH_PWAUTH: "1"
-  DIB_CLOUD_INIT_DATASOURCES: "ConfigDrive, OpenStack"
+  DIB_CLOUD_INIT_DATASOURCES: "ConfigDrive, OpenStack, NoCloud"
   DIB_CLOUD_INIT_DEFAULT_USER_NAME: "e4user"
   DIB_CLOUD_INIT_DEFAULT_USER_PASSWORD: "000000"
   DIB_CLOUD_INIT_ENABLE_SSH_PASSWORD: "1"
@@ -36,6 +36,6 @@ dib_imagesize: 3G
 dib_packages: "htop,vim"
 dib_os_release: "focal"
 dib_os_element: "ubuntu"
-dib_elements: "block-device-gpt vm bootloader cloud-init cloud-init-datasources"
+dib_elements: "block-device-gpt vm bootloader cloud-user cloud-init"
 
 #dib_partitioning: "file:///usr/local/src/underground/ansible/roles/dib/vars/disk_fluctus.yml"

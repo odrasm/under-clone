@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ -z "${DIB_NVIDIA_VERSION:-}" ]; then
+    echo "DIB_NVIDIA_VERSION is not set! Can not continue"
+    exit 1
+fi
+
+# https://github.com/NVIDIA/nvidia-docker
+export NVIDIA_DISTRO=${DIB_NVIDIA_DISTRO:-$(. /etc/os-release;echo $ID$VERSION_ID)}
+
+case "$DISTRO_NAME" in
+    centos*|rhel*|opensuse)
+	export NVIDIA_REPO=${DIB_NVIDIA_REPO:-https://nvidia.github.io/nvidia-docker/$NVIDIA_DISTRO/nvidia-docker.repo}
+	;;
+    ubuntu*|debian*)
+	export NVIDIA_PUBKEY=${DIB_NVIDIA_PUBKEY:-https://nvidia.github.io/nvidia-docker/gpgkey}
+	export NVIDIA_REPO=${DIB_NVIDIA_REPO:-https://nvidia.github.io/nvidia-docker/$NVIDIA_DISTRO/nvidia-docker.list}
+	;;
+    *)
+	echo "Distro \"$DISTRO_NAME\" is not recognised"
+	exit -1
+	;;
+esac

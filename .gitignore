@@ -1,3 +1,4 @@
+contrib/dev/vagrant/testenv/Vagrantfile
 shared/*
 !shared/.gitkeep 
 # vim and emacs temp files

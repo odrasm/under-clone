@@ -1,0 +1,6 @@
+---
+
+ironic_dnsmasq_container: "ironic_dnsmasq"
+ironic_inspector_container: "ironic_inspector"
+
+

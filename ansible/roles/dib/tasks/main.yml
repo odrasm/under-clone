@@ -1,9 +1,14 @@
 ---
 - include_vars: "{{ item }}"
   with_items:
+    #    - "{{ openstack_release }}.yml"
     - "{{ ansible_system }}.yml"
     - "{{ ansible_os_family }}.yml"
     - "{{ ansible_distribution }}.yml"
   failed_when: false
 
-- include_tasks: "{{ underground_action }}.yml"
+#- fail:
+#    msg: "ERROR, underground_baremetal_image is not defined, nothing to build..."
+#    when: "underground_baremetal_image is not defined"
+
+- include_tasks: "{{ kolla_action }}.yml"

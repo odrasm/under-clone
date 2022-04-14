@@ -1,0 +1,15 @@
+---
+#docker run -d --name registry --restart=unless-stopped -p 4000:5000 -v registry:/var/lib/registry -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io registry:2
+- name: Start a Docker private registry
+  become: true
+  docker_container:
+    name: registry
+    image: registry:2
+    state: present
+    restart_policy: unless-stopped
+    exposed_ports:
+      - "4000:5000"
+    volumes:
+      - "registry:/var/lib/registry"
+    env:
+      REGISTRY_PROXY_REMOTEURL: "https://registry-1.docker.io"

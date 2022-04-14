@@ -1,0 +1,16 @@
+---
+clouds:
+  baremetal:
+    auth:
+      auth_url: "{{ keystone_admin_url }}/v3"
+      username: "{{ keystone_admin_user }}"
+      password: "{{ keystone_admin_password }}"
+      project_name: "{{ keystone_admin_project }}"
+      user_domain_name: "Default"
+      project_domain_name: "Default"
+    insecure: true
+    region_name: "{{ openstack_region_name }}"
+    interface: "internal"
+    identity_api_version: 3
+    log_file: "{{ log_path }}/openstackclient_admin.log"
+    log_level: info

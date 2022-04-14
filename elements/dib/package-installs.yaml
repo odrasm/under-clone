@@ -1,5 +1,0 @@
-debootstrap:
-gdisk:
-kpartx:
-qemu-utils:
-yum-utils:

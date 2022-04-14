@@ -1,0 +1,14 @@
+---
+underground_baremetal_interface: vlan102
+underground_baremetal_network: '100.127.102.200/24'
+underground_internal_address: '100.127.102.201'
+underground_external_interface: ext-external
+underground_public_address: '172.18.36.3'
+underground_baremetal_allocation_pool_start: '100.127.102.205'
+underground_baremetal_allocation_pool_end: '100.127.102.210'
+underground_external_allocation_pool_start: '172.18.36.5'
+underground_external_allocation_pool_end: '172.18.36.9'
+  #underground_external_vlanid: '1836'
+underground_external_gateway: '172.18.36.1'
+underground_baremetal_dns: '8.8.8.8'
+  

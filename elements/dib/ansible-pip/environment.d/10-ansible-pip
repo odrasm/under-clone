@@ -1,0 +1,2 @@
+export DIB_ANSIBLE_VERSION=${DIB_ANSIBLE_VERSION:-2.9.27}
+export DIB_PYTHON_PIP='/usr/bin/python3 -m pip'

@@ -1,0 +1,25 @@
+---
+- name: Create Underground configuration directories
+  become: true
+  file:
+    path: "{{ config_path }}/host_vars"
+    state: directory
+    mode: '0755'
+    owner: "{{ ansible_effective_user_id }}"
+    group: "{{ ansible_effective_group_id }}"
+
+- name: Initialize inventory hosts file
+  copy:
+    src: "{{ playbook_dir }}/inventory/{{ underground_deployment }}"
+    dest: "{{ config_path }}/hosts"
+    mode: '0644'
+    force: "{{ underground_force|default('false')|bool }}"
+
+- name: Initialize globals.yml
+  vars:
+    underground_globals:
+      underground_deployment: "{{ underground_deployment }}"
+  copy:
+    content: "{{ underground_globals|to_nice_yaml(explicit_start=true) }}"
+    dest: "{{ config_path }}/globals.yml"
+    force: "{{ underground_force|default('false')|bool }}"

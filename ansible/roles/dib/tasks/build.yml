@@ -1,10 +1,29 @@
 ---
 
-- include_tasks: configure.yml
+- include_vars: "images/{{ underground_baremetal_image | default('ipa') }}.yml"
+
+- include_vars: "{{ config_path }}/baremetal/images/{{ underground_baremetal_image | default('ipa') }}.yml"
+  failed_when: false
+
+- name: "Check if image already exist"
+  stat:
+    path: "{{ dib_imagename }}.{{ dib_imagetype }}"
+    get_checksum: False
+    get_md5: False
+  register: buildimg
+  when: underground_baremetal_image != "ipa"
+
+- name: "Ensure Image not exists, wanna build another? (delete the previously created)"
+  fail:
+    msg: |
+      "{{ underground_baremetal_image }} Image Alredy exist"
+  when:
+    - underground_baremetal_image != "ipa"
+    - buildimg.stat.exists
 
 - name: "Build tracing (-x) option for disk-image-create"
   set_fact:
-    dib_trace_arg: "-x"
+    dib_trace_arg: "-x -x"
   when: dib_trace | bool
 - name: "Build uncompressed (-u) option for disk-image-create"
   set_fact:
@@ -87,9 +106,9 @@
   set_fact:
     dib_env_vars_final: "{{ dib_env_vars_final | combine({'DIB_RELEASE':dib_os_release}) }}"
   when: dib_os_release is defined
-- name: "Build ELEMENTS_PATH variable from underground builder element folder"
+- name: "Build ELEMENTS_PATH variable from IPA builder element folder"
   set_fact:
-    dib_elements_path: "{{ [ dib_underground_elements_path + '' ] }}"
+    dib_elements_path: "{{ [ dib_ipa_elements_path + '/dib' ] }}"
 - name: "Add existing ELEMENTS_PATH value if present"
   set_fact:
     dib_elements_path: "{{ dib_elements_path + [dib_env_vars_final['ELEMENTS_PATH']] }}"
@@ -137,7 +156,34 @@
       {{ dib_os_element }}
       {{ dib_elements|default('') }}
 
-- name: "Initiate image build"
-  command: disk-image-create {{ dib_arglist }} --logfile {{ log_dir }}/{{ underground_baremetal_image }}.log
+- name: "Debug image variables"
+  shell: echo "{{ dib_arglist }}" > {{ log_path }}/baremetal/{{ underground_baremetal_image }}.arglist
   environment: "{{ dib_env_vars_final }}"
+  when: "ipa_test | bool == true"
+
+- name: "Debug image variables"
+  shell: env >> {{ log_path }}/baremetal/{{ underground_baremetal_image }}.arglist
+  environment: "{{ dib_env_vars_final }}"
+  when: "ipa_test | bool == true"
+
+- pause:
+    seconds: 5
+    prompt: |
+       ======================================
+        Building image
+        This task may require some time
+        please wait ...
+        you can check the output in
+        {{ log_path }}/baremetal/{{ underground_baremetal_image }}.log
+       ======================================
+
+- name: "Initiate image build"
+  command: disk-image-create {{ dib_arglist }} --logfile {{ log_path }}/baremetal/{{ underground_baremetal_image }}.log
+  environment: "{{ dib_env_vars_final }}"
+  when: "ipa_test | bool == false"
+
+- include_tasks: upload.yml
   when:
+    - "baremetal_image_upload |bool == true"
+    - "underground_baremetal_image != 'ipa'"
+    - "ipa_test | bool == false"

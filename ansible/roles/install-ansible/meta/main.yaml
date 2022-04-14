@@ -1,4 +1,0 @@
----
-dependencies:
-  - role: gather-facts
-  - role: install-python

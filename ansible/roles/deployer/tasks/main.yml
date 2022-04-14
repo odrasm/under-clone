@@ -1,0 +1,11 @@
+---
+
+- include_tasks: "requirements.yml"
+  when: "deployer_action in ['create','delete']"
+
+- include_tasks: "set_cloud.yml"
+  when: "deployer_action in ['create','delete']"
+
+- include_vars: "{{ deployer_target }}.yml"
+
+- include_tasks: "{{ deployer_action }}-{{ deployer_target }}.yml"

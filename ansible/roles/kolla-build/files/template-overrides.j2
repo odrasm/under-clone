@@ -1,0 +1,8 @@
+{% extends parent_template %}
+
+# Horizon
+{% block horizon_footer %}
+ADD additions-archive /
+RUN cp /additions/logo/E4CP-BH.svg /var/lib/kolla/venv/lib/python{{ distro_python_version }}/site-packages/openstack_dashboard/static/dashboard/img/logo.svg \
+ && cp /additions/logo/E4CP-BH.svg /var/lib/kolla/venv/lib/python{{ distro_python_version }}/site-packages/openstack_dashboard/static/dashboard/img/logo-splash.svg
+{% endblock %}

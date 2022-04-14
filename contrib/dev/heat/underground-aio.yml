@@ -1,0 +1,106 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Test Underground AIO Stack Minimal Module
+
+resources:
+  underground_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: "underground_secgroup"
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 80
+          port_range_max: 80
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 443
+          port_range_max: 443
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 22
+          port_range_max: 22
+
+  external_underground:
+    type: OS::Neutron::Net
+    properties:
+      name: "external_underground"
+
+  subnet_external_underground:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: external_underground }
+      cidr: "100.127.103.0/24"
+      ip_version: 4
+      enable_dhcp: true
+      name: "subnet_external_underground"
+      gateway_ip: "100.127.103.254"
+      dns_nameservers: [ "172.18.36.201", "172.18.36.202", "172.18.36.203" ]
+
+  router_underground:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: provider_1837 }
+
+  router_internal_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router_underground }
+      subnet: { get_resource: subnet_external_underground }
+
+  instance_port_provider:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      security_groups:
+        - default
+        - { get_resource: underground_secgroup }
+      fixed_ips:
+        - ip_address: "100.127.103.101"
+  
+  floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: "provider_1837"
+
+  association:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip }
+      port_id: { get_resource: instance_port_provider }
+
+  instance_port_external_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      fixed_ips:
+        - ip_address: "100.127.103.201"
+      port_security_enabled: false
+
+  instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: underground.small
+      image: ubuntu-focal-cloud
+      key_name: federicopinca
+      name: underground-aio-01
+      networks:
+        - port: { get_resource: instance_port_provider }
+        - port: { get_resource: instance_port_external_underground }
+      user_data: |
+            #!/bin/bash -v
+            apt-get update
+            apt-get install -y python3-pip wget curl ca-certificates
+            python3 -m pip install 'ansible<2.10'
+            wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
+            update-ca-certificates
+            git clone https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
+            cd /usr/local/src/underground
+            python3 -m pip install /usr/local/src/underground
+            sudo chown -R ubuntu. /usr/local/src/underground
+            useradd -p $(openssl passwd -crypt 000000) e4user
+            sudo -u ubuntu /usr/local/src/underground/tools/underground init aio > /home/ubuntu/underground-init.log
+            sudo -u ubuntu /usr/local/src/underground/tools/underground bootstrap victoria -m minimal -n ens3 -e underground_external_interface=ens4 > /home/ubuntu/underground-bootstrap.log
+            sudo -u ubuntu /usr/local/src/underground/tools/underground configure > /home/ubuntu/underground-configure.log
+            sudo -u ubuntu /usr/local/src/underground/tools/underground deploy > /home/ubuntu/underground-deploy.log

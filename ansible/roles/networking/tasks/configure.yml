@@ -1,1 +1,28 @@
 ---
+- include_tasks: "{{ group }}.yml"
+  when: group in group_names
+  loop:
+    - control
+    - monitoring
+    - network
+    - compute
+    - storage
+  loop_control:
+    loop_var: group
+
+- name: Collect only facts returned by facter
+  setup:
+    gather_subset:
+      - '!all'
+      - '!any'
+      - network
+
+- name: Ensure hostname match IP address
+  become: true
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*\s+{{ ansible_hostname }}(\s|$)'
+    line: "{{ hostvars[inventory_hostname]['ansible_'+underground_internal_interface]['ipv4']['address'] }}\t{{ ansible_hostname }}"
+    state: present
+  vars:
+    kolla_globals: "{{ hostvars['localhost']['kolla_globals'] }}"

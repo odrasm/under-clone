@@ -1,0 +1,6 @@
+---
+kolla_build_custom:
+  horizon:
+    type: git
+    location: https://git.cloud.e4.lan/openstack/horizon
+    reference: stable/stein

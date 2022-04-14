@@ -1,0 +1,8 @@
+---
+- name: stop service socket iscsid
+  systemd:
+    name: iscsid.socket
+    state: stopped
+    force: yes
+    enabled: no
+  become: true

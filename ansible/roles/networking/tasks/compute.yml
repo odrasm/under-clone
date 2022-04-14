@@ -1,0 +1,4 @@
+---
+
+#- include_tasks: masquerading.yml
+#  when: "'baremetal' in underground_list_modules"

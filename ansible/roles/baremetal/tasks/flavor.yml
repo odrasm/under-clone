@@ -1,0 +1,128 @@
+---
+- name: Reset Baremetal UEFI flavor
+  os_nova_flavor:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: absent
+    name: baremetal-uefi
+    ram: 1024
+    vcpus: 1
+    disk: 100
+
+- name: Reset Baremetal BIOS flavor
+  os_nova_flavor:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: absent
+    name: baremetal-bios
+    ram: 1024
+    vcpus: 1
+    disk: 100
+
+- name: Reset Generic VM flavor
+  os_nova_flavor:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: absent
+    name: generic
+    ram: 2048
+    vcpus: 2
+    disk: 20
+
+- name: Create Baremetal UEFI flavor
+  os_nova_flavor:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default 
+    auth_type: password
+    interface: internal
+    state: present
+    name: baremetal-uefi
+    ram: 1024
+    vcpus: 1
+    disk: 100
+
+- name: Create Baremetal BIOS flavor
+  os_nova_flavor:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: present
+    name: baremetal-bios
+    ram: 1024
+    vcpus: 1
+    disk: 100
+
+- name: Create Generic VM flavor
+  os_nova_flavor:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: present
+    name: generic
+    ram: 2048
+    vcpus: 2
+    disk: 20
+
+- name: Set Extra-Specs to Baremetal UEFI flavor
+  shell: "source {{ config_path }}/admin-openrc.sh && openstack flavor set baremetal-uefi --property {{ item }}"
+  args:
+    executable: "/bin/bash"
+  loop:
+    - "baremetal=true"
+    - "capabilities:boot_mode=uefi"
+    - "capabilities:boot_option=local"
+    - "resources:CUSTOM_BAREMETAL=1"
+    - "resources:VCPU=0"
+    - "resources:MEMORY_MB=0"
+    - "resources:DISK_GB=0"
+
+- name: Set Extra-Specs to Baremetal BIOS flavor
+  shell: "source {{ config_path }}/admin-openrc.sh && openstack flavor set baremetal-bios --property {{ item }}"
+  args:
+    executable: "/bin/bash"
+  loop:
+    - "baremetal=true"
+    - "capabilities:boot_mode=bios"
+    - "capabilities:boot_option=local"
+    - "resources:CUSTOM_BAREMETAL=1"
+    - "resources:VCPU=0"
+    - "resources:MEMORY_MB=0"
+    - "resources:DISK_GB=0"

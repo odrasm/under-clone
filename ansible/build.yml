@@ -1,0 +1,22 @@
+---
+- import_playbook: gather-facts.yml
+
+- name: "Common roles (action: {{ underground_action }})"
+  hosts: builder:deployment
+  gather_facts: false
+  roles:
+    - { role: common, tags: dib, when: underground_baremetal_image != "ipa" }
+
+- name: Build kolla containers
+  hosts: builder
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  roles:
+    - { role: kolla-build,
+        tags: kolla-build }
+
+- name: Build deployable images
+  hosts: builder
+  gather_facts: false
+  roles:
+    - { role: dib, tags: dib }

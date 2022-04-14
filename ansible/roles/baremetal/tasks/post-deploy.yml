@@ -1,0 +1,25 @@
+---
+
+- name: Create Baremetal Dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ data_path }}/baremetal"
+    - "{{ config_path }}/baremetal"
+
+- include_tasks: ramdisk.yml
+
+- include_tasks: flavor.yml
+
+- include_tasks: network.yml
+
+- include_tasks: templates.yml
+
+- include_tasks: keypair.yml
+
+#- include_tasks: images.yml
+
+- include_tasks: security_group.yml
+
+- include_tasks: aggregate.yml

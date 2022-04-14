@@ -1,0 +1,16 @@
+[
+    {
+        "description": "set basic capabilities, names, ramdisks",
+        "conditions": [
+            {"op": "eq", "field": "data://auto_discovered", "value": true}
+        ],
+        "actions": [
+            {"action": "set-capability", "name": "cpu_model", "value": "{data[inventory][cpu][model_name]}"},
+            {"action": "set-capability", "name": "manufacturer", "value": "{data[inventory][system_vendor][manufacturer]}"},
+            {"action": "set-capability", "name": "bios_version", "value": "{data[extra][firmware][bios][version]}"},
+            {"action": "set-attribute", "path": "name", "value": "{data[extra][system][motherboard][vendor]}-{data[extra][system][motherboard][name]:.9}-{data[inventory][bmc_address]}"},
+            {"action": "set-attribute", "path": "driver_info/deploy_kernel", "value": "{{ deploy_kernel_id  }}"},
+            {"action": "set-attribute", "path": "driver_info/deploy_ramdisk", "value": "{{ deploy_ramdisk_id }}"}
+        ]
+    }
+]

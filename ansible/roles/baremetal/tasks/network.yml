@@ -1,0 +1,111 @@
+---
+- name: Configure Baremetal network
+  os_network:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    admin_state_up: true
+    port_security_enabled: 'no'
+    state: 'present'
+    name: 'baremetal'
+    external: true
+    shared: 'yes'
+    provider_network_type: 'flat'
+    provider_physical_network: 'physnet2'
+
+- name: Configure External Flat network
+  os_network:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    admin_state_up: true
+    port_security_enabled: 'yes'
+    state: 'present'
+    name: 'external'
+    external: true
+    shared: 'yes'
+    provider_network_type: 'flat'
+    provider_physical_network: 'physnet1'
+  when: underground_external_vlanid is not defined
+
+- name: Configure External Vlan network
+  os_network:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    admin_state_up: true
+    port_security_enabled: 'yes'
+    state: 'present'
+    name: 'external'
+    external: true
+    shared: 'yes'
+    provider_network_type: 'vlan'
+    provider_segmentation_id: "{{ underground_external_vlanid }}"
+    provider_physical_network: 'physnet1'
+  when: underground_external_vlanid is defined
+
+- name: Configure Baremetal subnet
+  os_subnet:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: 'present'
+    network_name: 'baremetal'
+    name: 'baremetal'
+    cidr: "{{ hostvars[inventory_hostname]['ansible_baremetal']['ipv4']['network'] + '/' + hostvars[inventory_hostname]['ansible_baremetal']['ipv4']['netmask'] }}"
+    no_gateway_ip: 'yes'
+    dns_nameservers:
+       - "{{ underground_baremetal_dns | default (hostvars[inventory_hostname]['ansible_baremetal']['ipv4']['address']) }}"
+    host_routes:
+       - destination: 0.0.0.0/0
+         nexthop: "{{ hostvars[inventory_hostname]['ansible_baremetal']['ipv4']['address'] }}"
+    allocation_pool_start: "{{ underground_baremetal_allocation_pool_start | default(underground_baremetal_address | ipmath(6)) }}"
+    allocation_pool_end: "{{ underground_baremetal_allocation_pool_end | default(underground_baremetal_address | ipmath(12)) }}"
+
+- name: Configure External subnet
+  os_subnet:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: 'present'
+    network_name: 'external'
+    name: 'external'
+    cidr: "{{ hostvars[inventory_hostname]['ansible_'+underground_public_interface]['ipv4']['network'] + '/' + hostvars[inventory_hostname]['ansible_'+underground_public_interface]['ipv4']['netmask'] }}"
+    no_gateway_ip: 'yes'
+    dns_nameservers:
+       - "{{ underground_baremetal_dns | default(hostvars[inventory_hostname]['ansible_default_ipv4']['gateway']) }}"
+    host_routes:
+       - destination: 0.0.0.0/0
+         nexthop: "{{ underground_external_gateway | default(hostvars[inventory_hostname]['ansible_default_ipv4']['gateway']) }}"
+    allocation_pool_start: "{{ underground_external_allocation_pool_start | default(underground_public_address | ipmath(6)) }}"
+    allocation_pool_end: "{{ underground_external_allocation_pool_end | default(underground_public_address | ipmath(12)) }}"

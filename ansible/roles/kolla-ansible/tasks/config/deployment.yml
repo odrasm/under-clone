@@ -1,0 +1,20 @@
+---
+- name: Locate Kolla Ansible prefix
+  command: |
+    {{ kolla_python }} -c 'import os,kolla_ansible; print(os.path.abspath(os.path.join(os.path.dirname(kolla_ansible.__file__),"../../../..")));'
+  register: kolla_ansible_base_path
+
+- name: Check for passwords.yml
+  stat:
+    path: "{{ kolla_passwords_file }}"
+  register: kolla_passwords
+
+- name: Copy passwords template from Kolla Ansible
+  copy:
+    src: /usr/local/share/kolla-ansible/etc_examples/kolla/passwords.yml
+    dest: "{{ kolla_passwords_file }}"
+  when: not kolla_passwords.stat.exists
+
+- name: Update passwords
+  command: "kolla-genpwd -p {{ kolla_passwords_file }}"
+

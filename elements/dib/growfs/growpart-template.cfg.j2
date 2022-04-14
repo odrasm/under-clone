@@ -1,0 +1,19 @@
+# grow the LVM partition (but not the VG or LV) on first boot
+growpart:
+  mode: growpart
+  devices: [ '/dev/disk/by-partlabel/system-disk' ]
+
+# use runcmd to grow the VG, LV and root filesystem, as cloud-init
+# doesn't handle LVM resizing natively
+runcmd:
+  - [ cloud-init-per, once, grow_system, pvresize, /dev/disk/by-partlabel/system-disk ]
+{%- for lv in lvs %}
+{%- if lv.extents is defined %}
+  - [ cloud-init-per, once, grow_{{ lv.name }}, lvextend, -r, -l, +{{ lv.extents }}, /dev/vg/{{ lv.label|default(lv.name) }} ]
+{%- endif %}
+{%- if lv.name == 'swap' %}
+  - [ cloud-init-per, once, mkfs_{{ lv.name }}, mkswap, -L, {{ lv.label|default('swap') }}, /dev/vg/{{ lv.label|default(lv.name) }} ]
+  - [ cloud-init-per, once, fstab_{{ lv.name }}, sed, -i, -e, "1iLABEL={{ lv.label|default('swap') }} swap swap defaults 0 0", /etc/fstab ]
+  - [ cloud-init-per, once, swapon, swapon, -a ]
+{%- endif %}
+{%- endfor %}

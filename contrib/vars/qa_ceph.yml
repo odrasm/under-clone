@@ -1,0 +1,60 @@
+ubuntu@underground-aio-baremetal-01:~/ceph-ansible$ cat hosts
+[mons]
+qa01
+qa02
+qa03
+
+[osds]
+qa01
+qa02
+qa03
+
+[clients]
+qa01
+qa02
+qa03
+
+[monitoring]
+qa01
+qa02
+qa03
+
+[mdss]
+qa01
+qa02
+qa03
+
+[mgrs]
+qa01
+qa02
+qa03
+ubuntu@underground-aio-baremetal-01:~/ceph-ansible$ cat ansible.cfg ^C
+ubuntu@underground-aio-baremetal-01:~/ceph-ansible$ cat group_vars/all.yml
+---
+ceph_origin: repository
+ceph_repository: community
+ceph_stable_release: pacific
+cephx: true
+cluster_network: "100.65.1.0/24"
+container_package_name: docker-ce
+container_service_name: docker
+container_binding_name: docker-ce
+containerized_deployment: true
+dashboard_admin_password: "p@ssw0rd"
+generate_fsid: true
+grafana_admin_password: "p@ssw0rd"
+monitor_interface: public
+openstack_config: true
+public_network: "172.18.36.0/24"
+
+
+devices:
+  - '/dev/sda'
+  - '/dev/sdb'
+  - '/dev/sdc'
+  - '/dev/sdd'
+  - '/dev/sde'
+  - '/dev/sdf'
+  - '/dev/sdg'
+  - '/dev/sdh'
+  - '/dev/sdi'

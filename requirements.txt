@@ -1,17 +1,14 @@
+# Ansible
+ansible==2.9.*
+
+# Git versioning
 pbr!=2.1.0,>=2.0.0 # Apache-2.0
-bindep
-build
-twine
 
 # ini parsing
 oslo.config>=5.2.0 # Apache-2.0
 
 # YAML parsing
 PyYAML>=3.12 # MIT
-
-# password generation
-cryptography>=2.1 # BSD/Apache-2.0
-oslo.utils>=3.33.0 # Apache-2.0
 
 # templating
 Jinja2>=2.10 # BSD License (3 clause)

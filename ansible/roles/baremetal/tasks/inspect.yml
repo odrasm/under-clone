@@ -1,5 +1,0 @@
----
-# Invoke node inspection
-- os_ironic_inspect:
-    name: "testnode1"
-

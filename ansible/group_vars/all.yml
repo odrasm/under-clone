@@ -1,98 +1,266 @@
 ---
-### ANSIBLE
-ansible_python_interpreter: python3
-#ansible_port: 22
-#ansible_user: ubuntu #UBUNTU18
-#ansible_ssh_pass: 'password'
-#ansible_become_password: 'password'
-#ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-#ansible_ssh_private_key_file: "$HOME/.ssh/underground_keys"
+# The options in this file can be overridden in 'globals.yml'
 
-underground_rsa_key: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIEowIBAAKCAQEAvdhAFcTgWHIcv1yE/fDnkk2OngWXNZ87ZqtxsPzQYRqj9E7C
-    +7Xd6M9MTmx4+ffoq6fkgTlsc78s1HE49D3SyPHTFntfdnIgp3rvfLNjMedkV7hq
-    rRxjSsFR8eMMpVZ7NEt/UuPatH31ILAK9eBRo8/1pydZJQnn0wW52qcGL3i+neTO
-    rPpAfuTfkEamqOpYvdqyS+KrP6lueofgS8rJHLy7J9XBH5Fo8zz75uuDIYjIzwC0
-    pY4euhRfUhfsRvnUSyO0CFAUkBiBHR+jH4GIo2zBOoxn7ZvU2LlOHfIvs8cr8jiT
-    Y7HMV3FKtsMyExiIWNJ5ddK8IOBp80KX5P2sPwIDAQABAoIBAFo3cfzmWlato8us
-    g+bJnMKB6Mxfi8QHr4rS3mxlOAFtT4zCARbtDk+cc36xPaxMi11Ho+dlCozWxM8Q
-    HyiyWID1qoJ8jpkTE0GDwltYRENq2tx03vz1CJp11CNG6rOHrXTki9UwQraTRPIL
-    tqmxuBpIsUyF/m8Djg9SIUgvJ1lXDZ7m9yWSq/xRD16MFKRP+Uqyhouv3UM4HFxA
-    RZYqOEV9Go/+OldCqKc5KCKhbeHRjWerpzM9wq7Eo+wMyPxXTZdJdwmwvNeeLYoC
-    EE+iFdYPMDbwQ+ZJLFUZalQ+0eUo95kPwZS1f92/avoTlZAcUncv7Ggfem8SSEhc
-    M9jQgsECgYEA8SqUSUDb+7s51JHLjcUboddR6hf/Neg94r1pkL4IE7nf+V6Ln0dT
-    Nt5fk34gTlg37iOyKvewXy2GWlTcMhJOhQNXU9MDG5Hl88g6/lin5neLI0mw0/2G
-    +MRgYDmxMuyH1g27O8BHZhqcSDMKgY0ICN5LMZttfCMsZl6YjAgjm20CgYEAyYWO
-    z6CDZKpw4bNbC93JFDDPh1Atj56oo7R3RITie6bxzKkPpzmGdy3Fzj0uwt1xWHTI
-    qWJVgzX0pbLaoCfo2CL7JO7wuYhVGVTDz5Jro67EK8xsWyJHmqnWEs06ju2PuEBc
-    Pmp50KzChovjLEB50qKOWmWTU3e2lXp0jLWOztsCgYEAseu15q1BHmCsc5T0Va1b
-    i3TtbAU0NbMXJRaUsUJhdxwkjzcfTu0yCULZxFjCwMn4yWnwYh7GMhHGExKUOSSk
-    ZSFn5eHBYy+qNMY+L7N8e10qe2g8WsmqMBHBAHzPrEAwns0WmyhqBHwRXHq7f4Rq
-    rxBA7WI7zd+tPAECDh1bF6kCgYA/MWF6HER3obbqH7sSOocejLvXG75dxgvt4d5w
-    nxcCXXR/kBg3gSN4ZeMcbDUoqBYt/dkavJpCHf5Mo4xJIpqyhC2rBD56f5Tn75vD
-    kI+ucVRUw7LK1TIM/usBVFfjj/08cvo6HFt8o2AQnvcq3kEVWyI2mJmdV/HqZ876
-    fMh+dwKBgHh4xTYGEpVMo1PkEPHFn26zy5H/UVvHn3Og4y19PqS10l2TyAkx2wPb
-    /+lXlu+IE2RR3Ni31mFZAABhxcYS2iixc9tz3d3GNwoqjKzbLMSfxXqSsgmXIq71
-    iXtsT5lTlUsIvHZxEHv2zP0icvOJ0mJtvxLymQlr1LfkNA//TEK6
-    -----END RSA PRIVATE KEY-----
+# OpenStack version
+openstack_release: "{{ underground_openstack_release }}"
+openstack_source_version: "{{ 'stable/' if openstack_release != 'master' }}{{ openstack_release }}"
 
-underground_rsa_pub: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC92EAVxOBYchy/XIT98OeSTY6eBZc1nztmq3Gw/NBhGqP0TsL7td3oz0xObHj59+irp+SBOWxzvyzUcTj0PdLI8dMWe192ciCneu98s2Mx52RXuGqtHGNKwVHx4wylVns0S39S49q0ffUgsAr14FGjz/WnJ1klCefTBbnapwYveL6d5M6s+kB+5N+QRqao6li92rJL4qs/qW56h+BLyskcvLsn1cEfkWjzPPvm64MhiMjPALSljh66FF9SF+xG+dRLI7QIUBSQGIEdH6MfgYijbME6jGftm9TYuU4d8i+zxyvyOJNjscxXcUq2wzITGIhY0nl10rwg4GnzQpfk/aw/ Generated-by-Nova
-underground_rsa_key_file: 'underground_keys'
-underground_rsa_pub_file: 'underground_keys.pub'
+# Ceph version
+underground_ceph_release: octopus
 
-test_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDV9hTSZNcNl3dEj7S3BH0oy3x1bwlsn6Mf0NwLkplIU+FArqQpAxetyuskXHZ+xltNja6nGaYDBXcXC+AxiNxvV4dM0cL02foTpBUQ/graP3UvNtORiXTHdQ9jW/h2m/kVtim4YSkPvQYoemDMGrUhd6cZCnQ5V29m7thxQythaH8RQDbjiuxbkYTlcNA1ElzOEoAo38DIB+/eWi/HC0ji1m/kRhXLTDUNuOLDcp8sCXpMrPcX/3hjKaS2qmY9+mWQi1YKOt+oiuriHJ+vfnjnpQCukIDXzOTXRLw00WKVVxmO2vI7m7OTVqWfeds+Lf/8Lf/GJ6dEugIaYDKCqan5 federico.pinca@e4company.com
+ceph_releases:
+  nautilus:
+    branch: stable-4.0
+  octopus:
+    branch: stable-5.0
+  pacific:
+    branch: stable-6.0
+  latest:
+    branch: master
 
-### IDM
-idm:
-  ipa: "idm.cloud.e4.lan"
+kolla_versions:
+  "1": liberty
+  "2": mitaka
+  "3": newton
+  "4": ocata
+  "5": pike
+  "6": queen
+  "7": rocky
+  "8": stein
+  "9": train
+  "10": ussuri
+  "11": victoria
+  "12": wallaby
+  "13": xena
 
-### DOCKER REGISTRY
-docker:
-  insecure_registries: "nexus01.cloud.e4.lan:8082"
-  registry_mirrors: "https://registry.cloud.e4.lan"
-  namespace: "underground"
+kolla_releases:
+  liberty:
+    version: 1
+    python_version: 2
+    python_interpreter: python
+  mitaka:
+    version: 2
+    python_version: 2
+    python_interpreter: python
+  newton:
+    version: 3
+    python_version: 2
+    python_interpreter: python
+  ocata:
+    version: 4
+    python_version: 2
+    python_interpreter: python
+  pike:
+    version: 5
+    python_version: 2
+    python_interpreter: python
+  queen:
+    version: 6
+    python_version: 2
+    python_interpreter: python
+  rocky:
+    version: 7
+    python_version: 2
+    python_interpreter: python
+  stein:
+    version: 8
+    python_version: 2
+    python_interpreter: python
+  train:
+    version: 9
+    python_version: 2
+    python_interpreter: python
+  ussuri:
+    version: 10
+    python_version: 3
+    python_interpreter: python3
+  victoria:
+    version: 11
+    python_version: 3
+    python_interpreter: python3
+  wallaby:
+    version: 12
+    python_version: 3
+    python_interpreter: python3
+  xena:
+    version: 13
+    python_version: 3
+    python_interpreter: python3
 
-### PYPI REPO
-pypi:
-  index: "https://pypi.cloud.e4.lan/repository/pypi/"
-  index_url: "https://pypi.cloud.e4.lan/repository/pypi/simple/"
-  upload_url: "https://pypi.cloud.e4.lan/repository/pypi-local/"
+kolla_python: "{{ kolla_releases[openstack_release]['python_interpreter'] }}"
+kolla_python_version: "{{ kolla_releases[openstack_release]['python_version'] }}"
 
-underground:
-    dir: "/opt/underground/"
-    version: "1.0"
-    debug: no
-    uid: 3000
-
-
-underground_python: "python3"
 # Valid options are: ['git', 'pip']
-install_source: "git"
-openstack_release: "victoria"
+install_source: "pip"
 
 #git_server: "https://git.cloud.e4.lan"
 git_server: "https://github.com"
 git_repos_directory: "/usr/local/src"
 
-config_dir: "/etc/underground"
+config_path: "/etc/underground"
+data_path: "/var/lib/underground"
+log_path: "/var/log/underground"
 config_owner_user: "{{ ansible_effective_user_id }}"
 config_owner_group: "{{ ansible_effective_group_id }}"
+ceph_config_path: "{{ config_path }}/ceph"
+kolla_ansible_path: "/usr/local/share/kolla-ansible"
+kolla_config_path: "{{ config_path }}/kolla"
 
-log_dir: "/var/log/underground"
+underground_dryrun: false
 
-underground_external_network_interface: "ens3"
-underground_deploy_network_interface: "ens4"
-underground_baremetal_network_interface: "baremetal"
-underground_public_network_interface: "public"
+underground_deployment: aio
 
-underground_public_ip: "172.18.37.107"
-underground_baremetal_ip: "100.122.0.136"
+underground_deployments:
+  - aio
+  - hci
+  - converged
+  - distributed
 
-underground_service_password: "Passw0rd!"
+underground_enable_modules:
+  - minimal
 
-underground_dnsmasq_dns_servers: "100.122.0.136"
-underground_dhcp_pool_start: "100.122.0.10"
-underground_dhcp_pool_end: "100.122.0.20"
-underground_baremetal_image: 'vanilla'
-underground_cluster_name: 'underground'
+underground_public_interface: null
+
+# Public: API (Kolla api_interface)
+# Internal: Management (Kolla network_interface)
+# External: Provider/External (Kolla neutron_external_interface)
+underground_modules:
+  minimal:
+    enable:
+      - glance
+      - keystone
+      - neutron
+      - nova
+    parent: null
+    vars:
+      underground_enable_modules: null
+      underground_internal_address: null
+      underground_internal_interface: null
+      underground_openstack_release: null
+      underground_public_address: null
+      underground_public_interface: null
+      kolla_ansible_path: "{{ kolla_ansible_path }}"
+      kolla_config_path: "{{ kolla_config_path }}"
+    opts:
+      underground_external_interface: null
+  desktop:
+    enable:
+      - horizon
+    parent: minimal
+    vars: {}
+    opts: {}
+  base:
+    enable:
+      - barbican
+      - cinder
+      - heat
+      - horizon
+    parent: minimal
+    vars: {}
+    opts: {}
+  dbaas:
+    enable:
+      - trove
+    parent: base
+    vars: {}
+    opts: {}
+  management:
+    enable:
+      - ceilometer
+      - monasca
+      - mistral
+    parent: base
+    vars: {}
+    opts: {}
+  paas:
+    enable:
+      - magnum
+    parent: base
+    vars: {}
+    opts: {}
+  orchestration:
+    enable:
+      - cloudkitty
+      - designate
+      - watcher
+    parent: management
+    vars: {}
+    opts: {}
+  nfv:
+    enable:
+      - tacker
+    parent: minimal
+    vars: {}
+    opts: {}
+  baremetal:
+    enable:
+      - ironic
+      - horizon
+    parent: minimal
+    vars:
+      underground_baremetal_interface: null
+      underground_baremetal_network: null
+      underground_baremetal_address: null
+    opts:
+      underground_baremetal_gateway: null
+      underground_baremetal_dhcp_range: null
+      underground_baremetal_allocation_pool_start: null
+      underground_baremetal_allocation_pool_end: null
+      underground_external_allocation_pool_start: null
+      underground_external_allocation_pool_end: null
+      underground_external_gateway: null
+      underground_external_vlanid: null
+      underground_baremetal_dns: null
+      underground_baremetal_image: null
+  ceph:
+    enable:
+      - cinder
+      - manila_backend_cephfs_native
+    parent: minimal
+    vars:
+      ceph_config_path: "{{ ceph_config_path }}"
+      underground_ceph_release: "{{ underground_ceph_release }}"
+      underground_storage_interface: "{{ underground_public_interface }}"
+      underground_replica_interface: "{{ underground_public_interface }}"
+    opts: {}
+
+underground_import_ca: false
+
+underground_ssl_ca: |
+  -----BEGIN CERTIFICATE-----
+  MIIEjjCCAvagAwIBAgIBATANBgkqhkiG9w0BAQsFADA3MRUwEwYDVQQKDAxDTE9V
+  RC5FNC5MQU4xHjAcBgNVBAMMFUNlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMDAy
+  MTkxMzM4MTNaFw00MDAyMTkxMzM4MTNaMDcxFTATBgNVBAoMDENMT1VELkU0LkxB
+  TjEeMBwGA1UEAwwVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MIIBojANBgkqhkiG9w0B
+  AQEFAAOCAY8AMIIBigKCAYEA2q8U5y7dwCMQnA+Wx+2Kz0mOqfcZ7xuGvMYPb5Y4
+  sYlc4CdtMBdyMOJLg1msAR6d6d3VKg+tskcan04tD/MmroT/8yurPgKGdeL91/TE
+  oGbjFn9RAZPCpBxtVFNx/+V0KnN/N4mthnwTssKcbK37OWvvHX1r6Gdk6S/LS5tc
+  nvtpgZRDzDch7/IPbcuGCi2FtcPd/g1xMhzc5ucob40e4ALEOs3de8GbJr34i84/
+  YPEYDTYYoY8Qvqvnr1W9nR6QrB/0HyMuosuIWuSePRXmUxIMieu4W/dJmBQLbLS8
+  Q2vfpQns47R3jgzonhr7H4ePSkwECPpqAZTe633FDHtVc43eWixRxr8B4KZnAUBx
+  m8lamBSYUNX2lTDal9njof4vK8gGzAtZ9xH7wxENQgp7c//PZIlrfNHKNGfM+6s6
+  eiYsVvh/qu1iD156n7oPWmW4VMDlTpW+hhtmvI+I3e7wbEqCln2hkhzgE8IQGFGg
+  edXQ5Fw7Np3eoabLuLZ1bXwJAgMBAAGjgaQwgaEwHwYDVR0jBBgwFoAUU9zg/hA2
+  GDSaYuvYFcgbfts/95cwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAcYw
+  HQYDVR0OBBYEFFPc4P4QNhg0mmLr2BXIG37bP/eXMD4GCCsGAQUFBwEBBDIwMDAu
+  BggrBgEFBQcwAYYiaHR0cDovL2lwYS1jYS5jbG91ZC5lNC5sYW4vY2Evb2NzcDAN
+  BgkqhkiG9w0BAQsFAAOCAYEANEQ98NX38RvH1AKiY94Mfv/y27SAvRLZ9u65qTga
+  M5u3s9v+raL56YinmQLQGJcHFhFgQwm+DQlYzNie0R3BC2CWHtc208/vDRUxUd4U
+  CeCteovdLBDKTEm+X2Wo16WCUgNP5tx3BjoiVFEaPrnSlThoEvkVePQrNjnH+88F
+  lnvglmIaZg6YpnycgVHtFAVfNi/hdD/k1K4LkMCZrMxR4tt8dtnlZVZBDKJCAPeD
+  g3JpBzPYdxvecFSncYosjYku1oLUM/UPeOk9Vw4UdzGQtK10icDGT3JpL7BLD7Fa
+  0vkwYvEf6lklZvDPvR1SDryucK5ckHEizv3+TnJAHS8xyom+RYrLiAY9M8p1S++t
+  DvMP7v6GxX6jTv6d2z6XnZ5c1E+v36FfY+RGG+dIcA4tQliVjPqnIFYakauFUQsE
+  hZd1S7eNuQg8E1uOrHqprenjppsB49yBGAxI4/bs961U6rkpDbsIptbCkutMGBWF
+  5iY9PBQ/4dOtoRzKF2vCuZ3d
+  -----END CERTIFICATE-----
+
+# role/defaults variables that should be in group_vars/all.yml
+kolla_ansible_extended_globals:
+  ironic_dnsmasq_interface: "{{ api_interface }}"
+  ironic_dnsmasq_dhcp_range: null
+  ironic_dnsmasq_default_gateway: null
+  ironic_inspector_pxe_filter: "{% if enable_neutron | bool %}dnsmasq{% else %}noop{% endif %}"
+  ironic_ipxe_url: "http://{{ kolla_internal_vip_address | put_address_in_context('url') }}:{{ ironic_ipxe_port }}"
+  tftp_server: "{{ kolla_internal_vip_address }}"
+  ironic_inspector_kernel_cmdline_extras: []

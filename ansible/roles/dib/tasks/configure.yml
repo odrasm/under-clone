@@ -1,6 +1,13 @@
 ---
-- include_vars: "{{ config_dir }}/{{ underground_baremetal_image }}.yml"
-  failed_when: false
 
-- include_vars: "{{ underground_baremetal_image }}.yml"
-- 
+- name: Create Underground cache config directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0750"
+    owner: "{{ config_owner_user }}"
+    group: "{{ config_owner_group }}"
+  loop:
+    - "{{ data_path }}/baremetal/cache"
+  become: true
+

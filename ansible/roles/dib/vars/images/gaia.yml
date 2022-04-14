@@ -1,0 +1,116 @@
+---
+dib_init_element: "cloud-init-datasources"
+dib_env_vars:
+  http_proxy: "{{ lookup('env','http_proxy') }}"
+  https_proxy: "{{ lookup('env','https_proxy') }}"
+  DIB_CLOUD_INIT_DATASOURCES: "ConfigDrive, OpenStack" 
+  LANG: C
+  LC_ALL: C
+  LC_MESSAGES: C
+  DIB_IPA_ENABLE_RESCUE: true
+  DIB_DEV_USER_USERNAME: "e4user"
+  DIB_DEV_USER_PASSWORD: "000000"
+  DIB_DEV_USER_PWDLESS_SUDO: "yes"
+  DIB_DEV_USER_SHELL: "/bin/bash"
+  DIB_BOOTLOADER_SERIAL_CONSOLE: "ttyS1,115200"
+  DIB_CLOUD_INIT_ALLOW_SSH_PWAUTH: "yes"
+
+dib_ipa_elements_path: "{{ fluctus_elements_path }}"
+dib_trace: "true"
+dib_uncompressed: "false"
+dib_clearenv: "false"
+dib_notmpfs: "false"
+dib_offline: "true"
+dib_skipbase: "false"
+dib_arch: "amd64"
+dib_imagename: "{{ data_path }}/baremetal/images/{{ fluctus_baremetal_image }}"
+dib_imagetype: "qcow2"
+dib_imagesize: "18"
+dib_imagecache: "{{ data_path }}/baremetal/cache"
+#dib_maxresize:
+#dib_mintmpfs:
+#dib_mkfsopts:
+#dib_qemuopts:
+#dib_rootlabel:
+#dib_rdelement:
+#dib_installtype:
+dib_packages: "vim,nmap,mtr-tiny,python3-pip,ipmitool"
+dib_os_release: "focal"
+dib_os_element: "ubuntu"
+dib_elements: "grub2 devuser vm block-device-efi-lvm element-manifest ansible-pip growfs physical"
+
+
+dib_partitioning:
+- local_loop:
+    name: image0
+- partitioning:
+    base: image0
+    label: gpt
+    partitions:
+      - name: ESP
+        type: "EF00"
+        size: 550MiB
+        mkfs:
+          type: vfat
+          mount:
+            mount_point: /boot/efi
+            fstab:
+              options: "defaults"
+              fsck-passno: 1
+      - name: BSP
+        type: "EF02"
+        size: 8MiB
+      - name: boot
+        flags: [ boot ]
+        size: 1GiB
+        mkfs:
+          type: xfs
+          mount:
+            mount_point: /boot
+            fstab:
+              options: "defaults"
+              fsck-passno: 1
+      - name: system-disk
+        size: 15GiB
+        type: "8E00"
+- lvm:
+    name: lvm
+    base: [ system-disk ]
+    pvs:
+      - name: pv
+        base: system-disk
+        options: [ "--force" ]
+    vgs:
+      - name: vg
+        base: [ "pv" ]
+        options: [ "--force" ]
+    lvs:
+      - name: swap
+        base: vg
+        extents: 2%VG
+      - name: home
+        base: vg
+        extents: 50%VG
+      - name: blue
+        base: vg
+        extents: 30%VG
+- mkfs:
+    name: fs_home
+    base: home
+    type: xfs
+    label: "home"
+    mount:
+        mount_point: /home
+        fstab:
+            options: "rw,nodev,relatime"
+            fsck-passno: 0
+- mkfs:
+    name: fs_blue
+    base: blue
+    type: xfs
+    label: "img-rootfs"
+    mount:
+        mount_point: /
+        fstab:
+            options: "rw,relatime"
+            fsck-passno: 0

@@ -1,0 +1,26 @@
+- name: Ensure data directory exists
+  file:
+    state: directory
+    path: /srv/registry/docker
+    mode: 0777
+
+- name: Write docker registry conf file
+  template:
+    src: registry/config.yml.j2
+    dest: /etc/registry-docker/config.yml
+    mode: 0600
+    owner: '{{ ansible_user }}'
+
+      #- name: set docker registry users
+      #  loop: "{{ registry_users }}"
+      #  htpasswd:
+      #    path: "/etc/registry-docker/docker-users"
+      #    name: "{{ item }}"
+      #    password: "{{ all_registry_users[item].password | password_hash('bcrypt') }}"
+      #    mode: 0644
+      #    owner: "{{ ansible_user }}"
+      #    crypt_scheme: plaintext
+      #  when:
+      #    - item in registry_users
+      #    - "'password' in all_registry_users[item]"
+

@@ -1,6 +1,0 @@
----
-
-- name: pull bifrost image
-  docker_image:
-    name: "{{ bifrost.image }}" 
-    source: pull

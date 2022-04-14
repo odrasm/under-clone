@@ -1,0 +1,26 @@
+---
+project_group: "openstack"
+project_name: "kolla"
+
+kolla_build_source: "{{ install_source }}"
+kolla_build_source_version: "stable/{{ openstack_release }}"
+kolla_build_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
+
+kolla_config_path: "{{ config_path }}/kolla"
+kolla_build_conf_path: "{{ config_path }}/kolla/kolla-build.conf"
+kolla_build_log_path: "{{ log_path }}/kolla-build.log"
+kolla_template_override_path: "{{ config_path }}/kolla/template-override.j2"
+
+kolla_build_defaults:
+  DEFAULT:
+    namespace: 'underground'
+    tag: "{{ openstack_release }}"
+    registry: 'nexus01.cloud.e4.lan:8082'
+    maintainer: 'E4 Computer Engineering (https://e4company.com)'
+  horizon-additions-logo:
+    type: local
+    location: "{{ role_path }}/files/logo"
+
+kolla_build_custom: {}
+
+kolla_base: '<undefined>'

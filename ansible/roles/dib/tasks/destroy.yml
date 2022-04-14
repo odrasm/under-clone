@@ -1,1 +1,10 @@
 ---
+
+- name: Recursively remove Underground data directory
+  become: true
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ data_path }}/baremetal/images"
+    - "{{ data_path }}/baremetal/cache"

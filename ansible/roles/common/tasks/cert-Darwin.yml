@@ -1,0 +1,9 @@
+---
+- name: Create internal CA certificate
+  copy:
+    content: "{{ underground_ssl_ca }}"
+    dest: /private/tmp/e4.crt
+
+- name: Update CA certificates
+  command: security add-trusted-cert /private/tmp/e4.crt
+  changed_when: false

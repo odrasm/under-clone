@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  docker-registry:
+    image: registry:{{ app2.version }}
+    restart: unless-stopped
+    volumes:
+      - "/srv/registry/docker:/var/lib/registry:rw"
+      - "/etc/registry-docker/config.yml:/etc/docker/registry/config.yml:ro"
+    ports:
+{% for ports in app2.ports %}
+      - "{{ ports }}"
+{% endfor %}
+    networks:
+      - proxy-tier
+      - default
+  pypi-registry:
+    image: pypiserver/pypiserver:{{ app3.version }}
+    restart: unless-stopped
+    command: -P . -a . -o -v --log-stream stdout /data/packages
+    volumes:
+      - "/srv/registry/pypi:/data/packages:rw"
+    ports:
+{% for ports in app3.ports %}
+      - "{{ ports }}"
+{% endfor %}
+    networks:
+      - proxy-tier
+      - default
+  pkg-registry:
+    image: nginx:{{ app4.version }}
+    restart: unless-stopped
+    volumes:
+      - "/etc/registry-docker/pkg-repo.conf:/etc/nginx/conf.d/default.conf"
+      - "/srv/registry/rpm:/rpm-repo:rw"
+      - "/srv/registry/deb:/deb-repo:rw"
+      - "/srv/registry/raw:/raw-repo:rw"
+    ports:
+{% for ports in app4.ports %}
+      - "{{ ports }}"
+{% endfor %}
+    networks:
+      - proxy-tier
+      - default
+
+networks:
+  proxy-tier:

@@ -1,4 +1,0 @@
----
-certdir: /etc/pki/ca-trust/source/anchors/
-
-certcmd: update-ca-trust

@@ -1,1 +1,16 @@
 ---
+- include_tasks: constraints.yml
+
+- include_tasks: install.yml
+
+- include_tasks: "boot/{{ module }}.yml"
+  loop:
+    - deployment
+    - compute
+    - storage
+  loop_control:
+    loop_var: module
+  when: "module in group_names"
+
+- include_tasks: boot/hostname.yml
+  when: "inventory_hostname not in groups['deployment']"

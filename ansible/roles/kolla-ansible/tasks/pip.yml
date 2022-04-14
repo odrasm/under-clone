@@ -1,0 +1,6 @@
+---
+- name: Install kolla-ansible
+  become: true
+  command: "{{ kolla_python }} -m pip install kolla-ansible=={{ kolla_releases[openstack_release]['version'] }}.*"
+  register: install_kolla_ansible
+  changed_when: "'Successfully installed' in install_kolla_ansible.stdout"

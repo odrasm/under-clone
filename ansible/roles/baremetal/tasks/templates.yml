@@ -1,0 +1,60 @@
+---
+
+- name: Copy Ironic Discover Templates
+  block:
+    - name: Create Template Dir
+      file:
+        path: "{{ config_path }}/baremetal/templates"
+        state: directory
+    - name: Copy Templates
+      template:
+        src: "{{ item }}"
+        dest: "{{ config_path }}/baremetal/templates/"
+      loop:
+        - "autodiscover_capabilities.json"
+        - "autodiscover_capabilities_local.json"
+        - "autodiscover_ipmi_credentials.json"
+        - "autodiscover_capabilities_bios.json"
+        - "autodiscover_capabilities_uefi.json"
+          #- name: Purge Ironic Templates
+          #  shell: "source {{ config_path }}/admin-openrc.sh && openstack baremetal introspection rule purge"
+          #  args:
+          #    executable: "/bin/bash"
+          #- name: Import Ironic Templates
+          # shell: "source {{ config_path }}/admin-openrc.sh && openstack baremetal introspection rule import {{ item }}"
+          # args:
+          #  executable: "/bin/bash"
+          #loop:
+          #  - "{{ config_path }}/baremetal/templates/autodiscover_capabilities.json"
+          #  - "{{ config_path }}/baremetal/templates/autodiscover_capabilities_local.json"
+          #    - "{{ config_path }}/baremetal/templates/autodiscover_ipmi_credentials.json"
+          #  - "{{ config_path }}/baremetal/templates/autodiscover_capabilities_bios.json"
+          #  - "{{ config_path }}/baremetal/templates/autodiscover_capabilities_uefi.json"
+
+- name: Copy Ironic Cleaning Teamplates
+  block:
+    - name: Create Template Dir
+      file:
+        path: "{{ config_path }}/baremetal/templates"
+        state: directory
+    - name: Copy Templates
+      template:
+        src: "{{ item }}"
+        dest: "{{ config_path }}/baremetal/templates/"
+      loop:
+        - "cleaning_metadata.json"
+        - "cleaning_raid.json"
+
+- name: Copy Ironic Raid Teamplates
+  block:
+    - name: Create Template Dir
+      file:
+        path: "{{ config_path }}/baremetal/templates"
+        state: directory
+    - name: Copy Templates
+      template:
+        src: "{{ item }}"
+        dest: "{{ config_path }}/baremetal/templates/"
+      loop:
+        - "raid5.json"
+        - "raid1.json"

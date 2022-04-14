@@ -1,0 +1,18 @@
+---
+- block:
+  - name: Create node custom config
+    file:
+      path: "{{ kolla_config_path }}/config/neutron/{{ inventory_hostname }}"
+      state: directory
+  - name: Create Kolla Ansible main config file for neutron
+    template:
+      src: "{{ openstack_release }}/neutron.conf"
+      dest: "{{ kolla_config_path }}/config/neutron.conf"
+  - name: Create Kolla Ansible config files for neutron
+    template:
+      src: "{{ item.src }}"
+      dest: "{{ kolla_config_path }}/config/neutron/{{ item.path }}"
+    with_filetree: "../templates/{{ openstack_release }}/neutron"
+    when: item.state == 'file'
+  delegate_to: localhost
+  run_once: true

@@ -1,0 +1,4 @@
+---
+underground_public_address: "{{ hostvars[groups['control'][0]]['ansible_'+underground_public_interface]['ipv4']['address'] }}"
+underground_internal_interface: "lo"
+underground_internal_address: "127.0.0.2"

@@ -1,0 +1,37 @@
+---
+- name: Overload defaults
+  include_vars: "{{ item }}"
+  with_fileglob:
+    - "vars/defaults.yml"
+    - "vars/{{ openstack_release }}.yml"
+    - "vars/{{ underground_deployment }}.yml"
+    - "vars/{{ ansible_system }}.yml"
+    - "vars/{{ ansible_os_family }}.yml"
+    - "vars/{{ ansible_distribution }}.yml"
+    - "vars/{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "vars/{{ openstack_release }}-{{ ansible_os_family }}.yml"
+    - "vars/{{ openstack_release }}-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+
+- name: Create enable modules yaml
+  set_fact:
+    enable_modules_yaml: "{{ enable_modules_yaml|default({})|combine({'enable_'+item: 'yes'}) }}"
+  loop: "{{ underground_list_modules|map('extract',underground_modules)|map(attribute='enable')|flatten }}"
+
+- name: Create temporary file
+  tempfile:
+    state: file
+    suffix: yml
+  register: tmp_enable_moduled_yml
+
+- name: Write temporary enable modules yaml
+  copy:
+    content: "{{ enable_modules_yaml|to_nice_yaml(explicit_start=true) }}"
+    dest: "{{ tmp_enable_moduled_yml.path }}"
+
+- include_vars: "{{ tmp_enable_moduled_yml.path }}"
+
+- name: Delete temporary enable modules yaml
+  file:
+    path: "{{ tmp_enable_moduled_yml.path }}"
+    state: absent
+  when: tmp_enable_moduled_yml.path is defined

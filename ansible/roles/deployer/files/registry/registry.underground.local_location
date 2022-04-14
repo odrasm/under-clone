@@ -1,0 +1,22 @@
+if ($http_user_agent ~ "^(docker\/1\.(3|4|5(?!\.[0-9]-dev))|Go ).*$" ) {
+        return 404;
+}
+
+add_header 'Docker-Distribution-Api-Version:' 'registry/2.0' always;
+
+proxy_headers_hash_max_size 512;
+proxy_headers_hash_bucket_size 128;
+
+chunked_transfer_encoding on;
+
+#limit_conn       addr 1;
+limit_rate_after 1m;
+limit_rate       50k;
+
+limit_except GET HEAD OPTIONS {
+    allow 10.50.1.253;
+    allow 45.33.226.133;
+    deny  all;
+#    auth_basic "Registry Realm";
+#    auth_basic_user_file /etc/nginx/conf.d/proxy-users;
+}

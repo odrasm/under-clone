@@ -1,0 +1,14 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+  config.vm.synced_folder "../../..", "/usr/src/underground"
+  config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.provision "shell", inline: <<-SHELL
+    yum install -y python3-pip
+    python3 -m pip install -U pip
+    python3 -m pip install 'ansible<2.10'
+  SHELL
+end

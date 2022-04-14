@@ -1,0 +1,9 @@
+---
+modules.base:
+  - glance
+  - keystone
+  - neutron
+  - nova
+  - heat
+  - horizon
+  - barbican

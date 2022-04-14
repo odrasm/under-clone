@@ -1,0 +1,14 @@
+network:
+  version: 2
+{% if underground_baremetal_interface is defined %}
+  ethernets:
+    #{{ underground_baremetal_interface }}: {}
+    veth-baremetal: {}
+    ext-baremetal: {}
+{% endif %}
+  bridges:
+    baremetal:
+      addresses: [ {{ underground_baremetal_network }} ]
+      interfaces: [ {{ underground_baremetal_interface }},veth-baremetal ]
+      parameters:
+        stp: false

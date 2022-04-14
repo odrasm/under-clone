@@ -1,0 +1,22 @@
+---
+- include_tasks: support.yml
+
+- include_vars: "{{ kolla_ansible_path }}/ansible/group_vars/all.yml"
+
+- include_tasks: overwrite_defaults.yml
+
+- include_tasks: modules_defaults.yml
+
+- include_tasks: private_registry.yml
+  when:
+    - "'deployment' in group_names"
+    - "underground_deployment != 'aio'"
+
+- include_tasks: external_ceph.yml
+  when:
+    - "'ceph' in underground_list_modules"
+    - "not underground_dryrun"
+
+- include_tasks: save_all.yml
+  when:
+    - "'deployment' in group_names"

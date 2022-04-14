@@ -1,0 +1,51 @@
+---
+- name: Collect mandatory configuration variables
+  set_fact:
+    underground_vars: "{{ underground_list_modules|map('extract',underground_modules)|map(attribute='vars')|flatten|combine({}) }}"
+
+- name: Collect optional configuration variables
+  set_fact:
+    underground_opts: "{{ underground_list_modules|map('extract',underground_modules)|map(attribute='opts')|flatten|combine({}) }}"
+
+- name: Read configuration variables from globals.yml
+  slurp:
+    path: "{{ config_path }}/globals.yml"
+  register: underground_globals_yaml
+  failed_when: false
+
+- name: Decode variables from globals.yml
+  set_fact:
+    underground_globals: "{{ underground_globals_yaml.content|b64decode|from_yaml }}"
+  when: underground_globals_yaml.content is defined
+
+- name: Inject global variables
+  set_fact:
+    underground_globals: "{{ underground_globals|default({})|combine({item.key: item.value}) }}"
+  loop: "{{ underground_vars|combine(underground_opts)|dict2items }}"
+  when:
+    - item.value != None
+    - item.key not in underground_globals|default({})
+
+- name: Check for mandatory configuration variables
+  fail:
+    msg: "{{ item.key }} is mandatory"
+  loop: "{{ underground_vars|dict2items }}"
+  when:
+    - "item.value == None"
+    - "item.key not in vars or vars[item.key] == None"
+
+- name: Overwrite configuration variables
+  set_fact:
+    underground_globals: "{{ underground_globals|default({})|combine({item.key: lookup('vars', item.key)}) }}"
+  loop: "{{ underground_vars|combine(underground_opts)|dict2items }}"
+  when: item.key in vars
+
+- name: Ensure Public and Internal addres do not overlap
+  fail:
+    msg: |
+      Public VIP interface ({{ underground_public_address }}) cannot be the same of
+      internal interface ({{ underground_internal_address }}).
+  when:
+    - underground_public_address is defined
+    - underground_internal_address is defined
+    - underground_public_address == underground_internal_address

@@ -6,3 +6,8 @@ packages_custom:
   - util-linux
   - genisoimage
   - debootstrap
+  - kpartx
+  - gdisk
+  - rpm
+  - jq
+  - squashfs-tools

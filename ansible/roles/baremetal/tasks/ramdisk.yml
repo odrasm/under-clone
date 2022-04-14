@@ -1,0 +1,97 @@
+---
+- name: "Check if Custom Kernel exists"
+  stat: 
+    path: "{{ data_path }}/baremetal/images/ironic-agent.kernel"
+  register: "custom_agent_kernel"
+
+- name: "Check if Custom Ramdisk exists"
+  stat: 
+    path: "{{ data_path }}/baremetal/images/ironic-agent.initramfs"
+  register: "custom_agent_initramfs"
+
+- name: Import Underground deploy kernel
+  os_image:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    name: deploy-kernel
+    container_format: aki
+    disk_format: aki 
+    state: present
+    is_public: yes
+    filename: "{{ data_path }}/baremetal/images/ironic-agent.kernel"
+    properties:
+      cpu_arch: x86_64
+  when: "custom_agent_kernel.stat.exists == true"
+
+- name: Import Underground deploy ramdisk
+  os_image:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    name: deploy-ramdisk
+    container_format: ari
+    disk_format: ari
+    state: present
+    is_public: yes
+    filename: "{{ data_path }}/baremetal/images/ironic-agent.initramfs"
+    properties:
+      cpu_arch: x86_64
+  when: "custom_agent_initramfs.stat.exists == true"
+
+- name: Gather information about a previously created kernel image
+  os_image_info:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    image: deploy-kernel
+  register: resultkernel
+
+- name: Show openstack information
+  debug:
+    msg: "{{ resultkernel.openstack_image.id }}"
+
+- name: Set deploy-kernel image id
+  set_fact:
+    deploy_kernel_id: "{{ resultkernel.openstack_image.id }}"
+
+- name: Gather information about a previously created ramdisk image
+  os_image_info:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    image: deploy-ramdisk
+  register: resultramdisk
+
+- name: Show openstack information
+  debug:
+    msg: "{{ resultramdisk.openstack_image.id }}"
+
+- name: Set deploy-ramdisk image id
+  set_fact:
+     deploy_ramdisk_id: "{{ resultramdisk.openstack_image.id }}"
+

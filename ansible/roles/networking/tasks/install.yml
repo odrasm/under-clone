@@ -1,0 +1,17 @@
+---
+- name: Install required packages
+  vars:
+    packages_role: "packages_{{ item }}"
+  become: true
+  package:
+    name: "{{ hostvars[inventory_hostname][packages_role] }}"
+  when:
+    - packages_role in hostvars[inventory_hostname]
+    - item in group_names
+  loop:
+    - all
+    - control
+    - monitoring
+    - network
+    - compute
+    - storage

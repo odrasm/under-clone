@@ -1,0 +1,12 @@
+[
+    {
+        "description": "set basic capabilities bootmode uefi",
+        "conditions": [
+            {"op": "eq", "field": "data://auto_discovered", "value": true},
+            {"op": "eq", "field": "data://inventory.boot.current_boot_mode", "value": uefi}
+        ],
+        "actions": [
+            {"action": "set-capability", "name": "boot_mode", "value": "uefi"},
+        ]
+    }
+]

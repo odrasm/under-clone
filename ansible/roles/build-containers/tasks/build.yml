@@ -1,0 +1,9 @@
+---
+- name: Build Kolla containers
+  become: true
+  shell: >-
+    kolla-build
+      --config-file {{ kolla_build_conf }}
+      --template-override {{ kolla_template_override }}
+      --openstack-version {{ openstack_source_version }}
+      2>&1 | tee -a {{ kolla_build_log }}

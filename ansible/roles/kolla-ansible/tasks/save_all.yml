@@ -1,0 +1,87 @@
+---
+- name: Extract specifig Kolla Ansible globals.yml keys
+  set_fact:
+    globals_yml_keys: "{{ globals_yml_keys|default([])+[item] }}"
+  loop: "{{ raw_all_yaml.keys()|list }}"
+  when:
+    - raw_all_yaml[item]|default(None) != vars[item]|default(None)
+
+- name: Evaluate Kolla Ansible group_vars/all.yml
+  set_fact:
+    target_yaml: "{{ target_yaml|default({})|combine({item: None if value=='<None>' else value}) }}"
+  vars:
+    value: "{{ lookup('vars', item, default='<None>', errors='ignore') }}"
+  loop: "{{ raw_all_yaml.keys()|list }}"
+
+- name: Create specifig Kolla Ansible globals.yml
+  set_fact:
+    globals_yaml: "{{ globals_yaml|default({})|combine({item: None if value=='<None>' else value}) }}"
+  vars:
+    value: "{{ lookup('vars', item, default='<None>', errors='ignore') }}"
+  loop: "{{ globals_yml_keys }}"
+
+- name: Inspect Kolla Ansible globals.yml
+  debug:
+    var: globals_yaml
+
+- name: Read previous all.yml
+  slurp:
+    path: "{{ kolla_config_path }}/target.yml"
+  register: all_yaml
+  failed_when: false
+
+- name: Decode previous all.yml
+  set_fact:
+    source_yaml: "{{ all_yaml.content|b64decode|from_yaml }}"
+  when:
+    - all_yaml.content is defined
+
+- name: Check for changes
+  set_fact:
+    config_change: "{{ source_yaml is defined and source_yaml != target_yaml }}"
+
+- name: Collect changes
+  set_fact:
+    old_yaml: "{{ old_yaml|default({})|combine({item: source_yaml[item]|default(None)}) }}"
+    new_yaml: "{{ new_yaml|default({})|combine({item: target_yaml[item]|default(None)}) }}"
+  loop: "{{ target_yaml.keys()|list|union((source_yaml|default({})).keys()|list) }}"
+  when:
+    - config_change
+    - target_yaml[item]|default(None) != source_yaml[item]|default(None)
+
+- name: List of changes
+  debug:
+    msg: "Value change from \"{{ old_yaml[item]|default('<ABSENT>') }}\" to \"{{ new_yaml[item]|default('<DELETED>') }}\""
+  loop: "{{ new_yaml.keys()|list }}"
+  changed_when: true
+  when:
+    - config_change
+
+- fail:
+    msg: |-
+      WARNING: changes will not be applyed (--dryrun invocation)
+  when:
+    - underground_dryrun|bool
+
+- pause:
+    seconds: 5
+  when:
+    - config_change
+
+- name: Preseve previous all.yml
+  copy:
+    src: "{{ kolla_config_path }}/target.yml"
+    dest: "{{ kolla_config_path }}/source.yml"
+  when:
+    - all_yaml.content is defined
+    - config_change
+
+- name: Write new all.yml
+  copy:
+    content: "{{ target_yaml|to_nice_yaml(explicit_start=true) }}"
+    dest: "{{ kolla_config_path }}/target.yml"
+
+- name: Write Kolla Ansible globals.yml
+  copy:
+    content: "{{ globals_yaml|to_nice_yaml(explicit_start=true) }}"
+    dest: "{{ kolla_config_path }}/globals.yml"

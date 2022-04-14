@@ -1,0 +1,11 @@
+network:
+  version: 2
+{% if underground_external_interface is defined %}
+  #ethernets:
+    #{{ underground_external_interface }}: {}
+{% endif %}
+  bridges:
+    physnet1:
+      interfaces: [ {{ underground_external_interface|default('') }} ]
+      parameters:
+        stp: false

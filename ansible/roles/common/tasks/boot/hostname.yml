@@ -1,0 +1,7 @@
+---
+- name: Set hostname
+  become: true
+  hostname:
+    name: "{{ inventory_hostname }}"
+    use: systemd
+  when: "ansible_system == 'Linux'"

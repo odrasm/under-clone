@@ -1,0 +1,5 @@
+DEVICE=physnet1
+DEVICETYPE=veth
+PEER=pphysnet1
+ONBOOT=yes
+NM_CONTROLLED=no

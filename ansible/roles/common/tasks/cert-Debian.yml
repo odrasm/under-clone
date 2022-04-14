@@ -1,0 +1,19 @@
+---
+- name: Install required packages
+  package:
+    name: ca-certificates
+    state: present
+
+- name: Create directory for certificates
+  file:
+    path: "/usr/local/share/ca-certificates/extra"
+    state: "directory"
+    mode: "755"
+
+- name: Create internal CA certificate
+  copy:
+    content: "{{ underground_ssl_ca }}"
+    dest: /usr/local/share/ca-certificates/extra/e4.crt
+
+- name: Update CA certificates
+  command: update-ca-certificates

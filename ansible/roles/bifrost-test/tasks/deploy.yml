@@ -1,7 +1,0 @@
----
-- name: deploy bifrost
-  become: true
-  shell: "{{ bifrost_venv }}/bin/ansible-playbook -vvvv -i inventory/target install.yaml"
-  args:
-    chdir: "{{ git_repos_directory }}/{{ project_name }}/playbooks"
- 

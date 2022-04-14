@@ -1,0 +1,36 @@
+---
+- name: "Low level pre-requisite (action: {{ underground_action }})"
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  roles:
+    - { role: pre-requisite,
+        tags: pre-requisite }
+
+- name: "Common roles (action: {{ underground_action }})"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: common,
+        tags: common }
+
+- name: "Kolla (action: {{ underground_action }})"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: kolla-build,
+        tags: kolla-build }
+
+- name: "Kolla Ansible (action: {{ underground_action }})"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: kolla-ansible,
+        tags: kolla-ansible }
+
+- name: "OpenStack client (action: {{ underground_action }})"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: openstack-client,
+        tags: openstack-client }

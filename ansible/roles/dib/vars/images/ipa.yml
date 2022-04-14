@@ -1,0 +1,41 @@
+---
+dib_init_element: "simple-init"
+dib_env_vars:
+  http_proxy: "{{ lookup('env','http_proxy') }}"
+  https_proxy: "{{ lookup('env','https_proxy') }}"
+  DIB_INSTALLTYPE_simple_init: repo
+  LANG: C
+  LC_ALL: C
+  LC_MESSAGES: C
+  DIB_IPA_ENABLE_RESCUE: true
+  DIB_DEV_USER_USERNAME: "e4user"
+  DIB_DEV_USER_PASSWORD: "000000"
+  DIB_DEV_USER_PWDLESS_SUDO: "yes"
+  DIB_REPOREF_ironic_python_agent: "stable/{{ openstack_release }}"
+  DIB_REPOREF_requirements: "stable/{{ openstack_release }}"
+  DIB_REPOREF_ironic_lib: "stable/{{ openstack_release }}"
+  DIB_BOOTLOADER_SERIAL_CONSOLE: "ttyS1,115200"
+
+dib_ipa_elements_path: "/usr/local/share/ironic-python-agent-builder"
+dib_trace: "false"
+dib_uncompressed: "false"
+dib_clearenv: "false"
+dib_notmpfs: "false"
+dib_offline: "true"
+dib_skipbase: "false"
+dib_arch: "amd64"
+dib_imagename: "{{ data_path }}/baremetal/images/ironic-agent"
+dib_imagetype: "raw"
+#dib_imagesize:
+dib_imagecache: "{{ data_path }}/baremetal/cache"
+#dib_maxresize:
+#dib_mintmpfs:
+#dib_mkfsopts:
+#dib_qemuopts:
+#dib_rootlabel:
+#dib_rdelement:
+#dib_installtype:
+dib_packages: "vim,nmap,mtr"
+dib_os_release: "8-stream"
+dib_os_element: "centos"
+dib_elements: "ironic-python-agent-ramdisk enable-serial-console devuser extra-hardware"

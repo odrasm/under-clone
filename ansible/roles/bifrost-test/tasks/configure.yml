@@ -1,8 +1,0 @@
----
-- name: Create Bifrost Template
-  template:
-    dest: "{{ git_repos_directory }}/{{ project_name }}/playbooks/inventory/group_vars/{{ item }}"
-    src: "localhost.j2"
-  loop:
-    - localhost
-    - target

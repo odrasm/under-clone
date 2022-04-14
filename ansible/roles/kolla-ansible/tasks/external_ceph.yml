@@ -1,0 +1,31 @@
+---
+- name: Create config directory
+  run_once: true
+  file:
+    path: "{{ kolla_config_path }}/config/{{ item.service }}/{{ item.module|default('') }}"
+    state: directory
+  loop: "{{ kolla_ceph_keyrings }}"
+  when:
+    - "'deployment' in group_names"
+
+- name: Import ceph.conf
+  become: true
+  run_once: true
+  delegate_to: "{{ groups['mons'][0] }}"
+  fetch:
+    src: /etc/ceph/ceph.conf
+    dest: "{{ kolla_config_path }}/config/{{ item.service }}/"
+    flat: true
+  loop: "{{ kolla_ceph_keyrings }}"
+
+- name: Store client authentication
+  become: true
+  run_once: true
+  delegate_to: "{{ groups['mons'][0] }}"
+  fetch:
+    src: "/etc/ceph/{{ item.keyring }}"
+    dest: "{{ kolla_keyring_path }}/"
+    flat: true
+  vars:
+    kolla_keyring_path: "{{ kolla_config_path }}/config/{{ item.service }}/{{ item.module|default('.') }}"
+  loop: "{{ kolla_ceph_keyrings }}"

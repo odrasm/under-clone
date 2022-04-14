@@ -1,0 +1,30 @@
+---
+- include_vars: "{{ kolla_config_path }}/globals.yml"
+  failed_when: false
+
+- block:
+  - name: Load kolla-build.conf
+    set_fact:
+      kolla_build_template: "{{ lookup('ini_file', kolla_build_conf_path+'.template', errors='ignore') }}"
+  - name: Reset kolla-build.conf
+    file:
+      state: absent
+      path: "{{ kolla_build_conf_path }}"
+  - name: Create kolla-build.conf
+    ini_file:
+      path: "{{ kolla_build_conf_path }}"
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      value: "{{ kolla_build_template[item.section][item.option]|default(item.value) }}"
+    loop: "{{ kolla_build_defaults|ini_dict_flatten + kolla_build_custom|ini_dict_flatten }}"
+  - name: Customize kolla-build.conf
+    ini_file:
+      path: "{{ kolla_build_conf_path }}"
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      value: "{{ kolla_build_template[item.section][item.option]|default(item.value) }}"
+    loop:
+      - {section: 'DEFAULT', option: 'base', value: "{{ kolla_base }}"}
+      - {section: 'DEFAULT', option: 'base_tag', value: "{{ openstack_release }}"}
+  delegate_to: localhost
+  run_once: true

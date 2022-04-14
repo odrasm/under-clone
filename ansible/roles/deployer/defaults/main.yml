@@ -1,0 +1,10 @@
+---
+
+tardis_repo_url: "https://review.cloud.e4.lan/e4/tardis"
+tardis_branch: "stable/auton"
+
+underground_repo_url: "https://review.cloud.e4.lan/e4/underground"
+underground_branch: "master"
+
+deployer_image_name: "ubuntu-cloud-image"
+registry_image_name: "ubuntu-cloud-docker-image"

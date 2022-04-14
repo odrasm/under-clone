@@ -1,0 +1,11 @@
+---
+- include_vars: "{{ item }}"
+  with_items:
+    - "{{ openstack_release }}.yml"
+    - "{{ ansible_system }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ openstack_release }}-{{ ansible_os_family }}.yml"
+    - "{{ openstack_release }}-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+  failed_when: false

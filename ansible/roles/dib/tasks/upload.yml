@@ -1,0 +1,42 @@
+---
+
+- name: "Upload {{ underground_baremetal_image }} image to Underground Service"
+  os_image:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    name: "{{ underground_baremetal_image }}-image"
+    container_format: bare
+    disk_format: "{{ dib_imagetype }}"
+    state: present
+    is_public: yes
+    filename: "{{ data_path }}/baremetal/images/{{ underground_baremetal_image }}.{{ dib_imagetype }}"
+      #kernel: "{{ deploy_kernel_id }}"
+      #ramdisk: "{{ deploy_ramdisk_id }}"
+    properties:
+      cpu_arch: x86_64
+      distro: "{{ dib_os_element }}"
+
+- name: Gather information about a previously created image
+  os_image_info:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    image: "{{ underground_baremetal_image }}-image"
+  register: resultimageupload
+
+- name: Show Underground image ID
+  debug:
+    msg: "{{ resultimageupload.openstack_image.id }}"

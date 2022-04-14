@@ -1,0 +1,65 @@
+---
+
+- name: Create Images Dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ data_path }}/baremetal/images"
+    - "{{ config_path }}/baremetal/images"
+
+- name: "TEST download ubuntu focal image"
+  get_url:
+    url: "https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img"
+    dest: "{{ data_path }}/baremetal/images/focal-server-cloudimg-amd64.img"
+
+- name: "TEST download ubuntu bionic image"
+  get_url:
+    url: "https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"
+    dest: "{{ data_path }}/baremetal/images/bionic-server-cloudimg-amd64.img"
+
+- name: "TEST upload ubuntu focal image"
+  os_image:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    name: ubuntu-focal
+    container_format: bare
+    disk_format: qcow2
+    state: present
+    is_public: yes
+    filename: "{{ data_path }}/baremetal/images/focal-server-cloudimg-amd64.img"
+    kernel: "{{ deploy_kernel_id }}"
+    ramdisk: "{{ deploy_ramdisk_id }}"
+    properties:
+      cpu_arch: x86_64
+      distro: ubuntu
+
+- name: "TEST upload ubuntu bionic image"
+  os_image:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    name: ubuntu-bionic
+    container_format: bare
+    disk_format: qcow2
+    state: present
+    is_public: yes
+    filename: "{{ data_path }}/baremetal/images/bionic-server-cloudimg-amd64.img"
+    kernel: "{{ deploy_kernel_id }}"
+    ramdisk: "{{ deploy_ramdisk_id }}"
+    properties:
+      cpu_arch: x86_64
+      distro: ubuntu

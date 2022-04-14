@@ -1,0 +1,16 @@
+{
+  "logical_disks": [
+    {
+      "size_gb": "MAX",
+      "raid_level": "5",
+      "controller": "software",
+      "number_of_physical_disks": 4,
+      "physical_disks": [
+        {"size": "> 500"},
+        {"size": "> 500"},
+        {"size": "> 500"},
+        {"size": "> 500"}
+      ]
+    }
+  ]
+}

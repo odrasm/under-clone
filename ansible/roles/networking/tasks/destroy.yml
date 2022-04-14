@@ -1,0 +1,19 @@
+---
+- name: Delete Netplan Neutron External Interfaces
+  become: true
+  file:
+    state: absent
+    path: "/etc/netplan/90-neutron-{{ item }}.yaml"
+  when: item in ['minimal', 'baremetal']
+  loop: "{{ hostvars['localhost']['underground_list_modules'] }}"
+
+- name: Delete Baremetal Veth Neutron Interfaces
+  become: true
+  file:
+    state: absent
+    path: "/etc/systemd/network/90-baremetal.netdev"
+  loop: "{{ hostvars['localhost']['underground_list_modules'] }}"
+
+- name: Apply Netplan
+  become: true
+  command: netplan apply

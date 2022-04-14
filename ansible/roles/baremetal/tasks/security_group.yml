@@ -1,0 +1,151 @@
+---
+
+- name: Create MGMT security group
+  os_security_group:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: present
+    name: mgmt
+    description: security group for deployer servers
+
+- name: Enable icmp on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: icmp
+    remote_ip_prefix: 0.0.0.0/0
+
+- name: Enable ssh on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+
+- name: Enable http on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: tcp
+    port_range_min: 80
+    port_range_max: 80
+    remote_ip_prefix: 0.0.0.0/0
+
+- name: Enable https on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: tcp
+    port_range_min: 443
+    port_range_max: 443
+    remote_ip_prefix: 0.0.0.0/0
+
+- name: Enable registry on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: tcp
+    port_range_min: 5000
+    port_range_max: 5000
+    remote_ip_prefix: 0.0.0.0/0
+
+- name: Enable http on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: tcp
+    port_range_min: 8080
+    port_range_max: 8080
+    remote_ip_prefix: 0.0.0.0/0
+
+- name: Enable https on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: tcp
+    port_range_min: 8443
+    port_range_max: 8443
+    remote_ip_prefix: 0.0.0.0/0
+
+- name: Enable http on MGMT security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    security_group: mgmt
+    protocol: tcp
+    port_range_min: 8000
+    port_range_max: 8000
+    remote_ip_prefix: 0.0.0.0/0
+

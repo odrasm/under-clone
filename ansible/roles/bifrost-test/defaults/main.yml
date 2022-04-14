@@ -1,9 +1,0 @@
-project_group: "openstack"
-project_name: "bifrost"
-
-bifrost_source: "{{ install_source }}"
-  #bifrost_source_version: "stable/{{ openstack_release }}"
-bifrost_source_version: "11.0.0"
-bifrost_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
-
-bifrost_venv: "/opt/stack/bifrost"

@@ -1,0 +1,5 @@
+---
+
+- include_tasks: nova.yml
+
+- include_tasks: ironic.yml

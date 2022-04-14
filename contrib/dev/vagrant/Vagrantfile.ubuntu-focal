@@ -1,0 +1,60 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_EXPERIMENTAL'] = 'disks'
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+
+  # Disable default synced folder
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  # Sync all source project
+  config.vm.synced_folder "../../..", "/usr/local/src/underground", type: "nfs"
+
+  # Attaching a dedicated storage disk
+  config.vm.disk :disk, size: "50GB", name: "ceph_storage"
+
+  # Create a private network
+  config.vm.network "private_network", ip: "192.168.33.10", nic_type: "virtio"
+
+  # Create a neutron network
+  config.vm.network "private_network", ip: "192.168.44.254", nic_type: "virtio", auto_config: false
+
+  # Create a baremetal network
+  config.vm.network "private_network", ip: "192.168.55.254", nic_type: "virtio", auto_config: false
+
+  config.vm.provider :virtualbox do |vb|
+    # Use Host DNS for VPN
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    # Nested Virtualisation
+    #vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
+    vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all", "--nicpromisc3", "allow-all"]
+    vb.memory = 10000
+    vb.cpus = 4
+  end
+
+  # Initialize VM
+  config.vm.provision "shell", inline: <<-SHELL
+    # Make PgUp and PgDown a search shortcut
+    sed -i '/history-search-/{ s/^# //}' /etc/inputrc
+
+    # Identify /dev/sdc as a Ceph OSD
+    parted /dev/sdc -s -- mklabel gpt mkpart BOOTSTRAP_CEPH_BS 1 -1
+
+    # Install Ansible from PyPI
+    apt-get update
+    apt-get install -y ansible python3-pip
+    #python3 -m pip install /usr/local/src/underground
+  SHELL
+
+  # Deploy OpenStack All-in-One with Ceph
+  #config.vm.provision "shell", privileged: false, inline: <<-SHELL
+  #  underground(){ /usr/local/src/underground/tools/underground "$@"; }
+  #  underground init aio
+  #  underground bootstrap victoria -m desktop,ceph -n enp0s8
+  #  underground configure
+  #  underground deploy
+  #SHELL
+end

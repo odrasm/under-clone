@@ -1,0 +1,5 @@
+---
+
+- include_tasks: "requirements.yml"
+
+- include_tasks: "{{ autodiscovery_action }}.yml"

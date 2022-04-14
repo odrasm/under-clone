@@ -1,9 +1,0 @@
----
-pkgreq:
-  - gcc
-  - python-docker-py
-
-pkgdocker:
-  - docker-ce
-  - docker-ce-cli
-  - containerd.io

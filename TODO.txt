@@ -1,0 +1,6 @@
+# autodiscovery
+
+script underground-autodiscovery che salva i dati dei nodi collezionati
+
+esempio:
+for i in ID ecc ecc data save $ID > /etc/underground/baremetal/nodes/$ID.json

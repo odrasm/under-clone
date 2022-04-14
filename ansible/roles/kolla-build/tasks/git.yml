@@ -1,0 +1,17 @@
+- name: Cloning kolla source repository
+  git:
+    repo: "{{ kolla_build_git_repository }}"
+    dest: "{{ git_repos_directory }}/{{ project_name }}"
+    update: yes
+    version: "{{ kolla_build_source_version }}"
+
+- name: Install required packages
+  become: true
+  package:
+    name:
+      - libffi-dev
+      - libssl-dev
+
+- name: Install kolla
+  become: true
+  command: "{{ kolla_python }} -m pip install {{ git_repos_directory }}/{{ project_name }}"

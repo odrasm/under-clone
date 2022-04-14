@@ -1,0 +1,48 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2004"
+
+  # Disable default synced folder
+  config.vm.synced_folder '.', '/vagrant', disabled: false
+
+  # Sync all source project
+  config.vm.synced_folder "../../..", "/usr/local/src/underground", type: "nfs"
+
+  # Create a private network
+  config.vm.network "private_network", ip: "192.168.33.10", nic_type: "virtio"
+
+  # Create a baremetal network
+  config.vm.network "public_network", ip: "100.127.102.200", dev: "baremetal", type: "bridge", nic_type: "virtio", auto_config: true
+
+  config.vm.provider :libvirt do |vb|
+    vb.memory = 12228
+    vb.cpus = 4
+
+  end
+
+  # Initialize VM
+  config.vm.provision "shell", inline: <<-SHELL
+    sed -e 's/4.2.2.1/172.18.36.201/' -i /etc/systemd/resolved.conf
+    sed -e 's/4.2.2.2/172.18.36.202/' -i /etc/systemd/resolved.conf
+    sed -e 's/208.67.220.220/172.18.36.203/' -i /etc/systemd/resolved.conf
+    systemctl daemon-reload
+    systemctl restart systemd-resolved
+    apt-get update
+    apt-get install -y python3-pip
+    python3 -m pip install 'ansible<2.10'
+  SHELL
+
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    cd /usr/local/src/underground
+    tools/underground init aio
+    tools/underground bootstrap victoria boostrap victoria -m base,baremetal -n eth1 -e underground_baremetal_interface=eth2
+    tools/underground configure
+    tools/underground deploy
+  SHELL
+
+end
+

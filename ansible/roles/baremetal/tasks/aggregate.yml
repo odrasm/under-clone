@@ -1,0 +1,22 @@
+---
+- name: Set Host Aggregation for Baremetal
+  os_nova_host_aggregate:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: present
+    name: baremetal-hosts
+    hosts:
+      - "{{ ansible_hostname }}-ironic"
+  ignore_errors: yes
+
+- name: Set Host Aggregation Properties for Baremetal
+  shell: "source {{ config_path }}/admin-openrc.sh && openstack aggregate set --property baremetal=true baremetal-hosts"
+  args:
+    executable: "/bin/bash"

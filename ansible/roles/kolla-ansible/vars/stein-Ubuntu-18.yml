@@ -1,0 +1,5 @@
+---
+packages_custom:
+  - libffi-dev
+  - libssl-dev
+  - "{{ kolla_python }}-dev"

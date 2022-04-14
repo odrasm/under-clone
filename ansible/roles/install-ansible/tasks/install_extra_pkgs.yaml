@@ -1,7 +1,0 @@
----
-- name: install extra packages for ansible
-  package:
-    name:
-      - sshpass
-    state: present
-    update_cache: yes

@@ -1,0 +1,11 @@
+---
+- import_playbook: gather-facts.yml
+
+- name: "Autodiscovery (action: {{ autodiscovery_action }})"
+  hosts: control
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: autodiscovery, tags: autodiscovery, when: "'baremetal' in underground_list_modules" }
+

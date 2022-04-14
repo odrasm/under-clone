@@ -1,0 +1,344 @@
+#!/bin/bash
+
+[[ -x /usr/local/opt/gnu-getopt/bin/getopt ]] && PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+
+function check_environment_coherence {
+    local ansible_path
+    ansible_path=$(which ansible)
+
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: Ansible is not installed in the current (virtual) environment." >&2
+        exit 1
+    fi
+
+    local ansible_shebang_line
+    ansible_shebang_line=$(head -n1 "$ansible_path")
+
+    if ! echo "$ansible_shebang_line" | egrep "^#!" &>/dev/null; then
+        echo "ERROR: Ansible script is malformed (missing shebang line)." >&2
+        exit 1
+    fi
+
+    local ansible_python_cmdline
+    # NOTE(yoctozepto): may have multiple parts
+    ansible_python_cmdline=${ansible_shebang_line#\#\!}
+
+    if ! $ansible_python_cmdline --version &>/dev/null; then
+        echo "ERROR: Ansible Python is not functional." >&2
+        echo "Tried '$ansible_python_cmdline'" >&2
+        exit 1
+    fi
+
+    local ansible_version_output
+    ansible_full_version=$($ansible_python_cmdline -c 'import ansible; print(ansible.__version__)')
+
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: Failed to obtain Ansible version:" >&2
+        echo "$ansible_full_version" >&2
+        exit 1
+    fi
+
+    local ansible_version
+    ansible_version=$(echo "$ansible_full_version" | egrep -o '^[0-9]+\.[0-9]+')
+
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: Failed to parse Ansible version:" >&2
+        echo "$ansible_full_version" >&2
+        exit 1
+    fi
+
+    local ANSIBLE_VERSION_MIN=2.5
+    local ANSIBLE_VERSION_MAX=2.9
+
+    if [[ $(printf "%s\n" "$ANSIBLE_VERSION_MIN" "$ANSIBLE_VERSION_MAX" "$ansible_version" | sort -V | head -n1) != "$ANSIBLE_VERSION_MIN" ]] ||
+       [[ $(printf "%s\n" "$ANSIBLE_VERSION_MIN" "$ANSIBLE_VERSION_MAX" "$ansible_version" | sort -V | tail -n1) != "$ANSIBLE_VERSION_MAX" ]]; then
+        echo "ERROR: Ansible version should be between $ANSIBLE_VERSION_MIN and $ANSIBLE_VERSION_MAX. Current version is $ANSIBLE_VERSION_HOST which is not supported."
+        exit 1
+    fi
+}
+
+function find_base_dir {
+    local dir_name
+    dir_name=$(cd "$(dirname "$0")" &>/dev/null && pwd)
+    #base_name=$(basename "$0")
+    base_name="underground"
+    if [ -z "$SNAP" ]; then
+        if [[ ${dir_name} == "/usr/bin" ]]; then
+            BASEDIR=/usr/share/${base_name}
+        elif [[ ${dir_name} == "/usr/local/bin" ]]; then
+            BASEDIR=/usr/local/share/${base_name}
+        elif [[ -n ${VIRTUAL_ENV} ]] && [[ ${dir_name} == "${VIRTUAL_ENV}/bin" ]]; then
+            if test -f ${VIRTUAL_ENV}/lib/python*/site-packages/${base_name}.egg-link; then
+                # Editable install.
+                BASEDIR="$(head -n1 ${VIRTUAL_ENV}/lib/python*/site-packages/${base_name}.egg-link)"
+            else
+                BASEDIR="${VIRTUAL_ENV}/share/${base_name}"
+            fi
+        else
+            BASEDIR="$(dirname ${dir_name})"
+        fi
+    else
+        BASEDIR="$SNAP/share/${base_name}"
+    fi
+}
+
+function process_cmd {
+    echo "$ACTION : $CMD"
+    $CMD "$@"
+    if [[ $? -ne 0 ]]; then
+        echo "Command failed $CMD"
+        exit 1
+    fi
+}
+
+function usage {
+    cat <<EOF
+Usage: $0 COMMAND [options]
+
+Options:
+    --inventory, -i <inventory_path>   Specify path to ansible inventory file
+    --nic, -n <nic>                    Main network interface card
+    --playbook, -p <playbook_path>     Specify path to ansible playbook file
+    --configdir <config_path>          Specify path to directory with globals.yml
+    --key -k <key_path>                Specify path to ansible vault keyfile
+    --help, -h                         Show this usage information
+    --base, -b <base>                  The distro type for container images
+    --modules, -m <modules>            Enable specific Underground modules (default: minimal)
+    --tags, -t <tags>                  Only run plays and tasks tagged with these values
+    --skip-tags <tags>                 Only run plays and tasks whose tags do not match these values
+    --extra, -e <ansible variables>    Set additional variables as key=value or YAML/JSON passed to ansible-playbook
+    --limit <host>                     Specify host to run plays
+    --forks <forks>                    Number of forks to run Ansible with
+    --vault-id <@prompt or path>       Specify @prompt or password file (Ansible >=  2.4)
+    --ask-vault-pass                   Ask for vault password
+    --vault-password-file <path>       Specify password file for vault decrypt
+    --dryrun                           Does not execute any real action, show intentions
+    --force, -f                        Overwrite previously created configuration files
+    --verbose, -v                      Increase verbosity of ansible-playbook
+
+Environment variables:
+    EXTRA_OPTS                         Additional arguments to pass to ansible-playbook
+    KOLLA_CONF                         Specific Kolla conf directory if different from /etc/kolla
+    KOLLA_SHARE                        Specific Kolla installation path if not /usr[/local]/share/kolla-ansible
+
+Commands:
+    enable               Start Underground Baremetal Autodiscovery Mode
+    disable              Stop Underground Baremetal Autodiscovery Mode
+EOF
+}
+
+function bash_completion {
+cat <<EOF
+--inventory -i
+--nic -n
+--playbook -p
+--configdir
+--key -k
+--help -h
+--base -b
+--modules -m
+--tags -t
+--skip-tags
+--extra -e
+--passwords
+--limit
+--forks
+--vault-id
+--ask-vault-pass
+--vault-password-file
+--ca -c
+--dryrun
+--force -f
+--verbose -v
+enable
+disable
+EOF
+}
+
+check_environment_coherence
+
+SHORT_OPTS="hi:n:p:b:m:t:k:e:cfv"
+LONG_OPTS="help,inventory:,nic:,playbook:,base:,modules:,skip-tags:,tags:,key:,extra:,ca,dryrun,force,verbose,configdir:,limit:,forks:,vault-id:,ask-vault-pass,vault-password-file:,yes-i-really-really-mean-it"
+
+RAW_ARGS="$*"
+ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
+
+eval set -- "$ARGS"
+
+find_base_dir
+
+CONFIG_DIR="/etc/underground"
+VERBOSITY=
+EXTRA_OPTS=${EXTRA_OPTS}
+DANGER_CONFIRM=
+INCLUDE_IMAGES=
+INCLUDE_DEV=
+OPENSTACK_RELEASE=
+UNDERGROUND_MODULES=
+# Serial is not recommended and disabled by default. Users can enable it by
+# configuring ANSIBLE_SERIAL variable.
+ANSIBLE_SERIAL=${ANSIBLE_SERIAL:-0}
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+
+    (--inventory|-i)
+            INVENTORY="-i $2"
+            shift 2
+            ;;
+
+    (--nic|-n)
+            EXTRA_OPTS="$EXTRA_OPTS -e underground_public_interface=$2"
+            shift 2
+            ;;
+
+    (--playbook|-p)
+            PLAYBOOK="$2"
+            shift 2
+            ;;
+
+    (--base|-b)
+            EXTRA_OPTS="$EXTRA_OPTS -e kolla_base=$2"
+            shift 2
+            ;;
+
+    (--modules|-m)
+            for MODULE in ${2//,/ }; do
+                if [[ ",${UNDERGROUND_MODULES}," != *,$MODULE,* ]]; then
+                    UNDERGROUND_MODULES="${UNDERGROUND_MODULES:+$UNDERGROUND_MODULES,}$MODULE"
+                fi
+            done
+            shift 2
+            ;;
+
+    (--skip-tags)
+            EXTRA_OPTS="$EXTRA_OPTS --skip-tags $2"
+            shift 2
+            ;;
+
+    (--tags|-t)
+            EXTRA_OPTS="$EXTRA_OPTS --tags $2"
+            shift 2
+            ;;
+
+    (--ca|-c)
+            EXTRA_OPTS="$EXTRA_OPTS -e underground_import_ca=true"
+            shift 1
+            ;;
+
+    (--dryrun)
+            EXTRA_OPTS="$EXTRA_OPTS -e underground_dryrun=true"
+            shift 1
+            ;;
+
+    (--force|-f)
+            EXTRA_OPTS="$EXTRA_OPTS -e underground_force=true"
+            shift 1
+            ;;
+
+    (--verbose|-v)
+            VERBOSITY="$VERBOSITY --verbose"
+            shift 1
+            ;;
+
+    (--configdir)
+            CONFIG_DIR="$2"
+            shift 2
+            ;;
+
+    (--yes-i-really-really-mean-it)
+            if [[ ${RAW_ARGS} =~ "$1" ]]
+            then
+                DANGER_CONFIRM="$1"
+            fi
+            shift 1
+            ;;
+
+    (--key|-k)
+            VAULT_PASS_FILE="$2"
+            EXTRA_OPTS="$EXTRA_OPTS --vault-password-file=$VAULT_PASS_FILE"
+            shift 2
+            ;;
+
+    (--extra|-e)
+            EXTRA_OPTS="$EXTRA_OPTS -e $2"
+            shift 2
+            ;;
+
+    (--limit)
+            EXTRA_OPTS="$EXTRA_OPTS --limit $2"
+            shift 2
+            ;;
+
+    (--forks)
+            EXTRA_OPTS="$EXTRA_OPTS --forks $2"
+            shift 2
+            ;;
+
+    (--vault-id)
+            EXTRA_OPTS="$EXTRA_OPTS --vault-id $2"
+            shift 2
+            ;;
+
+    (--ask-vault-pass)
+            VERBOSITY="$EXTRA_OPTS --ask-vault-pass"
+            shift 1
+            ;;
+
+    (--vault-password-file)
+            EXTRA_OPTS="$EXTRA_OPTS --vault-password-file $2"
+            shift 2
+            ;;
+
+    (--help|-h)
+            usage
+            shift
+            exit 0
+            ;;
+
+    (--)
+            shift
+            break
+            ;;
+
+    (*)
+            echo "error"
+            exit 3
+            ;;
+esac
+done
+
+EXTRA_OPTS="$EXTRA_OPTS -e autodiscovery_action=$1"
+PLAYBOOK="${BASEDIR}/ansible/site.yml"
+
+case "$1" in
+(enable)
+        ACTION="Start Autodiscovery"
+        PLAYBOOK="${BASEDIR}/ansible/autodiscovery.yml"
+        ;;
+(disable)
+        ACTION="Stop Autodiscovery"
+        PLAYBOOK="${BASEDIR}/ansible/autodiscovery.yml"
+        ;;
+(bash-completion)
+        bash_completion
+        exit 0
+        ;;
+(*)     usage
+        exit 0
+        ;;
+esac
+
+export ANSIBLE_CONFIG="${BASEDIR}/ansible/ansible.cfg"
+
+GLOBALS_DIR="${CONFIG_DIR}/globals.d"
+EXTRA_GLOBALS=($(find ${GLOBALS_DIR} -maxdepth 1 -type f -name '*.yml' 2>/dev/null))
+test -e "${CONFIG_DIR}/globals.yml" && CONFIG_OPTS="${CONFIG_OPTS} -e @${CONFIG_DIR}/globals.yml"
+test -e "${CONFIG_DIR}/globals.yml" && : ${OPENSTACK_RELEASE:=$(awk -F': ' '/^\s*underground_openstack_release\s*:/{ print $2 }' "${CONFIG_DIR}/globals.yml")}
+test -e "${CONFIG_DIR}/hosts" && INVENTORY="${INVENTORY} -i ${CONFIG_DIR}/hosts"
+test -n "$OPENSTACK_RELEASE" && INVENTORY="${INVENTORY} -i ${BASEDIR}/ansible/inventory/kolla.${OPENSTACK_RELEASE}"
+
+CONFIG_OPTS="${CONFIG_OPTS} ${EXTRA_GLOBALS[@]/#/-e @} -e CONFIG_DIR=${CONFIG_DIR}"
+CMD="ansible-playbook $INVENTORY $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
+
+process_cmd ${UNDERGROUND_MODULES:+-e '{ "underground_enable_modules": [ "'${UNDERGROUND_MODULES//,/\",\"}'" ] }'}

@@ -1,0 +1,25 @@
+---
+- name: Create Keypair Dir
+  file:
+    path: "{{ config_path }}/baremetal/keypair"
+    state: directory
+
+- name: "Generate Deploy OpenSSH keypair"
+  openssh_keypair:
+    path: "{{ config_path }}/baremetal/keypair/id_ironic_rsa"
+
+- name: "Create Ironic cloud deploy keypair"
+  os_keypair:
+    auth:
+      auth_url: "{{ underground_auth_auth_url }}"
+      username: "{{ underground_auth_username }}"
+      password: "{{ underground_auth_password }}"
+      project_name: admin
+      os_user_domain_name: Default
+      os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: present
+    name: ironic_key
+    public_key_file: "{{ config_path }}/baremetal/keypair/id_ironic_rsa.pub"
+

@@ -1,0 +1,45 @@
+---
+- name: Create node custom config and config files for Ironic
+  block:
+    - name: Create node custom config
+      file:
+        path: "{{ kolla_config_path }}/config/ironic/{{ inventory_hostname }}"
+        state: directory
+    - name: Create Kolla Ansible main config file for Ironic
+      template:
+        src: "{{ openstack_release }}/ironic.conf"
+        dest: "{{ kolla_config_path }}/config/ironic.conf"
+    - name: Create Kolla Ansible main config file for Ironic-inspector
+      template:
+        src: "{{ openstack_release }}/ironic-inspector.conf"
+        dest: "{{ kolla_config_path }}/config/ironic-inspector.conf" 
+    - name: Create Kolla Ansible config file for Ironic
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ kolla_config_path }}/config/ironic/{{ item.path }}"
+      with_filetree: "../templates/{{ openstack_release }}/ironic"
+      when: item.state == 'file'
+        #    - name: Download Default ironic-agent kernel
+        #      local_action:
+        #        module: get_url
+        #        url: "https://tarballs.opendev.org/openstack/ironic-python-agent/dib/files/ipa-centos8-stable-{{ underground_openstack_release }}.kernel"
+        #        dest: "{{ kolla_config_path }}/config/ironic/ironic-agent.kernel"
+        #        checksum: "sha256:https://tarballs.opendev.org/openstack/ironic-python-agent/dib/files/ipa-centos8-stable-{{ underground_openstack_release }}.kernel.sha256"
+
+        #    - name: Download Default ironic-agent initramfs
+        #      local_action:
+        #        module: get_url
+        #        url: "https://tarballs.opendev.org/openstack/ironic-python-agent/dib/files/ipa-centos8-stable-{{ underground_openstack_release }}.initramfs"
+        #        dest: "{{ kolla_config_path }}/config/ironic/ironic-agent.initramfs"
+        #        checksum: "sha256:https://tarballs.opendev.org/openstack/ironic-python-agent/dib/files/ipa-centos8-stable-{{ underground_openstack_release }}.initramfs.sha256"
+    - name: "Copy IPA image from Underground to Kolla"
+      copy:
+        src: "{{ data_path }}/baremetal/images/{{ item }}"
+        dest: "{{ kolla_config_path }}/config/ironic/{{ item }}"
+      loop:
+        - ironic-agent.kernel
+        - ironic-agent.initramfs
+
+  when: "'baremetal' in underground_list_modules"
+  delegate_to: localhost
+  run_once: true

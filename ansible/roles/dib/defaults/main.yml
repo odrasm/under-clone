@@ -6,9 +6,9 @@ project_name_ipa: "ironic-python-agent-builder"
 kolla_build_source: "{{ install_source }}"
 
 dib_build_source: "{{ install_source }}"
-dib_build_source_version: "3.16.0"
+dib_build_source_version: "3.21.1"
 ipa_build_source: "{{ install_source }}"
-ipa_build_source_version: "3.0.0"
+ipa_build_source_version: "4.0.0"
 
 dib_build_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
 ipa_build_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name_ipa }}"

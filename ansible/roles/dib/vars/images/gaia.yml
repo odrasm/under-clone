@@ -12,7 +12,7 @@ dib_env_vars:
   DIB_DEV_USER_PASSWORD: "000000"
   DIB_DEV_USER_PWDLESS_SUDO: "yes"
   DIB_DEV_USER_SHELL: "/bin/bash"
-  DIB_BOOTLOADER_SERIAL_CONSOLE: "ttyS1,115200"
+  #DIB_BOOTLOADER_SERIAL_CONSOLE: "ttyS1,115200"
   DIB_CLOUD_INIT_ALLOW_SSH_PWAUTH: "yes"
 
 dib_ipa_elements_path: "{{ fluctus_elements_path }}"
@@ -37,7 +37,7 @@ dib_imagecache: "{{ data_path }}/baremetal/cache"
 dib_packages: "vim,nmap,mtr-tiny,python3-pip,ipmitool"
 dib_os_release: "focal"
 dib_os_element: "ubuntu"
-dib_elements: "grub2 devuser vm block-device-efi-lvm element-manifest ansible-pip growfs physical"
+dib_elements: "grub2 devuser vm block-device-efi-lvm disable-nouveau docker-engine element-manifest growfs physical"
 
 
 dib_partitioning:
@@ -88,22 +88,9 @@ dib_partitioning:
       - name: swap
         base: vg
         extents: 2%VG
-      - name: home
-        base: vg
-        extents: 50%VG
       - name: blue
         base: vg
-        extents: 30%VG
-- mkfs:
-    name: fs_home
-    base: home
-    type: xfs
-    label: "home"
-    mount:
-        mount_point: /home
-        fstab:
-            options: "rw,nodev,relatime"
-            fsck-passno: 0
+        extents: 70%VG
 - mkfs:
     name: fs_blue
     base: blue

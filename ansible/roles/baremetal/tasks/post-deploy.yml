@@ -23,3 +23,5 @@
 - include_tasks: security_group.yml
 
 - include_tasks: aggregate.yml
+
+- include_tasks: nat.yml

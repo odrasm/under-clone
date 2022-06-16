@@ -113,11 +113,10 @@ underground_deployment: aio
 underground_deployments:
   - aio
   - hci
-  - converged
-  - distributed
 
 underground_enable_modules:
   - minimal
+  - baremetal
 
 underground_public_interface: null
 
@@ -143,59 +142,13 @@ underground_modules:
       kolla_config_path: "{{ kolla_config_path }}"
     opts:
       underground_external_interface: null
-  desktop:
-    enable:
-      - horizon
-    parent: minimal
-    vars: {}
-    opts: {}
-  base:
-    enable:
-      - barbican
-      - cinder
-      - heat
-      - horizon
-    parent: minimal
-    vars: {}
-    opts: {}
-  dbaas:
-    enable:
-      - trove
-    parent: base
-    vars: {}
-    opts: {}
-  management:
-    enable:
-      - ceilometer
-      - monasca
-      - mistral
-    parent: base
-    vars: {}
-    opts: {}
-  paas:
-    enable:
-      - magnum
-    parent: base
-    vars: {}
-    opts: {}
-  orchestration:
-    enable:
-      - cloudkitty
-      - designate
-      - watcher
-    parent: management
-    vars: {}
-    opts: {}
-  nfv:
-    enable:
-      - tacker
-    parent: minimal
-    vars: {}
-    opts: {}
   baremetal:
     enable:
       - ironic
       - horizon
+        #      - heat
+        #      - designate
+        #      - mistral
     parent: minimal
     vars:
       underground_baremetal_interface: null
@@ -206,23 +159,13 @@ underground_modules:
       underground_baremetal_dhcp_range: null
       underground_baremetal_allocation_pool_start: null
       underground_baremetal_allocation_pool_end: null
+      underground_external_network: null
       underground_external_allocation_pool_start: null
       underground_external_allocation_pool_end: null
       underground_external_gateway: null
       underground_external_vlanid: null
       underground_baremetal_dns: null
       underground_baremetal_image: null
-  ceph:
-    enable:
-      - cinder
-      - manila_backend_cephfs_native
-    parent: minimal
-    vars:
-      ceph_config_path: "{{ ceph_config_path }}"
-      underground_ceph_release: "{{ underground_ceph_release }}"
-      underground_storage_interface: "{{ underground_public_interface }}"
-      underground_replica_interface: "{{ underground_public_interface }}"
-    opts: {}
 
 underground_import_ca: false
 

@@ -121,7 +121,7 @@ Environment variables:
     KOLLA_SHARE                        Specific Kolla installation path if not /usr[/local]/share/kolla-ansible
 
 Commands:
-    init DEPLOYMENT     Initialize Underground for a specific deployment (aio, hci, converged, etc)
+    init DEPLOYMENT     Initialize Underground for a specific deployment (aio, hci)
     import              Import a kolla-ansible deployment
     bootstrap RELEASE   Bootstrap servers with Underground OpenStack RELEASE (e.g. victoria)
     configure           Generate configuration files for Kolla Ansible

@@ -36,6 +36,6 @@ dib_imagecache: "{{ data_path }}/baremetal/cache"
 #dib_rdelement:
 #dib_installtype:
 dib_packages: "vim,nmap,mtr"
-dib_os_release: "8-stream"
+dib_os_release: "9-stream"
 dib_os_element: "centos"
 dib_elements: "ironic-python-agent-ramdisk enable-serial-console devuser extra-hardware"

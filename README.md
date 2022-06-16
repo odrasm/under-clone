@@ -42,26 +42,19 @@ something that can be defined as true infrastructure-as-code.
 
 #### Hardware (including VM)
 
-##### Minimal
-
-- **CPU**: 2x 1.8GHz x84_64
-- **RAM**: 6GB
-- **Storage OS**: 20GB HDD
-- **Storage Data**: 50GB HDD
-
 ##### Minimal Baremetal
 
 - **CPU**: 2x 1.8GHz x84_64
-- **RAM**: 8GB
+- **RAM**: 16GB
 - **Storage OS**: 100GB HDD
 - **Network**: 1gbit nic dedicated for baremetal
 
 ##### Recommended
 
-- **CPU**: 16x 3.0GHz x84_64
-- **RAM**: 128GB
+- **CPU**: 4x 3.0GHz x84_64
+- **RAM**: 32GB
 - **Storage OS**: 128GB SSD
-- **Storage Data**: 3x 500GB SSD
+- **Storage Data**: 1x 250GB SSD
 
 ## Installation
 
@@ -164,7 +157,7 @@ Underground initialization is needed to create common configuration directory an
 
 * Directories:
   * /etc/underground
-  * /etc/flictus/host_vars
+  * /etc/underground/host_vars
 * Files:
   * /etc/underground/hosts
 

@@ -27,3 +27,19 @@
     - "{{ ironic_inspector_container }}"
     - "{{ ironic_dnsmasq_container }}"
   become: true
+
+- name: Add NAT rule
+  iptables:
+    table: nat
+    action: append
+    chain: POSTROUTING
+    out_interface: "{{ underground_public_interface }}"
+    jump: MASQUERADE
+  become: true
+
+- name: Enable Forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+  become: true

@@ -4,8 +4,8 @@
     path: /etc/netplan
   register: check_netplan
 
-- include_tasks: baremetal.yml
-  when: "'baremetal' in underground_list_modules"
+    #- include_tasks: baremetal.yml
+    #  when: "'baremetal' in underground_list_modules"
 
-- include_tasks: netplan.yml
-  when: check_netplan.stat.exists and check_netplan.stat.isdir
+    #- include_tasks: netplan.yml
+    #  when: check_netplan.stat.exists and check_netplan.stat.isdir

@@ -1,4 +1,16 @@
 ---
+- include_vars: "{{ kolla_ansible_path }}/ansible/group_vars/all.yml"
+
+- set_fact:
+    raw_all_yaml: "{{ raw_all_yaml|default(kolla_ansible_extended_globals)|combine({item: vars[item]}) }}"
+  with_lines: "awk -F: '/^[[:alnum:]_]+:/{ print $1 }' {{ kolla_ansible_path }}/ansible/group_vars/all.yml"
+
+#- include_vars: "{{ config_path }}/globals.yml"
+
+- include_tasks: overwrite_defaults.yml
+
+- include_tasks: modules_defaults.yml
+
 - name: Extract specifig Kolla Ansible globals.yml keys
   set_fact:
     globals_yml_keys: "{{ globals_yml_keys|default([])+[item] }}"
@@ -85,3 +97,8 @@
   copy:
     content: "{{ globals_yaml|to_nice_yaml(explicit_start=true) }}"
     dest: "{{ kolla_config_path }}/globals.yml"
+
+      #- name: Write Kolla Ansible globals.d globals.yml
+      #  copy:
+      #    content: "{{ globals_yaml|to_nice_yaml(explicit_start=true) }}"
+      #    dest: "{{ config_path }}/globals.d/globals.yml"

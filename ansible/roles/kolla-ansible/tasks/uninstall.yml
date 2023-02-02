@@ -7,7 +7,7 @@
 
 - name: Uninstall kolla-ansible
   become: true
-  command: "{{ hostvars['localhost']['kolla_old_python'] }} -m pip uninstall -y kolla-ansible"
+  command: "{{ hostvars['localhost']['kolla_python'] }} -m pip uninstall -y kolla-ansible"
   register: uninstall_kolla_ansible
   when:
     - check_kolla_ansible_path.rc == 0

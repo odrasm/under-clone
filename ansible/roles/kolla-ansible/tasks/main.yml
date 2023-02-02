@@ -1,2 +1,20 @@
 ---
-- include_tasks: "{{ kolla_action }}.yml"
+- include_tasks: "{{ underground_action }}.yml"
+  when: save_all is undefined
+
+- name: Check that the kolla/globals.yml exists
+  stat:
+    path: "{{ kolla_config_path }}/globals.yml"
+  register: stat_result
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true
+
+- name: Debug Conditions save_all
+  debug:
+    msg: "{{ not(stat_result.stat.exists) or underground_force|default('false')|bool }}"
+
+- include_tasks: "save_all.yml"
+  when:
+    - save_all is defined
+    - "'deployment' in group_names"
+    - not(stat_result.stat.exists) or underground_force|default('false')|bool

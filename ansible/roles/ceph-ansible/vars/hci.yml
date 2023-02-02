@@ -1,0 +1,4 @@
+---
+ceph_conf_custom:
+  global:
+    osd_pool_default_size: 2

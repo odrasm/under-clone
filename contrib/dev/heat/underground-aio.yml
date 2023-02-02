@@ -1,7 +1,7 @@
 heat_template_version: 2013-05-23
 
 description: >
-  Test Underground AIO Stack Minimal Module
+  Test Underground AIO Stack Baremetal Module
 
 resources:
   underground_secgroup:
@@ -21,11 +21,20 @@ resources:
           remote_ip_prefix: 0.0.0.0/0
           port_range_min: 22
           port_range_max: 22
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 5000
+          port_range_max: 5000
 
   external_underground:
     type: OS::Neutron::Net
     properties:
       name: "external_underground"
+
+  internal_underground:
+    type: OS::Neutron::Net
+    properties:
+      name: "internal_underground"
 
   subnet_external_underground:
     type: OS::Neutron::Subnet
@@ -36,12 +45,22 @@ resources:
       enable_dhcp: true
       name: "subnet_external_underground"
       gateway_ip: "100.127.103.254"
-      dns_nameservers: [ "172.18.36.201", "172.18.36.202", "172.18.36.203" ]
+      dns_nameservers: [ "172.18.36.3", "8.8.8.8", "172.18.36.201" ]
+
+  subnet_internal_underground:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: internal_underground }
+      cidr: "100.127.104.0/24"
+      ip_version: 4
+      enable_dhcp: false
+      gateway_ip: null
+      name: "subnet_internal_underground"
 
   router_underground:
     type: OS::Neutron::Router
     properties:
-      external_gateway_info: { network: provider_1837 }
+      external_gateway_info: { network: external_1837 }
 
   router_internal_interface:
     type: OS::Neutron::RouterInterface
@@ -49,7 +68,7 @@ resources:
       router_id: { get_resource: router_underground }
       subnet: { get_resource: subnet_external_underground }
 
-  instance_port_provider:
+  instance_port_external_underground_public:
     type: OS::Neutron::Port
     properties:
       network: { get_resource: external_underground }
@@ -62,45 +81,61 @@ resources:
   floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network: "provider_1837"
+      floating_network: "external_1837"
 
   association:
     type: OS::Neutron::FloatingIPAssociation
     properties:
       floatingip_id: { get_resource: floating_ip }
-      port_id: { get_resource: instance_port_provider }
+      port_id: { get_resource: instance_port_external_underground_public }
 
   instance_port_external_underground:
     type: OS::Neutron::Port
     properties:
       network: { get_resource: external_underground }
       fixed_ips:
-        - ip_address: "100.127.103.201"
+        - ip_address: "100.127.103.102"
+      port_security_enabled: false
+
+  instance_port_internal_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: internal_underground }
+      fixed_ips:
+        - ip_address: "100.127.104.201"
       port_security_enabled: false
 
   instance:
     type: OS::Nova::Server
     properties:
-      flavor: underground.small
-      image: ubuntu-focal-cloud
+      flavor: m1.xlarge
+      image: ubuntu-focal-server
       key_name: federicopinca
       name: underground-aio-01
       networks:
-        - port: { get_resource: instance_port_provider }
+        - port: { get_resource: instance_port_external_underground_public }
         - port: { get_resource: instance_port_external_underground }
+        - port: { get_resource: instance_port_internal_underground }
       user_data: |
             #!/bin/bash -v
-            apt-get update
-            apt-get install -y python3-pip wget curl ca-certificates
-            python3 -m pip install 'ansible<2.10'
-            wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
-            update-ca-certificates
-            git clone https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
-            cd /usr/local/src/underground
-            python3 -m pip install /usr/local/src/underground
-            sudo chown -R ubuntu. /usr/local/src/underground
-            useradd -p $(openssl passwd -crypt 000000) e4user
-            sudo -u ubuntu /usr/local/src/underground/tools/underground init aio > /home/ubuntu/underground-init.log
-            sudo -u ubuntu /usr/local/src/underground/tools/underground bootstrap victoria -m minimal -n ens3 -e underground_external_interface=ens4 > /home/ubuntu/underground-bootstrap.log
-            sudo -u ubuntu /usr/local/src/underground/tools/underground configure > /home/ubuntu/underground-configure.log
-            sudo -u ubuntu /usr/local/src/underground/tools/underground deploy > /home/ubuntu/underground-deploy.log
+            #apt-get update && apt-get -y upgrade
+            #apt-get install -y python3-pip wget curl ca-certificates netplan.io git nmap mtr-tiny
+            #python3 -m pip install 'ansible<2.10'
+            #apt-get purge -y snapd
+            #wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
+            #update-ca-certificates
+            #git clone -b feature/baremetal https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
+            #cd /usr/local/src/underground
+            #python3 -m pip install /usr/local/src/underground
+            #sudo chown -R ubuntu. /usr/local/src/underground
+            #useradd -p $(openssl passwd -crypt 000000) e4user
+            #sed -i /etc/netplan/50-cloud-init.yaml -e '0,/addresses:/s/addresses:/addresses: []/g'
+              #sed -i /etc/netplan/50-cloud-init.yaml -e '/100.127.102.200/d'
+            #netplan apply
+            #sudo -u ubuntu underground init aio > /home/ubuntu/underground-init.log
+            #sudo -u ubuntu underground bootstrap victoria -m baremetal -n ens3 -e "@/usr/local/src/underground/contrib/vars/underground_baremetal_vars.yml" > /home/ubuntu/underground-bootstrap.log
+            #sudo -u ubuntu underground build -t dib -e underground_baremetal_image="ipa" > /home/ubuntu/underground-build-ipa.log
+            #sudo -u ubuntu underground configure > /home/ubuntu/underground-configure.log
+            #sudo -u ubuntu underground deploy > /home/ubuntu/underground-deploy.log
+            #sudo -u ubuntu underground post-deploy > /home/ubuntu/underground-post-deploy.log
+            #sudo -u ubuntu underground build -t dib -e underground_baremetal_image="underground" -e baremetal_image_upload="true" > /home/ubuntu/underground-build-underground.log

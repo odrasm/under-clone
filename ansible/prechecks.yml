@@ -1,0 +1,6 @@
+---
+- import_playbook: gather-facts.yml
+
+- import_playbook: "{{ kolla_ansible_path }}/ansible/site.yml"
+  when: "underground_action in ['prechecks']"
+

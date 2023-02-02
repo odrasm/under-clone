@@ -1,0 +1,17 @@
+---
+fluctus_list_modules: "{{ hostvars['localhost']['fluctus_list_modules'] }}"
+
+packages_all: []
+packages_custom: []
+packages_python:
+  - netaddr
+  - psutil
+  - pyudev
+
+ceph_conf_defaults:
+  global:
+    osd_pool_default_size: 2
+  mon:
+    mon_warn_on_insecure_global_id_reclaim_allowed: false
+
+ceph_conf_custom: {}

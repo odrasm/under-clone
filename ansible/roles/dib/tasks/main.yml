@@ -11,4 +11,4 @@
 #    msg: "ERROR, underground_baremetal_image is not defined, nothing to build..."
 #    when: "underground_baremetal_image is not defined"
 
-- include_tasks: "{{ kolla_action }}.yml"
+- include_tasks: "{{ underground_action }}.yml"

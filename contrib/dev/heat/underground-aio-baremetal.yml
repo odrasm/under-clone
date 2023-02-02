@@ -21,6 +21,10 @@ resources:
           remote_ip_prefix: 0.0.0.0/0
           port_range_min: 22
           port_range_max: 22
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 5000
+          port_range_max: 5000
 
   external_underground:
     type: OS::Neutron::Net
@@ -36,7 +40,7 @@ resources:
       enable_dhcp: true
       name: "subnet_external_underground"
       gateway_ip: "100.127.103.254"
-      dns_nameservers: [ "172.18.36.201", "172.18.36.202", "172.18.36.203" ]
+      dns_nameservers: [ "172.18.36.3", "8.8.8.8", "172.18.36.201" ]
 
   instance_port_baremetal:
     type: OS::Neutron::Port
@@ -49,7 +53,7 @@ resources:
   router_underground:
     type: OS::Neutron::Router
     properties:
-      external_gateway_info: { network: provider_1837 }
+      external_gateway_info: { network: external_1837 }
 
   router_internal_interface:
     type: OS::Neutron::RouterInterface
@@ -70,7 +74,7 @@ resources:
   floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network: "provider_1837"
+      floating_network: "external_1837"
 
   association:
     type: OS::Neutron::FloatingIPAssociation
@@ -89,8 +93,8 @@ resources:
   instance:
     type: OS::Nova::Server
     properties:
-      flavor: underground.large
-      image: ubuntu-focal-cloud
+      flavor: m1.xlarge
+      image: ubuntu-focal-server
       key_name: federicopinca
       name: underground-aio-baremetal-01
       networks:
@@ -100,15 +104,15 @@ resources:
       user_data: |
             #!/bin/bash -v
             apt-get update && apt-get -y upgrade
-            apt-get install -y python3-pip wget curl ca-certificates netplan.io git
+            apt-get install -y python3-pip wget curl ca-certificates netplan.io git nmap mtr-tiny
             python3 -m pip install 'ansible<2.10'
             apt-get purge -y snapd
-            wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
-            update-ca-certificates
-            git clone -b feature/baremetal https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
-            cd /usr/local/src/underground
-            python3 -m pip install /usr/local/src/underground
-            sudo chown -R ubuntu. /usr/local/src/underground
+            #wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
+            #update-ca-certificates
+            #git clone -b feature/baremetal https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
+            #cd /usr/local/src/underground
+            #python3 -m pip install /usr/local/src/underground
+            #sudo chown -R ubuntu. /usr/local/src/underground
             useradd -p $(openssl passwd -crypt 000000) e4user
             sed -i /etc/netplan/50-cloud-init.yaml -e '0,/addresses:/s/addresses:/addresses: []/g'
             sed -i /etc/netplan/50-cloud-init.yaml -e '/100.127.102.200/d'

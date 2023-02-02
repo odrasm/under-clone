@@ -1,11 +1,4 @@
 ---
-- name: Install required packages
-  become: true
-  package:
-    name:
-      - libffi-dev
-      - libssl-dev
-
 - name: Cloning ironic-python-agent-builder source repository
   git:
     repo: "{{ ipa_build_git_repository }}"

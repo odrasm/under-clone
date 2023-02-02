@@ -14,5 +14,5 @@
       dest: "{{ kolla_config_path }}/config/neutron/{{ item.path }}"
     with_filetree: "../templates/{{ openstack_release }}/neutron"
     when: item.state == 'file'
-  delegate_to: localhost
+  delegate_to: "{{ groups['deployment'][0] }}"
   run_once: true

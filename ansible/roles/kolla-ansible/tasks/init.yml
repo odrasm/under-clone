@@ -1,2 +1,39 @@
 ---
-- include_tasks: install.yml
+- name: Install required packages
+  become: true
+  package:
+    name: "{{ packages_all }}"
+
+- name: Install custom packages
+  become: true
+  package:
+    name: "{{ packages_custom }}"
+
+#TODO per virtualenv non posso essere become
+- name: Install Python packages
+  become: true
+  pip:
+    name: "{{ packages_python }}"
+
+
+      #- name: Install latest pip in the virtualenv
+      #  pip:
+      #    # NOTE(hrw) pip 19.3 is first version complaining about being run with Python 2
+      #    name: pip>19.3
+      #    virtualenv: "{{ virtualenv }}"
+      #    virtualenv_site_packages: "{{ virtualenv_site_packages }}"
+      #    virtualenv_command: "python{{ host_python_version }} -m venv"
+      #  become: true
+      #  become_user: "{{ docker_sdk_virtualenv_owner }}"
+      #  when: virtualenv is not none
+
+      #- name: Install docker SDK for python
+      #  pip:
+      #    name: "{{ docker_sdk_pip_packages }}"
+      #    executable: "{{ virtualenv is none | ternary('pip3', omit) }}"
+      #    extra_args: "{% if docker_sdk_upper_constraints_file %}-c {{ docker_sdk_upper_constraints_file }}{% endif %}"
+      #    virtualenv: "{{ virtualenv is none | ternary(omit, virtualenv) }}"
+      #    virtualenv_site_packages: "{{ virtualenv is none | ternary(omit, virtualenv_site_packages) }}"
+      #    virtualenv_command: "{{ virtualenv is none | ternary(omit, 'python' ~ host_python_version ~ ' -m venv') }}"
+      #  become: true
+      #  become_user: "{{ virtualenv is none | ternary(omit, docker_sdk_virtualenv_owner) }}"

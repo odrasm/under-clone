@@ -1,0 +1,9 @@
+---
+- name: Download cephadm
+  ansible.builtin.get_url:
+    url: "{{ cephadm_git_repository }}" 
+    dest: /usr/local/bin/cephadm
+    mode: '0640'
+  register: install_cephadm
+  changed_when: "install_cephadm.stdout"
+

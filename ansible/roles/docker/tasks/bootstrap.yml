@@ -1,3 +1,0 @@
----
-- include_tasks: install.yml
-  when: active_roles|length

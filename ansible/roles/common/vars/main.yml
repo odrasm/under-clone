@@ -1,4 +1,6 @@
 ---
-packages_all: []
+packages_all:
+  - python3-pip
+  - ipmitool
 packages_custom: []
 packages_python: []

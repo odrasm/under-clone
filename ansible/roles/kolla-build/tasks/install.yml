@@ -9,7 +9,7 @@
   package:
     name: "{{ packages_custom }}"
 
-- include_tasks: "uninstall.yml"
-  when: "ansible_system == 'Linux'"
+      #- include_tasks: "uninstall.yml"
+      #  when: "ansible_system == 'Linux'"
 
 - include_tasks: "{{ kolla_build_source }}.yml"

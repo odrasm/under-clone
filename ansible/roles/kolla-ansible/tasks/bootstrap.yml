@@ -3,9 +3,3 @@
 
 - include_tasks: overwrite_defaults.yml
 
-- include_tasks: install.yml
-
-#- include_tasks: "uninstall.yml"
-#  when: "ansible_system == 'Linux'"
-
-- include_tasks: "{{ kolla_ansible_source }}.yml"

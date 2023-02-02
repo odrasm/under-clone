@@ -1,0 +1,49 @@
+---
+- name: Locate all disks to initialize
+  find_disks:
+    name: BOOTSTRAP_CEPH
+    match_mode: prefix
+  register: disk_list
+
+- name: Ensure all disks to initialize is not mounted
+  fail:
+    msg: "ERROR: Partition `{{ item.partition }}' labeled as \"{{ item.partition_label }}\" cannot be initialized (mounted on {{ item.mount_point }})"
+  loop: "{{ disk_list.disks }}"
+  when: item.mount_point is defined
+
+- name: Initialize OSD disks
+  become: true
+  command: "wipefs -a {{ item }}"
+  loop: "{{ disk_list.disks|map(attribute='device')|flatten }}"
+
+- name: Create a device list
+  set_fact:
+    devices: "{{ disk_list.disks|map(attribute='device')|flatten }}"
+    host_name: "{{ inventory_hostname }}"
+
+- block:
+  - name: Read configuration variables from file
+    slurp:
+      path: "{{ config_path }}/host_vars/{{ inventory_hostname }}"
+    register: ceph_node_yaml
+    failed_when: false
+  - name: Decode variables from file
+    set_fact:
+      ceph_node: "{{ ceph_node_yaml.content|b64decode|from_yaml }}"
+    when: ceph_node_yaml.content is defined
+  - name: Recover from empty file
+    set_fact:
+      ceph_node: {}
+    when: ceph_node_yaml.content is not defined or ceph_node==''
+  - name: Inject devices to initialize
+    set_fact:
+      ceph_node: "{{ ceph_node|combine({'devices': devices}) }}"
+    when:
+      - "devices|length > 0"
+      - "'devices' not in ceph_node"
+  - name: Write back node configuration
+    copy:
+      content: "{{ ceph_node|to_nice_yaml() }}"
+      dest: "{{ config_path }}/host_vars/{{ inventory_hostname }}"
+      mode: '0644'
+  delegate_to: localhost

@@ -1,3 +1,17 @@
 ---
+- include_tasks: check/check_variables.yml
 
-- include_tasks: ipa.yml
+- include_tasks: overwrite_defaults.yml
+
+- include_tasks: requirements.yml
+
+- include_tasks: "config/{{ module }}.yml"
+  loop:
+    - deployment
+    - compute
+    - storage
+  loop_control:
+    loop_var: module
+  when: "module in group_names"
+
+- include_tasks: install.yml

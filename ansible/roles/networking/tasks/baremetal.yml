@@ -14,3 +14,11 @@
     mode: '0644'
   loop: "{{ hostvars['localhost']['underground_list_modules'] }}"
 
+- name: Create External Veth Neutron Interfaces
+  become: true
+  template:
+    src: "external.netdev.j2"
+    dest: "/etc/systemd/network/90-external.netdev"
+    mode: '0644'
+  loop: "{{ hostvars['localhost']['underground_list_modules'] }}"
+

@@ -1,6 +1,4 @@
 ---
-- include_tasks: constraints.yml
-
 - include_tasks: install.yml
 
 - include_tasks: "boot/{{ module }}.yml"

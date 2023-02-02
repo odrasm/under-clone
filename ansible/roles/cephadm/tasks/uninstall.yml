@@ -1,0 +1,17 @@
+---
+- name: Check for previous version
+  command: which kolla-ansible
+  failed_when: false
+  changed_when: false
+  register: check_kolla_ansible_path
+
+- name: Uninstall kolla-ansible
+  become: true
+  command: "{{ hostvars['localhost']['kolla_old_python'] }} -m pip uninstall -y kolla-ansible"
+  register: uninstall_kolla_ansible
+  when:
+    - check_kolla_ansible_path.rc == 0
+    - hostvars['localhost']['kolla_old_python_version'] != kolla_python_version
+  failed_when:
+    - uninstall_kolla_ansible.rc > 0
+    - "'not installed' not in uninstall_kolla_ansible.stderr"

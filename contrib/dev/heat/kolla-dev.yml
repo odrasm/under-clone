@@ -1,0 +1,132 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Test Kolla DEV AIO
+
+resources:
+  kolladev_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: "kolladev_secgroup"
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 80
+          port_range_max: 80
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 443
+          port_range_max: 443
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 22
+          port_range_max: 22
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 5000
+          port_range_max: 5000
+
+  external_kolladev:
+    type: OS::Neutron::Net
+    properties:
+      name: "external_kolladev"
+
+  internal_kolladev:
+    type: OS::Neutron::Net
+    properties:
+      name: "internal_kolladev"
+
+  subnet_external_kolladev:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: external_kolladev }
+      cidr: "100.127.110.0/24"
+      ip_version: 4
+      enable_dhcp: false
+      name: "subnet_external_kolladev"
+      gateway_ip: "100.127.110.1"
+      dns_nameservers: [ "172.18.36.3", "8.8.8.8" ]
+
+  subnet_internal_kolladev:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: internal_kolladev }
+      cidr: "100.127.109.0/24"
+      ip_version: 4
+      enable_dhcp: false
+      gateway_ip: null
+      name: "subnet_internal_kolladev"
+
+  router_kolladev:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: external_1837 }
+
+  router_internal_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router_kolladev }
+      subnet: { get_resource: subnet_external_kolladev }
+
+  instance_port_external_kolladev_public:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_kolladev }
+      security_groups:
+        - default
+        - { get_resource: kolladev_secgroup }
+      fixed_ips:
+        - ip_address: "100.127.110.101"
+  
+  floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: "external_1837"
+
+  association:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip }
+      port_id: { get_resource: instance_port_external_kolladev_public }
+
+  instance_port_external_kolladev:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_kolladev }
+      fixed_ips:
+        - ip_address: "100.127.110.102"
+      port_security_enabled: false
+
+  instance_port_internal_kolladev:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: internal_kolladev }
+      fixed_ips:
+        - ip_address: "100.127.109.101"
+      port_security_enabled: false
+
+  instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: m1.xlarge
+      image: ubuntu-focal-server
+      key_name: federicopinca
+      name: kolladev-aio
+      networks:
+        - port: { get_resource: instance_port_external_kolladev_public }
+        - port: { get_resource: instance_port_external_kolladev }
+        - port: { get_resource: instance_port_internal_kolladev }
+      user_data: |
+            #!/bin/bash -v
+            apt-get update && apt-get -y upgrade
+            apt-get install -y python3-pip wget curl ca-certificates netplan.io git nmap mtr-tiny python3-dev libffi-dev gcc libssl-dev python3-venv mlocate
+            sudo -u ubuntu git clone --branch stable/xena https://opendev.org/openstack/kolla-ansible /home/ubuntu/kolla-ansible
+            pip3 install /home/ubuntu/kolla-ansible
+            sudo -u ubuntu sudo mkdir -p /etc/kolla
+            sudo -u ubuntu sudo chown $USER:$USER /etc/kolla
+            sudo -u ubuntu cp -r kolla-ansible/etc/kolla/* /etc/kolla
+            sudo -u ubuntu cp kolla-ansible/ansible/inventory/* .
+            sudo -u ubuntu kolla-ansible/tools/generate_passwords.py
+            sudo pip3 install python-openstackclient -c https://releases.openstack.org/constraints/upper/xena
+            pip3 install -U 'ansible<3.0'.
+            apt-get purge -y snapd

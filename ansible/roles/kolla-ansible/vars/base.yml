@@ -1,3 +1,6 @@
 ---
+enable_openstack_core: "yes"
 enable_heat: "yes"
 enable_cinder: "yes"
+enable_barbican: "yes"
+enable_horizon: "yes"

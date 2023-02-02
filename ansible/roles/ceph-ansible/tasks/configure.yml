@@ -1,0 +1,7 @@
+---
+- include_tasks: "config/{{ module }}.yml"
+  loop:
+    - deployment
+  loop_control:
+    loop_var: module
+  when: module in group_names

@@ -1,0 +1,77 @@
+---
+- import_playbook: gather-facts.yml
+
+#- import_playbook: no_limit.yaml
+#  when: hostvars.localhost.full_run
+
+- name: "Low level pre-requisite (action: {{ underground_action }})"
+  hosts: deployment
+  gather_facts: false
+  roles:
+    - { role: pre-requisite, tags: always }
+
+- name: "Common roles (action: {{ underground_action }})"
+  hosts: all
+  gather_facts: false
+  roles:
+    - { role: common, tags: always }
+
+      #- name: "Ceph Ansible (action: {{ underground_action }})"
+      #  hosts: deployment:ceph
+      #  gather_facts: false
+      #  vars:
+      #    ansible_python_interpreter: "{{ kolla_python }}"
+      #  roles:
+      #    - { role: ceph-ansible, tags: always }
+
+      #- name: "Kolla (action: {{ underground_action }})"
+      #  hosts: builder
+      #  serial: '{{ kolla_serial|default("0") }}'
+      #  gather_facts: false
+      #  vars:
+      #    ansible_python_interpreter: "{{ kolla_python }}"
+      #  roles:
+      #    - { role: kolla-build, tags: always }
+
+- name: "Networking (action: {{ underground_action }})"
+  hosts: baremetal
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  roles:
+    - { role: networking, tags: always }
+
+- name: "Disk Image Builder (action: {{ underground_action }})"
+  hosts: builder
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: dib, tags: always }
+
+- name: "Kolla Ansible (action: {{ underground_action }})"
+  hosts: deployment,baremetal,builder
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: kolla-ansible, tags: always }
+
+- name: "OpenStack client (action: {{ underground_action }})"
+  hosts: deployment
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: openstack-client, tags: always }
+
+- name: "Kolla Ansible (action: save_all )"
+  hosts: deployment
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+    save_all: enabled
+  roles:
+    - { role: kolla-ansible, tags: always, save_all: enabled }

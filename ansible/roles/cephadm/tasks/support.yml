@@ -1,0 +1,11 @@
+---
+- name: Check if platform is supported
+  delegate_to: localhost
+  stat:
+    path: "{{ role_path }}/vars/{{ openstack_release }}-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+  register: kolla_platform
+
+- name: Unsupported platform
+  fail:
+    msg: "Kolla Ansible `{{ openstack_release }}' is not supported on {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+  when: not kolla_platform.stat.exists

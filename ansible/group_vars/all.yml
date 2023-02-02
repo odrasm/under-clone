@@ -6,7 +6,8 @@ openstack_release: "{{ underground_openstack_release }}"
 openstack_source_version: "{{ 'stable/' if openstack_release != 'master' }}{{ openstack_release }}"
 
 # Ceph version
-underground_ceph_release: octopus
+underground_ceph_release: quincy
+ceph_release: quincy
 
 ceph_releases:
   nautilus:
@@ -15,6 +16,8 @@ ceph_releases:
     branch: stable-5.0
   pacific:
     branch: stable-6.0
+  quincy:
+    branch: stable-7.0
   latest:
     branch: master
 
@@ -32,6 +35,8 @@ kolla_versions:
   "11": victoria
   "12": wallaby
   "13": xena
+  "14": yoga
+  "15": zed
 
 kolla_releases:
   liberty:
@@ -86,22 +91,33 @@ kolla_releases:
     version: 13
     python_version: 3
     python_interpreter: python3
+  yoga:
+    version: 14
+    python_version: 3
+    python_interpreter: python3
+  zed:
+    version: 15
+    python_version: 3
+    python_interpreter: python3
 
 kolla_python: "{{ kolla_releases[openstack_release]['python_interpreter'] }}"
 kolla_python_version: "{{ kolla_releases[openstack_release]['python_version'] }}"
 
 # Valid options are: ['git', 'pip']
-install_source: "pip"
+ceph_install_source: "curl"
+install_source: "git"
 
 #git_server: "https://git.cloud.e4.lan"
 git_server: "https://github.com"
 git_repos_directory: "/usr/local/src"
 
-config_path: "/etc/underground"
+config_path: "{{ CONFIG_DIR | default('/etc/underground') }}"
+inventory_file: ""
 data_path: "/var/lib/underground"
 log_path: "/var/log/underground"
 config_owner_user: "{{ ansible_effective_user_id }}"
 config_owner_group: "{{ ansible_effective_group_id }}"
+ceph_ansible_path: "/usr/local/src/ceph-ansible"
 ceph_config_path: "{{ config_path }}/ceph"
 kolla_ansible_path: "/usr/local/share/kolla-ansible"
 kolla_config_path: "{{ config_path }}/kolla"
@@ -116,7 +132,6 @@ underground_deployments:
 
 underground_enable_modules:
   - minimal
-  - baremetal
 
 underground_public_interface: null
 
@@ -142,14 +157,55 @@ underground_modules:
       kolla_config_path: "{{ kolla_config_path }}"
     opts:
       underground_external_interface: null
+  desktop:
+    enable:
+      - horizon
+    parent: minimal
+    vars: {}
+    opts: {}
+  base:
+    enable:
+      - barbican
+      - cinder
+      - heat
+      - horizon
+    parent: minimal
+    vars: {}
+    opts: {}
+  paas:
+    enable:
+      - magnum
+      - designate
+    parent: base
+    vars:
+      designate_backend: "bind9"
+      designate_ns_record:
+        - "ns1.cloud.underground.org"
+    opts:
+      designate_dnssec_validation: "no"
+      designate_recursion: "yes"
+      designate_forwarders_addresses: "8.8.8.8; 8.8.4.4"
+  nfv:
+    enable:
+      - tacker
+    parent: minimal
+    vars: {}
+    opts: {}
+  ceph:
+    enable:
+      - cinder
+      - manila_backend_cephfs_native
+    parent: base
+    vars:
+      ceph_config_path: "{{ ceph_config_path }}"
+      underground_ceph_release: "{{ underground_ceph_release }}"
+      underground_storage_interface: "{{ underground_internal_interface }}"
+      underground_replica_interface: null
+    opts: {}  
   baremetal:
     enable:
       - ironic
-      - horizon
-        #      - heat
-        #      - designate
-        #      - mistral
-    parent: minimal
+    parent: base
     vars:
       underground_baremetal_interface: null
       underground_baremetal_network: null
@@ -166,6 +222,11 @@ underground_modules:
       underground_external_vlanid: null
       underground_baremetal_dns: null
       underground_baremetal_image: null
+
+underground_vgpu_enabled: false
+underground_vgpu_mdev: "nvidia-563"
+underground_pgpu_enabled: false
+underground_pgpu_pci: '{ "vendor_id":"10de", "product_id":"2235", "device_type":"type-PF", "name":"nvidia-a40" }'
 
 underground_import_ca: false
 
@@ -200,10 +261,11 @@ underground_ssl_ca: |
 
 # role/defaults variables that should be in group_vars/all.yml
 kolla_ansible_extended_globals:
-  ironic_dnsmasq_interface: "{{ api_interface }}"
-  ironic_dnsmasq_dhcp_range: null
-  ironic_dnsmasq_default_gateway: null
-  ironic_inspector_pxe_filter: "{% if enable_neutron | bool %}dnsmasq{% else %}noop{% endif %}"
-  ironic_ipxe_url: "http://{{ kolla_internal_vip_address | put_address_in_context('url') }}:{{ ironic_ipxe_port }}"
-  tftp_server: "{{ kolla_internal_vip_address }}"
-  ironic_inspector_kernel_cmdline_extras: []
+  api_interface: "{{ underground_internal_interface }}"
+  #  ironic_dnsmasq_interface: "{{ api_interface }}"
+  #  ironic_dnsmasq_dhcp_range: null
+  #  ironic_dnsmasq_default_gateway: null
+  #  ironic_inspector_pxe_filter: "{% if enable_neutron | bool %}dnsmasq{% else %}noop{% endif %}"
+  #  ironic_ipxe_url: "http://{{ kolla_internal_vip_address | put_address_in_context('url') }}:{{ ironic_ipxe_port }}"
+  #  tftp_server: "{{ kolla_internal_vip_address }}"
+  #  ironic_inspector_kernel_cmdline_extras: []

@@ -1,7 +1,0 @@
----
-- name: Check deploment topology
-  fail:
-    msg: "Unsupported deployment type `{{ underground_deployment }}'"
-  when: underground_deployment not in underground_deployments
-
-- include_tasks: "check_{{ underground_deployment }}.yml"

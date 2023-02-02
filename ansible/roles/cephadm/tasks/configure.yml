@@ -1,0 +1,15 @@
+---
+- include_tasks: overwrite_defaults.yml
+
+- include_tasks: modules_defaults.yml
+
+- include_tasks: "config/{{ module }}.yml"
+  loop:
+    - deployment
+    - compute
+    - control
+    - network
+    - storage
+  loop_control:
+    loop_var: module
+  when: "module in group_names"

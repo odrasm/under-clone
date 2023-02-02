@@ -1,5 +1,7 @@
 ---
 packages_custom:
+  - libffi-dev
+  - libssl-dev
   - qemu-utils
   - parted
   - hdparm

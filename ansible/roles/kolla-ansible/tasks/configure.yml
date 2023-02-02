@@ -1,5 +1,14 @@
 ---
+- include_tasks: support.yml
+
 - include_tasks: overwrite_defaults.yml
+
+- include_tasks: install.yml
+
+  #- include_tasks: "uninstall.yml"
+  #  when: "ansible_system == 'Linux'"
+
+- include_tasks: "{{ kolla_ansible_source }}.yml"
 
 - include_tasks: modules_defaults.yml
 
@@ -13,3 +22,9 @@
   loop_control:
     loop_var: module
   when: "module in group_names"
+
+    #- include_vars: "{{ kolla_ansible_path }}/ansible/group_vars/all.yml"
+
+  #- include_tasks: save_all.yml
+  #  when:
+  #    - "'deployment' in group_names"

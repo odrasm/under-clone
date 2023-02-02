@@ -1,0 +1,30 @@
+---
+project_group: "ceph"
+project_name: "ceph-ansible"
+
+ceph_ansible_source: "{{ install_source }}"
+ceph_ansible_source_version: "{{ ceph_releases[fluctus_ceph_release]['branch'] }}"
+ceph_ansible_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
+ceph_ansible_path: "{{ git_repos_directory }}/{{ project_name }}"
+
+ceph_config_file: "{{ ceph_config_path }}/ceph.conf"
+ceph_globals_file: "{{ config_path }}/globals.d/ceph.yml"
+
+ceph_network: "{{ hostvars[groups['mons'][0]]['ansible_'+fluctus_public_interface]['ipv4']['network'] }}"
+ceph_netmask: "{{ hostvars[groups['mons'][0]]['ansible_'+fluctus_public_interface]['ipv4']['netmask'] }}"
+ceph_ciddr: "{{ (ceph_network+'/'+ceph_netmask)|ipaddr('net') }}"
+
+ceph_globals_default:
+  ceph_origin: repository
+  ceph_repository: community
+  ceph_stable_release: "{{ fluctus_ceph_release }}"
+  cephx: true
+  cluster_network: "{{ ceph_ciddr }}"
+  container_package_name: docker-ce
+  containerized_deployment: true
+  dashboard_admin_password: "p@ssw0rd"
+  generate_fsid: true
+  grafana_admin_password: "p@ssw0rd"
+  monitor_interface: "{{ fluctus_public_interface }}"
+  openstack_config: true
+  public_network: "{{ ceph_ciddr }}"

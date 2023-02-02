@@ -41,5 +41,5 @@
         - ironic-agent.initramfs
 
   when: "'baremetal' in underground_list_modules"
-  delegate_to: localhost
+  delegate_to: "{{ groups['deployment'][0] }}"
   run_once: true

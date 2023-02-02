@@ -1,21 +1,5 @@
 ---
-- name: Check for Underground globals.yml
-  delegate_to: localhost
-  run_once: true
-  stat:
-    path: "{{ config_path }}/globals.yml"
-  register: underground_globals
+- include_tasks: check/check_variables.yml
 
-- fail:
-    msg: "ERROR: Underground seems not initialised. Run \"underground init <deployment>\" to fix it."
-  when: not underground_globals.stat.exists
-
-- fail:
-    msg: "OpenStack release `{{ openstack_release }}' is not supported"
-  when: openstack_release not in kolla_releases
-
-- include_tasks: overwrite_defaults.yml
-
-- include_tasks: requirements.yml
-
-- include_tasks: install.yml
+- include_tasks: check/check_ipa.yml
+  when: "'baremetal' in underground_list_modules"

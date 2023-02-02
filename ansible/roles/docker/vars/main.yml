@@ -1,2 +1,0 @@
----
-active_roles: "{{ group_names|intersect(['builder','deployment','ceph','kolla']) }}"

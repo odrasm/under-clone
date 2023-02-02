@@ -5,7 +5,7 @@
 #  when: hostvars.localhost.full_run
 
 - name: "Low level pre-requisite (action: {{ underground_action }})"
-  hosts: localhost
+  hosts: deployment
   connection: local
   gather_facts: false
   roles:
@@ -17,8 +17,18 @@
   roles:
     - { role: common, tags: always }
 
+      #- name: "Ceph Ansible (action: {{ underground_action }})"
+      #  hosts: ceph
+      #  gather_facts: false
+      #  vars:
+      #    ansible_python_interpreter: "{{ kolla_python }}"
+      #  roles:
+      #    - { role: ceph-ansible, tags: always, when: "'ceph' in underground_list_modules" }
+
+      #- import_playbook: "{{ ceph_ansible_path }}/site.yml"
+
 - name: "Networking (action: {{ underground_action }})"
-  hosts: kolla
+  hosts: baremetal
   serial: '{{ kolla_serial|default("0") }}'
   gather_facts: false
   vars_files:
@@ -26,34 +36,22 @@
   roles:
     - { role: networking, tags: always }
 
-- name: "Kolla (action: {{ underground_action }})"
-  hosts: builder
-  serial: '{{ kolla_serial|default("0") }}'
-  gather_facts: false
-  vars:
-    ansible_python_interpreter: "{{ kolla_python }}"
-  roles:
-    - { role: kolla-build, tags: always }
+      #- name: "Kolla (action: {{ underground_action }})"
+      #  hosts: builder
+      #  serial: '{{ kolla_serial|default("0") }}'
+      #  gather_facts: false
+      #  vars:
+      #    ansible_python_interpreter: "{{ kolla_python }}"
+      #  roles:
+      #    - { role: kolla-build, tags: always }
 
 - name: "Disk Image Builder (action: {{ underground_action }})"
-  hosts: deployment
+  hosts: builder
   gather_facts: false
   vars:
     ansible_python_interpreter: "{{ kolla_python }}"
   roles:
     - { role: dib, tags: dib }
-
-- name: "Kolla Ansible load defaults (action: {{ underground_action }})"
-  hosts: deployment
-  gather_facts: false
-  vars_files:
-    - "{{ kolla_ansible_path }}/ansible/group_vars/all.yml"
-  tasks:
-    - set_fact:
-        raw_all_yaml: "{{ raw_all_yaml|default(kolla_ansible_extended_globals)|combine({item: vars[item]}) }}"
-      with_lines: "awk -F: '/^[[:alnum:]_]+:/{ print $1 }' {{ kolla_ansible_path }}/ansible/group_vars/all.yml"
-      when: underground_action in ['deploy', 'reconfigure', 'upgrade']
-  tags: always
 
 - name: "Kolla Ansible (action: {{ underground_action }})"
   hosts: deployment
@@ -63,7 +61,7 @@
     ansible_python_interpreter: "{{ kolla_python }}"
   roles:
     - { role: kolla-ansible, tags: always, when: "underground_action not in ['post-deploy']" }
- 
+
 - import_playbook: "{{ kolla_ansible_path }}/ansible/certificates.yml"
   when: "underground_action in ['deploy', 'reconfigure']"
 
@@ -91,7 +89,7 @@
   roles:
     - { role: baremetal, tags: baremetal, when: "'baremetal' in underground_list_modules" }
 
-- hosts: localhost
+- hosts: deployment
   gather_facts: no
   vars_files:
     - "{{ kolla_ansible_path }}/ansible/group_vars/all.yml"

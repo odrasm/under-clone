@@ -1,0 +1,10 @@
+- name: Cloning cephadm source repository
+  git:
+    repo: "{{ cephadm_git_repository }}"
+    dest: "{{ git_repos_directory }}/{{ project_name }}"
+    update: yes
+    version: "{{ cephadm_source_version }}"
+
+- name: Install cephadm
+  become: true
+  command: "echo {{ git_repos_directory }}/{{ project_name }}"

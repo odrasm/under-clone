@@ -1,0 +1,66 @@
+---
+- include_vars: "{{ fluctus_deployment }}.yml"
+  failed_when: false
+
+- name: Read configuration variables from ceph.yml
+  slurp:
+    path: "{{ ceph_globals_file }}"
+  register: ceph_globals_yaml
+  failed_when: false
+
+- name: Decode variables from ceph.yml
+  set_fact:
+    ceph_globals: "{{ ceph_globals_yaml.content|b64decode|from_yaml }}"
+  when: ceph_globals_yaml.content is defined
+
+- name: Write Ceph Ansible path inside ceph.yml
+  set_fact:
+    ceph_globals: "{{ ceph_globals|default({})|combine({'ceph_ansible_path': ceph_ansible_path}) }}"
+  when:
+    - "'ceph_ansible_path' not in ceph_globals|default({})"
+
+- block:
+  - name: Load ceph.conf default overrides
+    set_fact:
+      ceph_conf: "{{ ceph_conf_defaults|combine(ceph_conf_custom) }}"
+      ceph_conf_over: "{{ ceph_globals.ceph_conf_overrides|default({}) }}"
+  - name: Generate ceph.conf with defaults
+    ini_file:
+      path: "{{ ceph_config_path }}/ceph.conf"
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      value: "{{ ceph_conf_over[item.section][item.option]|default(item.value) }}"
+    loop: "{{ ceph_conf|ini_dict_flatten }}"
+  - name: Reload ceph.conf default overrides
+    set_fact:
+      ceph_conf_over: "{{ lookup('ini_file', ceph_config_path+'/ceph.conf') }}"
+  - name: Default values for ceph.yml
+    set_fact:
+      ceph_globals: "{{ ceph_globals|combine({item.key: item.value}) }}"
+    loop: "{{ ceph_globals_default|dict2items }}"
+    when:
+      - "item.key not in ceph_globals|default({})"
+  - name: Customize deployment for ceph.yml
+    set_fact:
+      ceph_globals: "{{ ceph_globals|combine({item.key: item.value}) }}"
+    loop: "{{ ceph_globals_custom|default({})|dict2items }}"
+    when:
+      - "item.key not in ceph_globals|default({})"
+  - name: Inject ceph.conf into ceph.yml
+    set_fact:
+      ceph_globals: "{{ ceph_globals|combine({'ceph_conf_overrides': ceph_conf_over}) }}"
+  when:
+    - "'ceph' in fluctus_list_modules"
+
+- name: Prepare site.yml for Ceph Ansible
+  vars:
+    ceph_site: "{{ ceph_ansible_path+'/site-container.yml.sample' if ('ceph' in fluctus_list_modules) else 'site-disabled.yml' }}"
+  copy:
+    src: "{{ ceph_site }}"
+    dest: "{{ ceph_ansible_path }}/site.yml"
+
+- name: Write ceph.yml for Ceph Ansible
+  copy:
+    content: "{{ ceph_globals|to_nice_yaml(explicit_start=true) }}"
+    dest: "{{ ceph_globals_file }}"
+    mode: '0644'

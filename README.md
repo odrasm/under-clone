@@ -135,11 +135,13 @@ The Underground command is available using the local path syntax `tools/undergro
 
 The deployment sequence follow these steps:
 
-1. **Initialization**: `underground init [-f] <DEPLOYMENT>`
-2. **Bootstrapping**: `underground bootstrap <RELEASE> [-m <MODULE(S)>] [-n <NIC>]`
-3. **Configuration**: `underground configure`
-4. **Deployment**: `underground deploy`
-5. **Post Deployment**: `underground post-deploy`
+1. **Initialization**: `underground init [-f] [-m <MODULE(S)>] <DEPLOYMENT> <RELEASE> -i <INVENTORY> --configdir <CONFIGDIR>`
+2. **Configuration**: `underground configure -i <INVENTORY> --configdir <CONFIGDIR>`
+3. **Prechecks**: `underground prechecks -i <INVENTORY> --configdir <CONFIGDIR>`
+4. **Bootstrapping**: `underground bootstrap -i <INVENTORY> --configdir <CONFIGDIR>`
+5. **Deployment**: `underground deploy -i <INVENTORY> --configdir <CONFIGDIR>`
+6. **Post Deployment**: `underground post-deploy -i <INVENTORY> --configdir <CONFIGDIR>`
+`
 
 ### Initialization
 
@@ -241,22 +243,25 @@ Configuration step will populate multiple files inside /etc/underground director
 ### Example
 
 > ```shell
-> # underground init aio
+> # underground init hci zed -m minimal --inventory /home/e4user/hci --configdir /home/e4user/etc/underground 
 > ```
 > ```shell
-> # underground bootstrap victoria -m baremetal -n ens3 -e underground_baremetal_interface=ens5 -e underground_baremetal_network='100.127.102.200/24' -e underground_internal_address='100.127.102.201/24' -e underground_external_interface=ens4 -e underground_public_address='100.127.103.100'
+> # underground configure -e "@/home/e4user/underground_vars.yml" --inventory /home/e4user/hci --configdir /home/e4user/etc/underground
+> ```
+> ```shell
+> # underground prechecks --inventory /home/e4user/hci --configdir /home/e4user/etc/underground
+> ```
+> ```shell
+> # underground bootstrap --inventory /home/e4user/hci --configdir /home/e4user/etc/underground
 > ```
 > ```shell
 > # underground build -t dib -e underground_baremetal_image="ipa"
 > ```
 > ```shell
-> # underground configure
+> # underground deploy --inventory /home/e4user/hci --configdir /home/e4user/etc/underground
 > ```
 > ```shell
-> # underground deploy
-> ```
-> ```shell
-> # underground post-deploy
+> # underground post-deploy --inventory /home/e4user/hci --configdir /home/e4user/etc/underground
 > ```
 
 ### Parameters

@@ -2,10 +2,13 @@
 localhost	ansible_connection=local
 
 [builder:children]
-deployment
+control
+
+[control]
+qa01	ansible_host=172.18.36.41
 
 [control:children]
-deployment
+control
 
 [monitoring:children]
 control

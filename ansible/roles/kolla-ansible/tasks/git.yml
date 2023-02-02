@@ -4,7 +4,11 @@
     dest: "{{ git_repos_directory }}/{{ project_name }}"
     update: yes
     version: "{{ kolla_ansible_source_version }}"
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true
 
 - name: Install kolla-ansible
   become: true
   command: "{{ kolla_python }} -m pip install {{ git_repos_directory }}/{{ project_name }}"
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true

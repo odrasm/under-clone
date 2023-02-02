@@ -1,9 +1,10 @@
 ---
 - name: Check if platform is supported
-  delegate_to: localhost
+  delegate_to: "{{ groups['deployment'][0] }}"
   stat:
     path: "{{ role_path }}/vars/{{ openstack_release }}-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
   register: kolla_platform
+  run_once: true
 
 - name: Unsupported platform
   fail:

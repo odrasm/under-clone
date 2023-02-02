@@ -22,11 +22,15 @@
     state: file
     suffix: yml
   register: tmp_enable_moduled_yml
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true
 
 - name: Write temporary enable modules yaml
   copy:
     content: "{{ enable_modules_yaml|to_nice_yaml(explicit_start=true) }}"
     dest: "{{ tmp_enable_moduled_yml.path }}"
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true
 
 - include_vars: "{{ tmp_enable_moduled_yml.path }}"
 
@@ -35,3 +39,6 @@
     path: "{{ tmp_enable_moduled_yml.path }}"
     state: absent
   when: tmp_enable_moduled_yml.path is defined
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true
+

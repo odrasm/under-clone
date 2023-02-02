@@ -1,5 +1,5 @@
 ---
-underground_internal_interface: "{{ 'baremetal' if 'aio' in underground_deployment }}"
+#underground_internal_interface: "{{ 'baremetal' if 'aio' in underground_deployment }}"
 underground_baremetal_address: "{{ underground_baremetal_network | ipaddr('address') }}"
 underground_baremetal_prefix: "{{ underground_baremetal_network | ipaddr('prefix') }}"
 underground_baremetal_netmask: "{{ underground_baremetal_network | ipaddr('netmask') }}"

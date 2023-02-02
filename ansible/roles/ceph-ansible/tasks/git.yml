@@ -1,0 +1,6 @@
+- name: Cloning ceph-ansible source repository
+  git:
+    repo: "{{ ceph_ansible_git_repository }}"
+    dest: "{{ ceph_ansible_path }}"
+    update: yes
+    version: "{{ ceph_ansible_source_version }}"

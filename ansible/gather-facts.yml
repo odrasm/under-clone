@@ -41,20 +41,24 @@
   tags: always
 
 - name: Identify if using --limit
-  hosts: all,localhost
+  hosts: all,deployment
   gather_facts: false
   run_once: true
   tasks:
     - name: Check if play_hosts == all
       set_fact:
         full_run: "{{ play_hosts == groups.all }}"
-      delegate_to: localhost
+      delegate_to: deployment
       delegate_facts: yes
 
 - name: Calculate Underground modules dependency
-  hosts: localhost
+  hosts: deployment
   gather_facts: false
   tasks:
+    - debug:
+        msg: |
+          "{{ underground_enable_modules }}"
+          "{{ underground_modules }}"
     - name: Iterate from parent modules
       set_fact:
         underground_list_modules: "{{ underground_list_modules|default(underground_enable_modules)|union(underground_list_modules|default([])|map('extract',underground_modules)|map(attribute='parent')|flatten) }}"

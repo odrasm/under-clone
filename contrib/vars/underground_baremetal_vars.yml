@@ -1,16 +1,27 @@
 ---
-underground_baremetal_interface: ens20
-underground_baremetal_network: '100.127.102.200/24'
-underground_internal_address: '100.127.102.201'
-underground_external_interface: ens19
-underground_public_interface: ens18
-underground_public_address: '172.18.36.20'
-underground_baremetal_allocation_pool_start: '100.127.102.205'
-underground_baremetal_allocation_pool_end: '100.127.102.210'
+#####neutron host
+#underground_external_interface_vlanaware: yes
+underground_external_interface: bond0.1834
+#####openstack provider network
 underground_external_network: '172.18.34.0/24'
-underground_external_allocation_pool_start: '172.18.34.5'
-underground_external_allocation_pool_end: '172.18.34.9'
+underground_external_allocation_pool_start: '172.18.34.10'
+underground_external_allocation_pool_end: '172.18.34.20'
 #underground_external_vlanid: '1834'
 underground_external_gateway: '172.18.34.1'
-underground_baremetal_dns: '8.8.8.8'
-  
+
+
+####ironic host
+underground_baremetal_interface: bond0.102
+underground_baremetal_network: '100.127.102.2/24'
+####openstack neutron ironic network
+underground_baremetal_allocation_pool_start: '100.127.102.205'
+underground_baremetal_allocation_pool_end: '100.127.102.210'
+underground_baremetal_dns: '172.18.36.3'
+ 
+####api private host
+underground_internal_interface: bond0.100
+underground_internal_address: '100.127.100.11'
+
+####api public host
+underground_public_interface: bond0.1836
+underground_public_address: '172.18.36.11'

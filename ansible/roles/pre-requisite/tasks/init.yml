@@ -10,7 +10,7 @@
 
 - name: Initialize inventory hosts file
   copy:
-    src: "{{ playbook_dir }}/inventory/{{ underground_deployment }}"
+    src: "{{ inventory_file }}"
     dest: "{{ config_path }}/hosts"
     mode: '0644'
     force: "{{ underground_force|default('false')|bool }}"
@@ -18,8 +18,15 @@
 - name: Initialize globals.yml
   vars:
     underground_globals:
+      underground_openstack_release: "{{ underground_openstack_release }}"
       underground_deployment: "{{ underground_deployment }}"
+      config_path: "{{ config_path }}"
+      inventory_file: "{{ inventory_file }}"
+      underground_enable_modules: "{{ underground_enable_modules }}"
   copy:
     content: "{{ underground_globals|to_nice_yaml(explicit_start=true) }}"
     dest: "{{ config_path }}/globals.yml"
     force: "{{ underground_force|default('false')|bool }}"
+
+- include_tasks: constraints.yml
+

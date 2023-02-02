@@ -1,0 +1,8 @@
+---
+packages_deployment:
+  - libffi-dev
+  - libssl-dev
+  - gcc
+  - "{{ kolla_python }}-dev"
+
+packages_baremetal: []

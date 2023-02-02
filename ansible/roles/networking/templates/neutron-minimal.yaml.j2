@@ -1,11 +1,14 @@
 network:
   version: 2
 {% if underground_external_interface is defined %}
-  #ethernets:
+  ethernets:
     #{{ underground_external_interface }}: {}
+    veth-external: {}
+    physnet1: {}
 {% endif %}
   bridges:
-    physnet1:
-      interfaces: [ {{ underground_external_interface|default('') }} ]
+    external:
+      addresses: [ {{ underground_public_network }} ]
+      interfaces: [ {{ underground_public_interface }},veth-external ]
       parameters:
         stp: false

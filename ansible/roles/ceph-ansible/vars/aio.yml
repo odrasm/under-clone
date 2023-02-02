@@ -1,0 +1,6 @@
+---
+ceph_conf_custom:
+  global:
+    mon_warn_on_pool_no_redundancy: false
+    osd_crush_chooseleaf_type: 0
+    osd_pool_default_size: 1

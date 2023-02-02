@@ -1,13 +1,30 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-[[ -x /usr/local/opt/gnu-getopt/bin/getopt ]] && PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+#set [[ -x /usr/local/opt/gnu-getopt/bin/getopt ]] && PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
 
-function check_environment_coherence {
+#
+# This script can be used to interact with underground via ansible.
+
+set -o errexit
+
+# do not use _PYTHON_BIN directly, use $(get_python_bin) instead
+_PYTHON_BIN=""
+
+ANSIBLE_VERSION_MIN=2.12
+ANSIBLE_VERSION_MAX=2.13
+
+function get_python_bin {
+    if [ -n "$_PYTHON_BIN" ]; then
+      echo -n "$_PYTHON_BIN"
+      return
+    fi
+
     local ansible_path
     ansible_path=$(which ansible)
 
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Ansible is not installed in the current (virtual) environment." >&2
+        echo "Ansible version should be between $ANSIBLE_VERSION_MIN and $ANSIBLE_VERSION_MAX." >&2
         exit 1
     fi
 
@@ -19,9 +36,15 @@ function check_environment_coherence {
         exit 1
     fi
 
-    local ansible_python_cmdline
     # NOTE(yoctozepto): may have multiple parts
-    ansible_python_cmdline=${ansible_shebang_line#\#\!}
+    _PYTHON_BIN=${ansible_shebang_line#\#\!}
+    echo -n "$_PYTHON_BIN"
+}
+
+function check_environment_coherence {
+    local ansible_python_cmdline
+    ansible_python_cmdline=$(get_python_bin)
+    ansible_python_version=$($ansible_python_cmdline -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))')
 
     if ! $ansible_python_cmdline --version &>/dev/null; then
         echo "ERROR: Ansible Python is not functional." >&2
@@ -29,7 +52,14 @@ function check_environment_coherence {
         exit 1
     fi
 
-    local ansible_version_output
+    # Check for existence of underground module using Ansible's Python.
+    if ! $ansible_python_cmdline -c 'import underground' &>/dev/null; then
+        echo "ERROR: underground has to be available in the Ansible PYTHONPATH." >&2
+        echo "Please install both in the same (virtual) environment." >&2
+        exit 1
+    fi
+
+    local ansible_full_version
     ansible_full_version=$($ansible_python_cmdline -c 'import ansible; print(ansible.__version__)')
 
     if [[ $? -ne 0 ]]; then
@@ -47,39 +77,69 @@ function check_environment_coherence {
         exit 1
     fi
 
-    local ANSIBLE_VERSION_MIN=2.5
-    local ANSIBLE_VERSION_MAX=2.9
 
     if [[ $(printf "%s\n" "$ANSIBLE_VERSION_MIN" "$ANSIBLE_VERSION_MAX" "$ansible_version" | sort -V | head -n1) != "$ANSIBLE_VERSION_MIN" ]] ||
        [[ $(printf "%s\n" "$ANSIBLE_VERSION_MIN" "$ANSIBLE_VERSION_MAX" "$ansible_version" | sort -V | tail -n1) != "$ANSIBLE_VERSION_MAX" ]]; then
-        echo "ERROR: Ansible version should be between $ANSIBLE_VERSION_MIN and $ANSIBLE_VERSION_MAX. Current version is $ANSIBLE_VERSION_HOST which is not supported."
+        echo "ERROR: Ansible version should be between $ANSIBLE_VERSION_MIN and $ANSIBLE_VERSION_MAX. Current version is $ansible_full_version which is not supported."
         exit 1
     fi
 }
 
 function find_base_dir {
     local dir_name
-    dir_name=$(cd "$(dirname "$0")" &>/dev/null && pwd)
-    base_name=$(basename "$0")
+    local python_dir
+    dir_name=$(dirname "$0")
+    # NOTE(yoctozepto): Fix the case where dir_name is a symlink and VIRTUAL_ENV might not be. This
+    # happens with pyenv-virtualenv, see https://bugs.launchpad.net/underground/+bug/1903887
+    dir_name=$(readlink -e "$dir_name")
+    python_dir="python${ansible_python_version}"
     if [ -z "$SNAP" ]; then
         if [[ ${dir_name} == "/usr/bin" ]]; then
-            BASEDIR=/usr/share/${base_name}
-        elif [[ ${dir_name} == "/usr/local/bin" ]]; then
-            BASEDIR=/usr/local/share/${base_name}
-        elif [[ -n ${VIRTUAL_ENV} ]] && [[ ${dir_name} == "${VIRTUAL_ENV}/bin" ]]; then
-            if test -f ${VIRTUAL_ENV}/lib/python*/site-packages/${base_name}.egg-link; then
+            if test -f /usr/lib/${python_dir}/*-packages/underground.egg-link; then
                 # Editable install.
-                BASEDIR="$(head -n1 ${VIRTUAL_ENV}/lib/python*/site-packages/${base_name}.egg-link)"
+                BASEDIR="$(head -n1 /usr/lib/${python_dir}/*-packages/underground.egg-link)"
             else
-                BASEDIR="${VIRTUAL_ENV}/share/${base_name}"
+                BASEDIR=/usr/share/underground
+            fi
+        elif [[ ${dir_name} == "/usr/local/bin" ]]; then
+            if test -f /usr/local/lib/${python_dir}/*-packages/underground.egg-link; then
+                # Editable install.
+                BASEDIR="$(head -n1 /usr/local/lib/${python_dir}/*-packages/underground.egg-link)"
+            else
+                BASEDIR=/usr/local/share/underground
+            fi
+        elif [[ ${dir_name} == ~/.local/bin ]]; then
+            if test -f ~/.local/lib/${python_dir}/*-packages/underground.egg-link; then
+                # Editable install.
+                BASEDIR="$(head -n1 ~/.local/lib/${python_dir}/*-packages/underground.egg-link)"
+            else
+                BASEDIR=~/.local/share/underground
+            fi
+        elif [[ -n ${VIRTUAL_ENV} ]] && [[ ${dir_name} == "$(readlink -e "${VIRTUAL_ENV}/bin")" ]]; then
+            if test -f ${VIRTUAL_ENV}/lib/${python_dir}/site-packages/underground.egg-link; then
+                # Editable install.
+                BASEDIR="$(head -n1 ${VIRTUAL_ENV}/lib/${python_dir}/*-packages/underground.egg-link)"
+            else
+                BASEDIR="${VIRTUAL_ENV}/share/underground"
             fi
         else
+            # Running from sources (repo).
             BASEDIR="$(dirname ${dir_name})"
         fi
     else
-        BASEDIR="$SNAP/share/${base_name}"
+        BASEDIR="$SNAP/share/underground"
     fi
 }
+
+function install_deps {
+    echo "Installing Ansible Galaxy dependencies"
+    ansible-galaxy collection install -r ${BASEDIR}/requirements.yml --force
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: Failed to install Ansible Galaxy dependencies" >&2
+        exit 1
+    fi
+}
+
 
 function process_cmd {
     echo "$ACTION : $CMD"
@@ -95,8 +155,8 @@ function usage {
 Usage: $0 COMMAND [options]
 
 Options:
-    --inventory, -i <inventory_path>   Specify path to ansible inventory file
-    --nic, -n <nic>                    Main network interface card
+    --inventory, -i <inventory_path>   Specify path to ansible inventory file. \
+Can be specified multiple times to pass multiple inventories.
     --playbook, -p <playbook_path>     Specify path to ansible playbook file
     --configdir <config_path>          Specify path to directory with globals.yml
     --key -k <key_path>                Specify path to ansible vault keyfile
@@ -113,23 +173,22 @@ Options:
     --vault-password-file <path>       Specify password file for vault decrypt
     --dryrun                           Does not execute any real action, show intentions
     --force, -f                        Overwrite previously created configuration files
+    --check, -C                        Don't make any changes and try to predict some of the changes that may occur instead
+    --diff, -D                         Show differences in ansible-playbook changed tasks
     --verbose, -v                      Increase verbosity of ansible-playbook
 
 Environment variables:
     EXTRA_OPTS                         Additional arguments to pass to ansible-playbook
-    KOLLA_CONF                         Specific Kolla conf directory if different from /etc/kolla
-    KOLLA_SHARE                        Specific Kolla installation path if not /usr[/local]/share/kolla-ansible
 
 Commands:
-    init DEPLOYMENT     Initialize Underground for a specific deployment (aio, hci)
-    import              Import a kolla-ansible deployment
-    bootstrap RELEASE   Bootstrap servers with Underground OpenStack RELEASE (e.g. victoria)
+    init DEPLOYMENT RELEASE     Initialize Underground for a specific deployment (aio, hci)
+    import              Import a underground deployment
     configure           Generate configuration files for Kolla Ansible
+    bootstrap           Bootstrap servers with Underground OpenStack RELEASE (e.g. victoria)
     prechecks           Do pre-deployment checks for hosts
     build               Build Underground Artifacts (containers or images)
     deploy              Deploy and start Underground
     post-deploy		Post Deploy Customization
-    check               Do post-deployment smoke tests
     reconfigure         Reconfigure Underground
     upgrade             Upgrades existing OpenStack Environment
     destroy             Destroy Underground deployments, volumes and host configuration
@@ -139,7 +198,6 @@ EOF
 function bash_completion {
 cat <<EOF
 --inventory -i
---nic -n
 --playbook -p
 --configdir
 --key -k
@@ -157,8 +215,12 @@ cat <<EOF
 --vault-password-file
 --ca -c
 --dryrun
+--check -C
+--diff -D
+-
 --force -f
 --verbose -v
+--version
 import
 prechecks
 bootstrap
@@ -166,17 +228,25 @@ configure
 build
 deploy
 post-deploy
-check
 reconfigure
 upgrade
 destroy
 EOF
 }
 
+function version {
+    local python_bin
+    python_bin=$(get_python_bin)
+
+    $python_bin -c 'from kolla_ansible.version import version_info; print(version_info)'
+}
+
 check_environment_coherence
 
-SHORT_OPTS="hi:n:p:b:m:t:k:e:cfv"
-LONG_OPTS="help,inventory:,nic:,playbook:,base:,modules:,skip-tags:,tags:,key:,extra:,ca,dryrun,force,verbose,configdir:,limit:,forks:,vault-id:,ask-vault-pass,vault-password-file:,yes-i-really-really-mean-it"
+SHORT_OPTS="hi:p:b:m:t:k:e:cfv"
+LONG_OPTS="help,inventory:,playbook:,base:,modules:,skip-tags:,tags:,key:,extra:,ca,dryrun,force,verbose,configdir:,limit:,forks:,vault-id:,ask-vault-pass,vault-password-file:,yes-i-really-really-mean-it"
+#SHORT_OPTS="hi:p:t:k:e:CD:v"
+#LONG_OPTS="help,version,inventory:,playbook:,skip-tags:,tags:,key:,extra:,check,diff,verbose,configdir:,passwords:,limit:,forks:,vault-id:,ask-vault-pass,vault-password-file:,yes-i-really-really-mean-it,include-images,include-dev:,full,incremental"
 
 RAW_ARGS="$*"
 ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
@@ -185,9 +255,11 @@ eval set -- "$ARGS"
 
 find_base_dir
 
-CONFIG_DIR="/etc/underground"
+#INVENTORY="${BASEDIR}/ansible/inventory/all-in-one"
+PLAYBOOK="${BASEDIR}/ansible/site.yml"
 VERBOSITY=
 EXTRA_OPTS=${EXTRA_OPTS}
+#CONFIG_DIR="/etc/underground"
 DANGER_CONFIRM=
 INCLUDE_IMAGES=
 INCLUDE_DEV=
@@ -196,17 +268,14 @@ UNDERGROUND_MODULES=
 # Serial is not recommended and disabled by default. Users can enable it by
 # configuring ANSIBLE_SERIAL variable.
 ANSIBLE_SERIAL=${ANSIBLE_SERIAL:-0}
+INVENTORIES=()
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
 
     (--inventory|-i)
-            INVENTORY="-i $2"
-            shift 2
-            ;;
-
-    (--nic|-n)
-            EXTRA_OPTS="$EXTRA_OPTS -e underground_public_interface=$2"
+	    INVENTORY_FILE="$2"
+            INVENTORIES+=("$2")
             shift 2
             ;;
 
@@ -222,10 +291,11 @@ while [ "$#" -gt 0 ]; do
 
     (--modules|-m)
             for MODULE in ${2//,/ }; do
-                if [[ ",${UNDERGROUND_MODULES}," != *,$MODULE,* ]]; then
+	 	if [[ "${UNDERGROUND_MODULES}" != *$MODULE* ]]; then
                     UNDERGROUND_MODULES="${UNDERGROUND_MODULES:+$UNDERGROUND_MODULES,}$MODULE"
                 fi
             done
+	    EXTRA_OPTS="$EXTRA_OPTS ${UNDERGROUND_MODULES:+-e "underground_enable_modules"=["'${UNDERGROUND_MODULES//,/\',\'}'"]}"
             shift 2
             ;;
 
@@ -239,6 +309,14 @@ while [ "$#" -gt 0 ]; do
             shift 2
             ;;
 
+    (--check|-C)
+            EXTRA_OPTS="$EXTRA_OPTS --check"
+            shift 1
+            ;;
+
+    (--diff|-D)
+            EXTRA_OPTS="$EXTRA_OPTS --diff"
+ 
     (--ca|-c)
             EXTRA_OPTS="$EXTRA_OPTS -e underground_import_ca=true"
             shift 1
@@ -269,6 +347,16 @@ while [ "$#" -gt 0 ]; do
             then
                 DANGER_CONFIRM="$1"
             fi
+            shift 1
+            ;;
+
+    (--include-images)
+            INCLUDE_IMAGES="$1"
+            shift 1
+            ;;
+
+    (--include-dev)
+            INCLUDE_DEV="$1"
             shift 1
             ;;
 
@@ -327,18 +415,27 @@ esac
 done
 
 EXTRA_OPTS="$EXTRA_OPTS -e underground_action=$1 -e kolla_action=$1"
-PLAYBOOK="${BASEDIR}/ansible/site.yml"
+
 
 case "$1" in
+
 (init)
         ACTION="Initialize Underground deployment"
         PLAYBOOK="${BASEDIR}/ansible/init.yml"
         DEPLOYMENT="$2"
+	OPENSTACK_RELEASE="$3"
         if [ -z "$DEPLOYMENT" ]; then
             usage
             exit 1
         fi
-        EXTRA_OPTS="$EXTRA_OPTS -e underground_deployment=${DEPLOYMENT}"
+        if [ -z "$OPENSTACK_RELEASE" ]; then
+            usage
+            exit 1
+        fi
+         EXTRA_OPTS="$EXTRA_OPTS -e underground_deployment=${DEPLOYMENT} -e inventory_file=$INVENTORY_FILE -e config_path=$CONFIG_DIR -e underground_openstack_release=${OPENSTACK_RELEASE}"
+	install_deps
+	#echo "CONFIG_DIR=$CONFIG_DIR" >> $CONFIG_DIR/globals.bash
+	#echo "INVENTORY_FILE=$INVENTORY_FILE" >> $CONFIG_DIR/globals.bash
         ;;
 (import)
         ACTION="Import Kolla Ansible deployment"
@@ -346,14 +443,18 @@ case "$1" in
         ;;
 (prechecks)
         ACTION="Pre-deployment checking"
-        PLAYBOOK="${BASEDIR}/ansible/kolla.yml"
-        ;;
-(check)
-        ACTION="Post-deployment checking"
+        PLAYBOOK="${BASEDIR}/ansible/prechecks.yml"
+        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=precheck -e @${CONFIG_DIR}/kolla/globals.yml"
         ;;
 (destroy)
         ACTION="Destroy Kolla containers, volumes and host configuration"
         PLAYBOOK="${BASEDIR}/ansible/destroy.yml"
+        if [[ "${INCLUDE_IMAGES}" == "--include-images" ]]; then
+            EXTRA_OPTS="$EXTRA_OPTS -e destroy_include_images=yes"
+        fi
+        if [[ "${INCLUDE_DEV}" == "--include-dev" ]]; then
+            EXTRA_OPTS="$EXTRA_OPTS -e destroy_include_dev=yes"
+        fi
         if [[ "${DANGER_CONFIRM}" != "--yes-i-really-really-mean-it" ]]; then
             cat << EOF
 WARNING:
@@ -364,19 +465,14 @@ EOF
             exit 1
         fi
         ;;
+(configure)
+        ACTION="Configure Kolla Ansible"
+        PLAYBOOK="${BASEDIR}/ansible/configure.yml"
+        ;;
 (bootstrap)
         ACTION="Bootstrapping servers"
         PLAYBOOK="${BASEDIR}/ansible/bootstrap.yml"
-        OPENSTACK_RELEASE="$2"
-        if [ -z "$OPENSTACK_RELEASE" ]; then
-            usage
-            exit 1
-        fi
-        EXTRA_OPTS="$EXTRA_OPTS -e underground_openstack_release=${OPENSTACK_RELEASE}"
-        ;;
-(configure)
-        ACTION="Configure Kolla Ansible"
-        PLAYBOOK="${BASEDIR}/ansible/bootstrap.yml"
+	EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=bootstrap-servers -e @${CONFIG_DIR}/kolla/globals.yml"
         ;;
 (build)
         ACTION="Building Artifacts"
@@ -384,6 +480,8 @@ EOF
         ;;
 (deploy)
         ACTION="Deploying Playbooks"
+	EXTRA_OPTS="$EXTRA_OPTS -e @${CONFIG_DIR}/kolla/globals.yml"
+
 	;;
 (post-deploy)
 	ACTION="Post-Deploy Customization"
@@ -401,20 +499,30 @@ EOF
         exit 0
         ;;
 (*)     usage
-        exit 0
+        exit 3
         ;;
 esac
 
 export ANSIBLE_CONFIG="${BASEDIR}/ansible/ansible.cfg"
 
 GLOBALS_DIR="${CONFIG_DIR}/globals.d"
-EXTRA_GLOBALS=($(find ${GLOBALS_DIR} -maxdepth 1 -type f -name '*.yml' 2>/dev/null))
+#EXTRA_GLOBALS=($(find ${GLOBALS_DIR} -maxdepth 1 -type f -name '*.yml' 2>/dev/null))
+EXTRA_GLOBALS=$(find ${GLOBALS_DIR} -maxdepth 1 -type f -name '*.yml' -printf ' -e @%p' || true 2>/dev/null)
+CONFIG_OPTS="${CONFIG_OPTS} $(find ${CONFIG_DIR}/globals.yml -printf '-e @%p' || true 2>/dev/null)"
+PASSWORDS_FILE="${PASSWORDS_FILE:-${GLOBALS_DIR}/passwords.yml}"
+CONFIG_OPTS="${CONFIG_OPTS} ${EXTRA_GLOBALS} -e CONFIG_DIR=${CONFIG_DIR} -e config_path=${CONFIG_DIR}"
+#CONFIG_OPTS="-e @${CONFIG_DIR}/globals.yml ${CONFIG_OPTS} ${EXTRA_GLOBALS} -e CONFIG_DIR=${CONFIG_DIR}"
+#CONFIG_OPTS="${CONFIG_OPTS} ${EXTRA_GLOBALS[@]/#/-e @} -e CONFIG_DIR=${CONFIG_DIR}"
 test -e "${CONFIG_DIR}/globals.yml" && CONFIG_OPTS="${CONFIG_OPTS} -e @${CONFIG_DIR}/globals.yml"
 test -e "${CONFIG_DIR}/globals.yml" && : ${OPENSTACK_RELEASE:=$(awk -F': ' '/^\s*underground_openstack_release\s*:/{ print $2 }' "${CONFIG_DIR}/globals.yml")}
 test -e "${CONFIG_DIR}/hosts" && INVENTORY="${INVENTORY} -i ${CONFIG_DIR}/hosts"
 test -n "$OPENSTACK_RELEASE" && INVENTORY="${INVENTORY} -i ${BASEDIR}/ansible/inventory/kolla.${OPENSTACK_RELEASE}"
 
-CONFIG_OPTS="${CONFIG_OPTS} ${EXTRA_GLOBALS[@]/#/-e @} -e CONFIG_DIR=${CONFIG_DIR}"
-CMD="ansible-playbook $INVENTORY $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
+CMD="ansible-playbook $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
 
-process_cmd ${UNDERGROUND_MODULES:+-e '{ "underground_enable_modules": [ "'${UNDERGROUND_MODULES//,/\",\"}'" ] }'}
+for INVENTORY in ${INVENTORIES[@]}; do
+    CMD="${CMD} --inventory $INVENTORY"
+done
+CMD="${CMD} --inventory ${BASEDIR}/ansible/inventory/kolla.${OPENSTACK_RELEASE}"
+
+process_cmd

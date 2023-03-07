@@ -2,11 +2,11 @@ name: install-underground-actions
 run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 jobs:
-  check-bats-version:
+  test-underground:
     runs-on: self-hosted
     steps:
       - name: checkout repo
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@main
       - run: pip install ./
       - run: underground init aio
 

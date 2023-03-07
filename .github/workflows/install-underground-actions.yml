@@ -6,7 +6,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: checkout repo
-        uses: actions/checkout@
+        uses: actions/checkout
         repository: ''
       - run: pip install ./
       - run: underground init aio

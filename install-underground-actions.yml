@@ -1,0 +1,10 @@
+name: install-underground-actions
+run-name: ${{ github.actor }} is learning GitHub Actions
+on: [push]
+jobs:
+  check-bats-version:
+    runs-on: max-runner
+    steps:
+      - run: pip install ./
+      - run: underground init aio
+

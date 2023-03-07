@@ -9,4 +9,5 @@ jobs:
       - run: sudo pip install ./
       - run: sudo underground init aio
       - run: sudo underground bootstrap xena -m baremetal -e@contrib/vars/underground_baremetal_vars.yml
+      - run: sudo underground configure
 

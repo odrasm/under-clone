@@ -5,7 +5,7 @@ jobs:
   test-underground:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@odras/under-test
       - run: pip install ./
       - run: underground init aio
 

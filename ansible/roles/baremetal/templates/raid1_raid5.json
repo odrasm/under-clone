@@ -1,0 +1,15 @@
+{
+  "logical_disks": [
+    {
+      "size_gb": 100,
+      "raid_level": "5",
+      "is_root_volume": true,
+      "disk_type": "ssd"
+    },
+    {
+      "size_gb": 500,
+      "raid_level": "1",
+      "disk_type": "hdd"
+    }
+  ]
+}

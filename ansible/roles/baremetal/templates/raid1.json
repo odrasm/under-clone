@@ -1,0 +1,11 @@
+{
+  "logical_disks": [
+    {
+      "size_gb": 500,
+      "raid_level": "1",
+      "disk_type": "ssd",
+      "is_root_volume": true,
+      "controller": "software"
+    }
+  ]
+}

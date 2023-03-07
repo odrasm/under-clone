@@ -1,0 +1,3 @@
+---
+underground_internal_interface: "{{ underground_public_interface }}"
+underground_internal_address: "{{ underground_public_address|default(omit) }}"

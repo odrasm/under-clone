@@ -1,0 +1,18 @@
+---
+
+- name: "Check if Custom Kernel exists"
+  stat:
+    path: "{{ data_path }}/baremetal/images/ironic-agent.kernel"
+  register: "custom_agent_kernel"
+
+- name: "Check if Custom Ramdisk exists"
+  stat:
+    path: "{{ data_path }}/baremetal/images/ironic-agent.initramfs"
+  register: "custom_agent_initramfs"
+
+- fail:
+    msg: "The system may not be provisioned, have you built the ipa image?"
+  when:
+    - "custom_agent_kernel.stat.exists != true"
+    - "custom_agent_initramfs.stat.exists != true"
+

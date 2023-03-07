@@ -1,0 +1,8 @@
+---
+public_subnet: 192.168.33
+external_subnet: 192.168.44
+baremetal_subnet: 192.168.55
+
+vagrant_box: ubuntu/focal64
+memory: 6000
+cpu: 2

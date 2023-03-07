@@ -1,0 +1,3 @@
+---
+modules.baremetal:
+  - ironic

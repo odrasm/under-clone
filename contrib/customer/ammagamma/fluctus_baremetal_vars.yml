@@ -1,0 +1,9 @@
+---
+underground_baremetal_interface: enp12s0
+underground_baremetal_network: '172.20.252.210/24'
+underground_internal_address: '172.20.252.211'
+underground_external_interface: ext-external
+underground_public_address: '172.20.0.211'
+underground_baremetal_dhcp_range: '172.20.252.101,172.20.252.150'
+underground_baremetal_allocation_pool_start: '172.20.252.10'
+underground_baremetal_allocation_pool_end: '172.20.252.100'

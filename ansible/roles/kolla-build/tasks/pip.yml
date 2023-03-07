@@ -1,0 +1,6 @@
+---
+- name: Install kolla
+  become: true
+  command: "{{ kolla_python }} -m pip install kolla=={{ kolla_releases[openstack_release]['version'] }}.*"
+  register: install_kolla_build
+  changed_when: "'Successfully installed' in install_kolla_build.stdout"

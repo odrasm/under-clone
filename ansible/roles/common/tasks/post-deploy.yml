@@ -1,0 +1,15 @@
+---
+
+- name: "Check if openstack env file exist"
+  stat: 
+    path: "{{ config_path }}/admin-openrc.sh"
+  register: openstack_env
+
+- name: "Ensure Pre-req for post-deploy customization"
+  fail:
+    msg: |
+      Underground is not deployed Correctly
+  when:
+    - underground_public_address is not defined or underground_internal_address is not defined or not openstack_env.stat.exists
+
+- include_tasks: set_cloud.yml

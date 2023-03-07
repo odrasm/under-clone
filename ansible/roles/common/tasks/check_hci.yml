@@ -1,0 +1,9 @@
+---
+- name: Check for deploment topology
+  fail:
+    msg: "Deployment topology is not Hyper-Converged"
+  when: groups['control']|difference(groups['network']) or
+        groups['network']|difference(groups['compute']) or
+        groups['compute']|difference(groups['storage']) or
+        groups['storage']|difference(groups['monitoring']) or
+        (groups['control'])|length not in [3, 5]

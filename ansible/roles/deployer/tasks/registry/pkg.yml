@@ -1,0 +1,40 @@
+---
+- name: Ensure pkg directories exists
+  file:
+    state: directory
+    path: "/srv/registry/{{ item }}"
+    mode: 0777
+  loop:
+    - rpm
+    - deb
+    - raw
+
+- name: Write custom conf nginx files
+  copy:
+    src: "registry/{{ item }}"
+    dest: "/etc/registry-docker/{{ item }}"
+  loop:
+    - pkg-repo.conf
+
+- name: install extra packages for repo jobs
+  package:
+    name:
+      - python3-passlib
+      - dpkg-dev
+        #      - createrepo
+    state: present
+    update_cache: yes
+
+      #- name: Ensure a job that update yum repo runs
+      #  cron:
+      #    name: "update yum repo"
+      #    minute: "*"
+      #    hour: "*"
+      #    job: "createrepo --update /srv/registry/rpm > /dev/null"
+
+- name: Ensure a job that update deb repo runs
+  cron:
+    name: "update deb repo"
+    minute: "*"
+    hour: "*"
+    job: "dpkg-scanpackages /srv/registry/deb /dev/null > /srv/registry/deb/Release"

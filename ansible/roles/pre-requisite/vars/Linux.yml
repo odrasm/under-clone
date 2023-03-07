@@ -1,0 +1,7 @@
+---
+packages_all:
+  - git
+  - "{{ kolla_python }}-pip"
+  - ipmitool
+
+packages_python: []

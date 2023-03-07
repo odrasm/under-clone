@@ -1,0 +1,16 @@
+---
+- name: Create systemd network directory
+  become: true
+  file:
+    path: /etc/systemd/network
+    state: directory
+    mode: '0755'
+
+- name: Create Baremetal Veth Neutron Interfaces
+  become: true
+  template:
+    src: "baremetal.netdev.j2"
+    dest: "/etc/systemd/network/90-baremetal.netdev"
+    mode: '0644'
+  loop: "{{ hostvars['localhost']['underground_list_modules'] }}"
+

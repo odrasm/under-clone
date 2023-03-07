@@ -1,0 +1,49 @@
+---
+- name: adding user to docker group
+  user:
+    name: '{{ ansible_user }}'
+    append: yes
+    groups: docker
+
+- name: Ensure docker-compose directory exists
+  file:
+    state: directory
+    path: /etc/registry-docker
+    mode: 0700
+    owner: '{{ ansible_user }}'
+
+- name: install docker registry
+  include_tasks: registry/docker.yml
+
+- name: install pypi registry
+  include_tasks: registry/pypi.yml
+
+- name: install pkg registry
+  include_tasks: registry/pkg.yml
+
+    #- name: install proxy
+    #  include_tasks: registry/proxy.yml
+
+- name: Write docker-compose file
+  template:
+    src: registry/docker-compose.yaml.j2
+    dest: /etc/registry-docker/docker-compose.yaml
+    mode: 0600
+    owner: '{{ ansible_user }}'
+
+- name: Run docker-compose pull
+  shell:
+    cmd: docker-compose pull
+    chdir: /etc/registry-docker/
+  register: docker_compose_pull
+
+- debug:
+    var: docker_compose_pull
+
+- name: Run docker-compose up
+  shell:
+    cmd: docker-compose up -d --timeout 60
+    chdir: /etc/registry-docker/
+  register: docker_compose_up
+- debug:
+    var: docker_compose_up

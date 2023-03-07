@@ -1,0 +1,39 @@
+---
+- name: Check support for KVM
+  command: grep -qwE '(vmx|svm)' /proc/cpuinfo
+  register: kvm_support
+  failed_when: false
+
+- name: Define virtualization methods
+  set_fact:
+    virt_type: "{{ 'kvm' if kvm_support.rc == 0 else 'qemu' }}"
+    cpu_mode: "{{ 'host-model' if kvm_support.rc == 0 else 'host-model' }}"
+
+- block:
+  - name: Create node custom config
+    file:
+      path: "{{ kolla_config_path }}/config/nova/{{ inventory_hostname }}"
+      state: directory
+  - name: Create Kolla Ansible main config file for Nova
+    template:
+      src: "{{ openstack_release }}/nova.conf"
+      dest: "{{ kolla_config_path }}/config/nova.conf"
+  - name: Create Kolla Ansible config files for Nova
+    template:
+      src: "{{ item.src }}"
+      dest: "{{ kolla_config_path }}/config/nova/{{ item.path }}"
+    with_filetree: "../templates/{{ openstack_release }}/nova"
+    when: item.state == 'file'
+  delegate_to: localhost
+  run_once: true
+
+- name: Define virtualization method
+  delegate_to: localhost
+  ini_file:
+    path: "{{ kolla_config_path }}/config/nova/{{ inventory_hostname }}/nova.conf"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ vars[item.option] }}"
+  loop:
+    - {section: 'libvirt', option: 'virt_type'}
+    - {section: 'libvirt', option: 'cpu_mode'}

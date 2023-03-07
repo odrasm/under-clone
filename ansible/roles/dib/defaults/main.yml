@@ -1,0 +1,21 @@
+---
+project_group: "openstack"
+project_name: "diskimage-builder"
+project_name_ipa: "ironic-python-agent-builder"
+
+kolla_build_source: "{{ install_source }}"
+
+dib_build_source: "{{ install_source }}"
+dib_build_source_version: "3.21.1"
+ipa_build_source: "{{ install_source }}"
+ipa_build_source_version: "4.0.1"
+
+dib_build_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
+ipa_build_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name_ipa }}"
+
+underground_elements_path: "/usr/local/share/underground/elements"
+dib_extra_elements_path: 
+  underground_elements_path: "{{ config_path }}/elements"
+
+ipa_test: false
+baremetal_image_upload: false

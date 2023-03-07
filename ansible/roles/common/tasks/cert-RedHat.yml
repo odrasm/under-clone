@@ -1,0 +1,13 @@
+---
+- name: Install required packages
+  package:
+    name: ca-certificates
+    state: present
+
+- name: Create internal CA certificate
+  copy:
+    content: "{{ underground_ssl_ca }}"
+    dest: /etc/pki/ca-trust/source/anchors/e4.crt
+
+- name: Update CA certificates
+  command: update-ca-trust extract

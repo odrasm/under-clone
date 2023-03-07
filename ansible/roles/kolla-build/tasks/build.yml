@@ -1,0 +1,37 @@
+---
+- block:
+    - command: which kolla-build
+      register: kolla_build_path
+    - set_fact:
+        kolla_build_header: "{{ item }}"
+      with_lines: "head -1 {{ kolla_build_path.stdout_lines[0] }}"
+    - set_fact:
+        python_cmdline: "{{ kolla_build_header|replace('#!','') }}"
+    - command: >-
+        {{ python_cmdline }} -c "from kolla import version;
+        print(version.version_info.version_string());"
+      register: print_kolla_version
+    - set_fact:
+        kolla_version: "{{ print_kolla_version.stdout }}"
+    - set_fact:
+        openstack_release: "{{ kolla_versions[kolla_version.split('.')[0]] }}"
+    - command: >-
+        {{ python_cmdline }} -c "from kolla import common;
+        exec(open(common.__path__[0]+'/config.py').read());
+        print(BASE_OS_DISTRO);"
+      register: print_base_os_distro
+    - set_fact:
+        kolla_base_os_distro: "{{ print_base_os_distro.stdout }}"
+    - command: >-
+        {{ python_cmdline }} -c "from kolla import common;
+        exec(open(common.__path__[0]+'/config.py').read());
+        print(DEFAULT_BASE_TAGS);"
+      register: print_default_base_tags
+    - set_fact:
+        kolla_base_tags: "{{ print_default_base_tags.stdout }}"
+
+- fail:
+    msg: "Base distro `{{ kolla_base }}' not defined or not supported ({{ kolla_base_os_distro|join(', ') }})"
+  when: kolla_base not in kolla_base_tags
+
+- include_tasks: config.yml

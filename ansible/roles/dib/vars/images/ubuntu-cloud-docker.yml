@@ -1,0 +1,40 @@
+---
+dib_init_element: "cloud-init-datasources"
+dib_env_vars:
+  http_proxy: "{{ lookup('env','http_proxy') }}"
+  https_proxy: "{{ lookup('env','https_proxy') }}"
+  DIB_CLOUD_INIT_DATASOURCES: "ConfigDrive, OpenStack" 
+  LANG: C
+  LC_ALL: C
+  LC_MESSAGES: C
+  DIB_DEV_USER_USERNAME: "e4user"
+  DIB_DEV_USER_PASSWORD: "000000"
+  DIB_DEV_USER_PWDLESS_SUDO: "yes"
+  DIB_DEV_USER_SHELL: "/bin/bash"
+  DIB_GROWVOLS_TRIGGER: "manual"
+  DIB_CLOUD_INIT_ALLOW_SSH_PWAUTH: "yes"
+
+
+dib_ipa_elements_path: "{{ underground_elements_path }}"
+dib_trace: "false"
+dib_uncompressed: "false"
+dib_clearenv: "false"
+dib_notmpfs: "false"
+dib_offline: "true"
+dib_skipbase: "false"
+dib_arch: "amd64"
+dib_imagename: "{{ data_path }}/baremetal/images/{{ underground_baremetal_image }}"
+dib_imagetype: "qcow2"
+#dib_imagesize:
+dib_imagecache: "{{ data_path }}/baremetal/cache"
+#dib_maxresize:
+#dib_mintmpfs:
+#dib_mkfsopts:
+#dib_qemuopts:
+#dib_rootlabel:
+#dib_rdelement:
+#dib_installtype:
+dib_packages: "vim,nmap,mtr-tiny,python3-pip,qemu-guest-agent"
+dib_os_release: "focal"
+dib_os_element: "ubuntu"
+dib_elements: "devuser vm element-manifest growvols docker-engine"

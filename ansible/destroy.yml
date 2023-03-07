@@ -1,0 +1,43 @@
+---
+- hosts: all,localhost
+  gather_facts: no
+  run_once: True
+  tasks:
+    - set_fact:
+        full_run: "{{ play_hosts == groups.all }}"
+      delegate_to: localhost
+      delegate_facts: yes
+
+#- import_playbook: no--limit.yaml
+#  when: hostvars.localhost.full_run
+
+- import_playbook: gather-facts.yml
+
+- name: Kolla Ansible
+  hosts: deployment
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: kolla-ansible,
+        tags: kolla-ansible }
+
+- import_playbook: "{{ kolla_ansible_path }}/ansible/destroy.yml"
+
+- name: "Networking (action: {{ underground_action }})"
+  hosts: kolla
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars_files:
+    - "{{ config_path }}/globals.yml"
+  roles:
+    - { role: networking, tags: networking }
+
+- name: "Disk Image Builder (action: {{ underground_action }})"
+  hosts: deployment
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: dib, tags: dib }

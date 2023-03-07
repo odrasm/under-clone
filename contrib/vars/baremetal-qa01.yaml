@@ -1,0 +1,23 @@
+nodes:
+  - name: qa01
+    driver: ipmi
+    resource_class: baremetal
+    properties:
+      cpus: 128
+      cpu_arch: "x86_64"
+      memory_mb: 262144
+      local_gb: 892
+      capabilities: "boot_option:local,boot_mode:bios"
+      root_device:
+        name: /dev/sdj
+    ports:
+      - address: "ac:1f:6b:c3:36:48"
+        pxe_enabled: true
+        physical_network: "physnet2"
+    driver_info:
+      ipmi_address: "100.127.102.127"
+      ipmi_username: "ADMIN"
+      ipmi_password: "ADMIN"
+      ipmi_terminal_port: 1234
+      deploy_kernel: "f9cc7e27-b174-4e45-afcf-aad4ea37a156"
+      deploy_ramdisk: "adcc4334-298e-4e03-956e-274401ea28aa"

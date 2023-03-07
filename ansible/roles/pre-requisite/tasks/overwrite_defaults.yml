@@ -1,0 +1,18 @@
+---
+- include_vars: "{{ item }}"
+  with_items:
+    - "{{ underground_deployment }}.yml"
+    - "{{ openstack_release }}.yml"
+    - "{{ ansible_system }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ openstack_release }}-{{ ansible_os_family }}.yml"
+    - "{{ openstack_release }}-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+  failed_when: false
+
+- include_vars: "{{ enabled_module }}.yml"
+  failed_when: false
+  loop: "{{ underground_enable_modules }}"
+  loop_control:
+    loop_var: enabled_module

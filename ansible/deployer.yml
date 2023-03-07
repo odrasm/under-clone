@@ -1,0 +1,22 @@
+---
+#- import_playbook: gather-facts.yml
+
+- name: "Deployer (action: {{ deployer_action }} target: {{ deployer_target }})"
+  hosts: deployment
+  gather_facts: true
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: deployer, tags: deployer, when: "deployer_action in ['create','delete']" }
+
+- name: "Deployer (action: {{ deployer_action }} target: {{ deployer_target }})"
+  hosts: "{{ deployer_target }}"
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+    ansible_ssh_user: "ubuntu"
+    ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+    ansible_ssh_private_key_file: "{{ config_path }}/baremetal/keypair/id_ironic_rsa"
+  roles:
+    - { role: deployer, tags: deployer, when: "deployer_action in ['configure']" }
+

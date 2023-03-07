@@ -1,0 +1,6 @@
+---
+packages_custom:
+  - libffi-devel
+  - openssl-devel
+  - "{{ kolla_python }}-devel"
+  - "{{ kolla_python }}-libselinux"

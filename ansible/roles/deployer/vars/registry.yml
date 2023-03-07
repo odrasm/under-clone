@@ -1,0 +1,31 @@
+app1:
+  name: 'nginx'
+  version: '0.9-alpine'
+  ports:
+    - '80:80'
+    - '443:443'
+app2:
+  name: 'registry'
+  version: '2'
+  ports:
+    - '5000:5000'
+app3:
+  name: 'pypiserver'
+  version: 'v1.4.2'
+  ports:
+    - '8080:8080'
+app4:
+  name: 'nginx'
+  version: '1.21.0'
+  ports:
+    - '8000:8000'
+
+letsmail: "e4letsencrypt@e4company.com"
+
+all_registry_users:
+  underground:
+    comment: Underground
+    password: underground
+
+registry_users:
+  - underground

@@ -1,0 +1,22 @@
+#!/bin/bash
+  
+if [ "${DIB_DEBUG_TRACE:-0}" -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+# https://nvidia.github.io/nvidia-container-runtime/
+case $DISTRO_NAME in
+    centos*|rhel*)
+        curl -s -L ${NVIDIA_REPO} >/etc/yum.repos.d/nvidia-docker.repo
+        ;;
+    ubuntu*|debian*)
+        add-apt-repository -y ppa:graphics-drivers/ppa
+        curl -s -L ${NVIDIA_PUBKEY} | sudo apt-key add -
+        curl -s -L ${NVIDIA_REPO} >/etc/apt/sources.list.d/nvidia-docker.list
+        ;;
+    opensuse)
+        zypper ar ${NVIDIA_REPO}
+        ;;
+esac

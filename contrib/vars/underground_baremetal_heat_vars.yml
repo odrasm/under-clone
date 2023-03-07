@@ -1,0 +1,13 @@
+---
+underground_baremetal_interface: ens5
+underground_baremetal_network: '100.127.102.200/24'
+underground_internal_address: '100.127.102.201'
+underground_external_interface: ens4
+underground_public_address: '100.127.103.100'
+underground_baremetal_allocation_pool_start: ''
+underground_baremetal_allocation_pool_end: ''
+underground_external_allocation_pool_start: ''
+underground_external_allocation_pool_end: ''
+underground_external_gateway: ''
+underground_baremetal_dns: '8.8.8.8'
+  

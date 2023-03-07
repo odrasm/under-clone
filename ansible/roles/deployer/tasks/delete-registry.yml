@@ -1,0 +1,18 @@
+- name: Delete Registry Instance
+  os_server:
+    auth:
+       auth_url: "{{ underground_auth_auth_url }}"
+       username: "{{ underground_auth_username }}"
+       password: "{{ underground_auth_password }}"
+       project_name: admin
+       os_user_domain_name: Default
+       os_project_domain_name: Default
+    auth_type: password
+    interface: internal
+    state: absent
+    delete_fip: "true"
+    name: registry
+    timeout: 200
+    wait: true
+  register: os_info
+  #when: os_result.openstack_servers|length == 0

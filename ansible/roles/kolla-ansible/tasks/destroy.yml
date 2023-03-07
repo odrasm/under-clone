@@ -1,0 +1,6 @@
+---
+- name: Remove Open vSwitch system
+  become: true
+  command: docker exec openvswitch_vswitchd ovs-dpctl del-dp ovs-system
+  changed_when: false
+  failed_when: false

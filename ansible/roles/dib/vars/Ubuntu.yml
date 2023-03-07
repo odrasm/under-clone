@@ -1,0 +1,13 @@
+---
+packages_custom:
+  - qemu-utils
+  - parted
+  - hdparm
+  - util-linux
+  - genisoimage
+  - debootstrap
+  - kpartx
+  - gdisk
+  - rpm
+  - jq
+  - squashfs-tools

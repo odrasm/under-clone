@@ -1,0 +1,54 @@
+- name: Ensure data directory exists
+  file:
+    state: directory
+    path: /srv/proxy/data
+    mode: 0750
+
+- name: Ensure proxy directories exists
+  file:
+    state: directory
+    path: "/srv/proxy/data/{{ item }}"
+    mode: 0750
+  loop:
+    - conf
+    - vhost.d
+    - html
+    - certs
+
+- name: Write proxy conf files
+  copy:
+    src: "registry/{{ item }}"
+    dest: "/etc/registry-docker/{{ item }}"
+  loop:
+    - proxy.conf
+
+- name: Write custom conf files
+  copy:
+    src: "registry/{{ item }}"
+    dest: "/srv/proxy/data/conf/{{ item }}"
+  loop:
+    - uploadsize.conf
+
+- name: Write proxy vhost files
+  copy:
+    src: "registry/{{ item }}"
+    dest: "/srv/proxy/data/vhost.d/{{ item }}"
+  loop:
+    - registry.underground.local_location
+    - pypi.underground.local_location
+    - repo.underground.local_location
+    - registry.underground.local
+    - pypi.underground.local
+    - repo.underground.local
+
+- name: set nginx PUSH users
+  loop: "{{ registry_users }}"
+  htpasswd:
+    path: "/srv/proxy/data/conf/proxy-users"
+    name: "{{ item }}"
+    password: "{{ all_registry_users[item].password }}"
+    mode: 0644
+    owner: "{{ ansible_user }}"
+  when:
+    - item in registry_users
+    - "'password' in all_registry_users[item]"

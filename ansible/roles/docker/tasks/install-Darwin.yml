@@ -1,0 +1,6 @@
+---
+- name: Locate docker client command
+  command: which docker
+  register: docker_path
+  failed_when: false
+  changed_when: false

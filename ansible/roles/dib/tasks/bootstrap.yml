@@ -1,0 +1,6 @@
+---
+- include_tasks: install.yml
+
+  #- include_tasks: build.yml
+  #  when: skip_ipa is not defined
+

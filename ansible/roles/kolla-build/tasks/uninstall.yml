@@ -1,0 +1,21 @@
+---
+- name: Check for previous version
+  command: which kolla-build
+  failed_when: false
+  changed_when: false
+  register: check_kolla_build_path
+
+- block:
+    - command: "head -1 {{ check_kolla_build_path.stdout_lines[0] }}"
+      register: kolla_build_shebang
+    - set_fact:
+        kolla_old_python: "{{ kolla_build_shebang.stdout|replace('#!','') }}"
+    - command: "{{ kolla_old_python }} -c 'import platform; print(platform.python_version());'"
+      register: kolla_old_platform_version
+    - set_fact:
+        kolla_old_python_version: "{{ kolla_old_platform_version.stdout.split('.')[0] }}"
+    - name: Uninstall previous kolla-build
+      command: "{{ kolla_old_python }} -m pip uninstall -y kolla"
+      when: kolla_old_python_version != kolla_python_version
+  become: true
+  when: check_kolla_build_path.rc == 0

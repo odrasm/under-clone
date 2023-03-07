@@ -1,0 +1,12 @@
+{
+  "target":"clean",
+  "clean_steps": [{
+    "interface": "raid",
+    "step": "create_configuration",
+    "args": {"create_nonroot_volumes": false}
+  },
+  {
+    "interface": "deploy",
+    "step": "erase_devices_metadata"
+  }]
+}

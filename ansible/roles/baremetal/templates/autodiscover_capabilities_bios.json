@@ -1,0 +1,13 @@
+[
+    {
+        "description": "set basic capabilities bootmode bios",
+        "conditions": [
+            {"op": "eq", "field": "data://auto_discovered", "value": true},
+            {"op": "eq", "field": "data://inventory.boot.current_boot_mode", "value": bios}
+
+        ],
+        "actions": [
+            {"action": "set-capability", "name": "boot_mode", "value": "bios"},
+        ]
+    }
+]

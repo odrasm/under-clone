@@ -1,0 +1,50 @@
+---
+- include_vars: "{{ kolla_config_path }}/target.yml" 
+
+- name: "Set Cloud Auth Var"
+  set_fact:
+    underground_auth_auth_url: "{{ keystone_admin_url }}/v3"
+    underground_auth_project_name: "{{ keystone_admin_project }}"
+    underground_auth_tenant_name: "{{ keystone_admin_project }}"
+    underground_auth_username: "{{ keystone_admin_user }}"
+    underground_auth_password: "{{ keystone_admin_password }}"
+    underground_auth_interface: "internal"
+    underground_auth_endpoint_type: "internalURL"
+    underground_auth_project_domain_name: "Default"
+    underground_auth_user_domain_name: "Default"
+    underground_auth_identity_api_version: "3"
+    underground_auth_region_name: "{{ openstack_region_name }}"
+    underground_auth_plugin: "password"
+
+- name: "Print Underground Auth Url"
+  debug:
+    msg: "{{ underground_auth_auth_url }}"
+
+- name: Create Baremetal Cloud Auth
+  block:
+    - name: Create Openstack Cloud Dir
+      become: true
+      file:
+        path: "/etc/openstack"
+        state: directory
+        mode: "0755"
+        owner: "{{ config_owner_user }}"
+        group: "{{ config_owner_group }}"
+    - name: Copy Clouds.yml
+      become: true
+      template:
+        src: "clouds.yml.j2"
+        dest: "/etc/openstack/clouds.yml"
+
+      #- name: Get env file content
+      #  slurp:
+      #    src: "{{ config_path}}/admin-openrc.sh"
+      #  register: env_admin_openrc
+      #
+      #- name: Parse environment
+      #  set_fact:
+      #    env_vars: "{{ ('{' + (env_admin_openrc.content | b64decode).split('\n') | select | map('regex_replace', '([^=]*)=(.*)', '\"\\1\": \"\\2\"') | join(',') + '}') | from_json }}"
+      #
+      #- name: Display environment variables
+      #  command: env
+      #  environment: "{{ env_vars }}"

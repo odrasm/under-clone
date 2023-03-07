@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_EXPERIMENTAL'] = 'disks'
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/stream8"
+
+  # Disable default synced folder
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  # Sync all source project
+  config.vm.synced_folder "../../..", "/usr/local/src/underground", type: "nfs"
+
+  # Attaching a dedicated storage disk
+  config.vm.disk :disk, size: "50GB", name: "ceph_storage"
+
+  # Use Host DNS for VPN
+  config.vm.provider :virtualbox do |vb|
+    #vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.memory = 8192
+    vb.cpus = 2
+  end
+
+  # Create a private network
+  config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a neutron network
+  config.vm.network "private_network", ip: "192.168.44.254"
+
+  # Initialize VM
+  config.vm.provision "shell", inline: <<-SHELL
+    dnf install -y epel-release
+    dnf install -y ansible
+
+    parted /dev/sdb -s -- mklabel gpt mkpart KOLLA_CEPH_OSD_BOOTSTRAP_BS 1 -1
+  SHELL
+end

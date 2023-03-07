@@ -1,0 +1,6 @@
+---
+
+masquerade_out_interface: "{{ underground_public_interface }}"
+masquerade_source: "{{ hostvars[inventory_hostname]['ansible_baremetal']['ipv4']['network'] + '/' + hostvars[inventory_hostname]['ansible_baremetal']['ipv4']['netmask'] }}"
+masquerade_destination: "0.0.0.0/0"
+masquerade_protocol: "all"

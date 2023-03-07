@@ -1,0 +1,18 @@
+---
+- include_vars: "{{ kolla_config_path }}/target.yml" 
+
+- name: "Set Cloud Auth Var"
+  set_fact:
+    underground_auth_auth_url: "{{ keystone_admin_url }}/v3"
+    underground_auth_project_name: "{{ keystone_admin_project }}"
+    underground_auth_tenant_name: "{{ keystone_admin_project }}"
+    underground_auth_username: "{{ keystone_admin_user }}"
+    underground_auth_password: "{{ keystone_admin_password }}"
+    underground_auth_interface: "internal"
+    underground_auth_endpoint_type: "internalURL"
+    underground_auth_project_domain_name: "Default"
+    underground_auth_user_domain_name: "Default"
+    underground_auth_identity_api_version: "3"
+    underground_auth_region_name: "{{ openstack_region_name }}"
+    underground_auth_plugin: "password"
+

@@ -1,0 +1,6 @@
+- name: Ensure data directory exists
+  file:
+    state: directory
+    path: /srv/registry/pypi
+    mode: 0777
+

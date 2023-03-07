@@ -1,0 +1,44 @@
+---
+
+- name: Set Inspector PXE filter to dnsmasq
+  blockinfile:
+    path: /etc/kolla/ironic-dnsmasq/dnsmasq.conf
+    block: |
+      dhcp-hostsdir=/etc/dnsmasq/dhcp-hostsdir
+  become: true
+
+- name: Set Ironic config PXE filter
+  lineinfile:
+    path: /etc/kolla/ironic-inspector/inspector.conf
+    regexp: 'driver = noop'
+    line: 'driver = dnsmasq'
+  become: true
+
+- name: Change underground config
+  lineinfile:
+    path: "{{ kolla_config_path }}/globals.yml"
+    regexp: 'ironic_inspector_pxe_filter: noop'
+    line: 'ironic_inspector_pxe_filter: dnsmasq'
+
+- name: Restart Ironic Services
+  shell: "docker restart {{ item }}"
+  args:
+    executable: "/bin/bash"
+  loop:
+    - "{{ ironic_inspector_container }}"
+    - "{{ ironic_dnsmasq_container }}"
+  become: true
+
+- name: Del NAT rule
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    flush: yes
+  become: true
+
+- name: Disable Forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    sysctl_set: yes
+  become: true

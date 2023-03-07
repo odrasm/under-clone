@@ -1,0 +1,107 @@
+---
+- import_playbook: gather-facts.yml
+
+#- import_playbook: no_limit.yaml
+#  when: hostvars.localhost.full_run
+
+- name: "Low level pre-requisite (action: {{ underground_action }})"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - { role: pre-requisite, tags: always }
+
+- name: "Common roles (action: {{ underground_action }})"
+  hosts: builder:deployment
+  gather_facts: false
+  roles:
+    - { role: common, tags: always }
+
+- name: "Networking (action: {{ underground_action }})"
+  hosts: kolla
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars_files:
+    - "{{ config_path }}/globals.yml"
+  roles:
+    - { role: networking, tags: always }
+
+- name: "Kolla (action: {{ underground_action }})"
+  hosts: builder
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: kolla-build, tags: always }
+
+- name: "Disk Image Builder (action: {{ underground_action }})"
+  hosts: deployment
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: dib, tags: dib }
+
+- name: "Kolla Ansible load defaults (action: {{ underground_action }})"
+  hosts: deployment
+  gather_facts: false
+  vars_files:
+    - "{{ kolla_ansible_path }}/ansible/group_vars/all.yml"
+  tasks:
+    - set_fact:
+        raw_all_yaml: "{{ raw_all_yaml|default(kolla_ansible_extended_globals)|combine({item: vars[item]}) }}"
+      with_lines: "awk -F: '/^[[:alnum:]_]+:/{ print $1 }' {{ kolla_ansible_path }}/ansible/group_vars/all.yml"
+      when: underground_action in ['deploy', 'reconfigure', 'upgrade']
+  tags: always
+
+- name: "Kolla Ansible (action: {{ underground_action }})"
+  hosts: deployment
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: kolla-ansible, tags: always, when: "underground_action not in ['post-deploy']" }
+ 
+- import_playbook: "{{ kolla_ansible_path }}/ansible/certificates.yml"
+  when: "underground_action in ['deploy', 'reconfigure']"
+
+- import_playbook: "{{ kolla_ansible_path }}/ansible/site.yml"
+  when: "underground_action not in ['post-deploy']"
+
+- import_playbook: "{{ kolla_ansible_path }}/ansible/post-deploy.yml"
+  when: "underground_action in ['deploy', 'reconfigure']"
+
+- name: "OpenStack client (action: {{ underground_action }})"
+  hosts: deployment
+  serial: '{{ kolla_serial|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: openstack-client, tags: always }
+
+- name: "Baremetal (action: {{ underground_action }})"
+  hosts: deployment
+  serial: '{{ kolla_seria|default("0") }}'
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: baremetal, tags: baremetal, when: "'baremetal' in underground_list_modules" }
+
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - "{{ kolla_ansible_path }}/ansible/group_vars/all.yml"
+  tasks:
+    - name: OpenStack Horizon URL
+      debug:
+        msg: "Horizon URL: {{ horizon_external_url }}"
+      vars:
+        horizon_external_url: "{{ public_protocol }}://admin:{{ keystone_admin_password }}@{{ kolla_external_fqdn|put_address_in_context('url') }}"
+      when:
+        - "underground_action in ['deploy', 'reconfigure', 'upgrade']"
+        - "enable_horizon|bool"
+  tags: always

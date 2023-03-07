@@ -1,0 +1,12 @@
+---
+- name: Install diskimage-builder
+  become: true
+  command: "{{ kolla_python }} -m pip install diskimage-builder=={{ dib_build_source_version }}"
+  register: install_dib
+  changed_when: "'Successfully installed' in install_dib.stdout"
+
+- name: Install ipa builder
+  become: true
+  command: "{{ kolla_python }} -m pip install ironic-python-agent-builder=={{ ipa_build_source_version }}"
+  register: install_ipa
+  changed_when: "'Successfully installed' in install_ipa.stdout"

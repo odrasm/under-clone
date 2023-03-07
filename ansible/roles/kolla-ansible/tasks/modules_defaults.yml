@@ -1,0 +1,6 @@
+---
+- include_vars: "{{ enabled_module }}.yml"
+  failed_when: false
+  loop: "{{ underground_enable_modules }}"
+  loop_control:
+    loop_var: enabled_module

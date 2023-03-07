@@ -1,0 +1,11 @@
+[
+    {
+        "description": "set basic capabilities bootoption",
+        "conditions": [
+            {"op": "eq", "field": "data://auto_discovered", "value": true}
+        ],
+        "actions": [
+            {"action": "set-capability", "name": "boot_option", "value": "local"}
+        ]
+    }
+]

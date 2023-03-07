@@ -1,0 +1,10 @@
+---
+underground_list_modules: "{{ hostvars['localhost']['underground_list_modules'] }}"
+
+packages_all: []
+packages_custom: []
+packages_python:
+  - docker
+  - netaddr
+  - psutil
+  - pyudev

@@ -1,0 +1,68 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'yaml'
+
+VAGRANTFILE_API_VERSION = '2'
+
+ENV['VAGRANT_EXPERIMENTAL'] = 'disks'
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
+
+config_file=File.expand_path(File.join(File.dirname(__FILE__), 'vagrant.yml'))
+settings=YAML.load_file(config_file)
+
+NODES = 3
+BOX = settings['vagrant_box']
+MEMORY = settings['memory']
+CPU = settings['cpu']
+PUBLIC_SUBNET = settings['public_subnet']
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = BOX
+
+  # Disable default synced folder
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  config.ssh.insert_key = false
+  config.ssh.private_key_path = [ '~/.ssh/id_rsa', '~/.vagrant.d/insecure_private_key' ]
+  config.vm.provision 'file', source: '~/.ssh/id_rsa.pub', destination: '~/.ssh/authorized_keys'
+
+  (0..NODES-1).each do |n|
+    config.vm.define "node#{n+1}" do |node|
+      node.vm.provider :virtualbox do |vb|
+        # Use Host DNS for VPN
+        vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        # Nested Virtualisation
+        #vb.customize ["modifyvm", :id, "--nested-hw-virt", "on"]
+        vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all", "--nicpromisc3", "allow-all"]
+        vb.memory = "#{MEMORY}"
+        vb.cpus = "#{CPU}"
+      end
+
+      # Attaching a dedicated storage disk
+      node.vm.disk :disk, size: "50GB", name: "ceph_storage"
+
+      # Create a private network
+      node.vm.network "private_network", ip: "#{PUBLIC_SUBNET}.#{n+11}", nic_type: "virtio"
+
+      # Create a neutron network
+      node.vm.network "private_network", ip: "192.168.44.254", nic_type: "virtio", auto_config: false
+
+      # Create a baremetal network
+      node.vm.network "private_network", ip: "192.168.55.254", nic_type: "virtio", auto_config: false
+
+      # Initialize VM
+      node.vm.provision "shell", inline: <<-SHELL
+        # Make PgUp and PgDown a search shortcut
+        sed -i '/history-search-/{ s/^# //}' /etc/inputrc
+
+        # Identify /dev/sdc as a Ceph OSD
+        parted /dev/sdc -s -- mklabel gpt mkpart BOOTSTRAP_CEPH_BS 1 -1
+
+        # Install Ansible from PyPI
+        apt-get update
+        apt-get install -y python3-pip
+      SHELL
+    end
+  end
+end

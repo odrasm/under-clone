@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-1} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+mkdir -p /etc/docker
+cat << EOF >/etc/docker/daemon.json
+{
+  "ipv6" : true,
+  "bip" : "198.18.0.1/15",
+  "fixed-cidr" : "198.18.0.1/16",
+  "fixed-cidr-v6" : "2001:db8::/64",
+  "log-level": "warn",
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "5m",
+    "max-file": "5"
+  },
+  "default-runtime": "nvidia",
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  }
+}
+EOF

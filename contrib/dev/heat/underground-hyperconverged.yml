@@ -1,0 +1,260 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Test Underground 3nodes Stack
+
+resources:
+  underground_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: "underground_secgroup"
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 80
+          port_range_max: 80
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 443
+          port_range_max: 443
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 22
+          port_range_max: 22
+
+  external_underground:
+    type: OS::Neutron::Net
+    properties:
+      name: "external_underground"
+
+  internal_underground:
+    type: OS::Neutron::Net
+    properties:
+      name: "internal_underground"
+
+  subnet_external_underground:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: external_underground }
+      cidr: "100.127.103.0/24"
+      ip_version: 4
+      enable_dhcp: true
+      name: "subnet_external_underground"
+      gateway_ip: "100.127.103.254"
+      dns_nameservers: [ "172.18.36.201", "172.18.36.202", "172.18.36.203" ]
+
+  subnet_internal_underground:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: internal_underground }
+      cidr: "100.127.104.0/24"
+      ip_version: 4
+      enable_dhcp: false
+      name: "subnet_internal_underground"
+      gateway_ip: ""
+      dns_nameservers: [ "172.18.36.201", "172.18.36.202", "172.18.36.203" ]
+
+  instance1_port_baremetal:
+    type: OS::Neutron::Port
+    properties:
+      network: "baremetal"
+      fixed_ips:
+        - ip_address: "100.127.102.201"
+      port_security_enabled: false
+
+  instance2_port_baremetal:
+    type: OS::Neutron::Port
+    properties:
+      network: "baremetal"
+      fixed_ips:
+        - ip_address: "100.127.102.202"
+      port_security_enabled: false
+
+  instance3_port_baremetal:
+    type: OS::Neutron::Port
+    properties:
+      network: "baremetal"
+      fixed_ips:
+        - ip_address: "100.127.102.203"
+      port_security_enabled: false
+
+  router_underground:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: provider_1837 }
+
+  router_internal_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router_underground }
+      subnet: { get_resource: subnet_external_underground }
+
+  instance1_port_provider:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      security_groups:
+        - default
+        - { get_resource: underground_secgroup }
+      fixed_ips:
+        - ip_address: "100.127.103.101"
+
+  instance2_port_provider:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      security_groups:
+        - default
+        - { get_resource: underground_secgroup }
+      fixed_ips:
+        - ip_address: "100.127.103.102"
+
+  instance3_port_provider:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      security_groups:
+        - default
+        - { get_resource: underground_secgroup }
+      fixed_ips:
+        - ip_address: "100.127.103.103"
+ 
+  floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: "provider_1837"
+
+  association1:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip }
+      port_id: { get_resource: instance1_port_provider }
+
+  association2:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip }
+      port_id: { get_resource: instance2_port_provider }
+
+  association3:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip }
+      port_id: { get_resource: instance3_port_provider }
+
+  instance1_port_external_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      fixed_ips:
+        - ip_address: "100.127.103.201"
+      port_security_enabled: false
+
+  instance2_port_external_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      fixed_ips:
+        - ip_address: "100.127.103.202"
+      port_security_enabled: false
+
+  instance3_port_external_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: external_underground }
+      fixed_ips:
+        - ip_address: "100.127.103.203"
+      port_security_enabled: false
+
+  instance1_port_internal_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: internal_underground }
+      fixed_ips:
+        - ip_address: "100.127.104.201"
+      port_security_enabled: false
+
+  instance2_port_internal_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: internal_underground }
+      fixed_ips:
+        - ip_address: "100.127.104.202"
+      port_security_enabled: false
+
+  instance3_port_internal_underground:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: internal_underground }
+      fixed_ips:
+        - ip_address: "100.127.104.203"
+      port_security_enabled: false
+
+  instance1:
+    type: OS::Nova::Server
+    properties:
+      flavor: underground.small
+      image: ubuntu-focal-cloud
+      key_name: federicopinca
+      name: underground-hype-01
+      networks:
+        - port: { get_resource: instance1_port_provider }
+        - port: { get_resource: instance1_port_external_underground }
+        - port: { get_resource: instance1_port_internal_underground }
+        - port: { get_resource: instance1_port_baremetal }
+      user_data: |
+            #!/bin/bash -v
+            apt-get update
+            apt-get install -y python3-pip wget curl ca-certificates
+            python3 -m pip install 'ansible<2.10'
+            wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
+            update-ca-certificates
+            git clone https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
+            python3 -m pip install /usr/local/src/underground
+            useradd -p $(openssl passwd -crypt 000000) e4user
+
+  instance2:
+    type: OS::Nova::Server
+    properties:
+      flavor: underground.small
+      image: ubuntu-focal-cloud
+      key_name: federicopinca
+      name: underground-hype-02
+      networks:
+        - port: { get_resource: instance2_port_provider }
+        - port: { get_resource: instance2_port_external_underground }
+        - port: { get_resource: instance2_port_internal_underground }
+        - port: { get_resource: instance2_port_baremetal }
+      user_data: |
+            #!/bin/bash -v
+            apt-get update
+            apt-get install -y python3-pip wget curl ca-certificates
+            python3 -m pip install 'ansible<2.10'
+            wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
+            update-ca-certificates
+            git clone https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
+            python3 -m pip install /usr/local/src/underground
+            useradd -p $(openssl passwd -crypt 000000) e4user
+            
+  instance3:
+    type: OS::Nova::Server
+    properties:
+      flavor: underground.small
+      image: ubuntu-focal-cloud
+      key_name: federicopinca
+      name: underground-hype-03
+      networks:
+        - port: { get_resource: instance3_port_provider }
+        - port: { get_resource: instance3_port_external_underground }
+        - port: { get_resource: instance3_port_internal_underground }
+        - port: { get_resource: instance3_port_baremetal }
+      user_data: |
+            #!/bin/bash -v
+            apt-get update
+            apt-get install -y python3-pip wget curl ca-certificates
+            python3 -m pip install 'ansible<2.10'
+            wget -c http://idm.cloud.e4.lan/ipa/config/ca.crt -O /usr/local/share/ca-certificates/ca.crt
+            update-ca-certificates
+            git clone https://git.cloud.e4.lan/e4/underground /usr/local/src/underground/
+            python3 -m pip install /usr/local/src/underground
+            useradd -p $(openssl passwd -crypt 000000) e4user

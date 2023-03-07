@@ -7,6 +7,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: sudo pip install ./
-      - run: underground init aio
-      - run: underground bootstrap xena -m baremetal -e@contrib/vars/underground_baremetal_vars.yml
+      - run: sudo underground init aio
+      - run: sudo underground bootstrap xena -m baremetal -e@contrib/vars/underground_baremetal_vars.yml
 

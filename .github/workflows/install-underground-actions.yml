@@ -5,10 +5,7 @@ jobs:
   test-underground:
     runs-on: self-hosted
     steps:
-      - name: checkout repo
-        uses: actions/checkout
-        with:
-          repository: odrasm/under-test
+      - uses: actions/checkout@v2
       - run: pip install ./
       - run: underground init aio
 

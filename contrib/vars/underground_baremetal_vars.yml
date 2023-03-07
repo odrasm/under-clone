@@ -1,16 +1,16 @@
 ---
-underground_baremetal_interface: ens20
-underground_baremetal_network: '100.127.102.200/24'
-underground_internal_address: '100.127.102.201'
-underground_external_interface: ens19
-underground_public_interface: ens18
-underground_public_address: '172.18.36.20'
-underground_baremetal_allocation_pool_start: '100.127.102.205'
-underground_baremetal_allocation_pool_end: '100.127.102.210'
-underground_external_network: '172.18.34.0/24'
-underground_external_allocation_pool_start: '172.18.34.5'
-underground_external_allocation_pool_end: '172.18.34.9'
+underground_baremetal_interface: ens4
+underground_baremetal_network: '10.10.100.10/24'
+underground_internal_address: '10.10.100.9'
+underground_external_interface: ens5
+underground_public_interface: ens4
+underground_public_address: '10.10.0.9'
+underground_baremetal_allocation_pool_start: '10.10.100.200'
+underground_baremetal_allocation_pool_end: '10.10.100.210'
+underground_external_network: '10.10.0.0/24'
+underground_external_allocation_pool_start: '10.10.0.100'
+underground_external_allocation_pool_end: '10.10.0.109'
 #underground_external_vlanid: '1834'
-underground_external_gateway: '172.18.34.1'
+underground_external_gateway: '10.10.0.1'
 underground_baremetal_dns: '8.8.8.8'
   

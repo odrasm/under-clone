@@ -1,9 +1,9 @@
 ---
-underground_baremetal_interface: ens5
+underground_baremetal_interface: ens3
 underground_baremetal_network: '10.10.100.10/24'
-underground_internal_address: '10.10.100.9'
-underground_external_interface: cirename0
-underground_public_interface: ens5
+underground_internal_address: '10.10.100.168'
+underground_external_interface: ens5
+underground_public_interface: ens4
 underground_public_address: '10.10.0.9'
 underground_baremetal_allocation_pool_start: '10.10.100.200'
 underground_baremetal_allocation_pool_end: '10.10.100.210'

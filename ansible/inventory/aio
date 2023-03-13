@@ -1,5 +1,5 @@
 [deployment]
-localhost	ansible_connection=local
+aio	ansible_connection=ssh ansible_host=10.10.100.111 ansible_user=ubuntu
 
 [builder:children]
 deployment

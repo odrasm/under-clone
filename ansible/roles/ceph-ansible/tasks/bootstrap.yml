@@ -1,10 +1,7 @@
 ---
-- include_tasks: install.yml
-
 - include_tasks: "boot/{{ module }}.yml"
   loop:
     - deployment
-    - osds
   loop_control:
     loop_var: module
-  when: "module in group_names"
+  when: module in group_names

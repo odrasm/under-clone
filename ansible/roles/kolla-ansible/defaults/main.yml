@@ -6,7 +6,7 @@ kolla_ansible_source: "{{ install_source }}"
 kolla_ansible_source_version: "stable/{{ openstack_release }}"
 kolla_ansible_git_repository: "{{ git_server }}/{{ project_group }}/{{ project_name }}"
 
-kolla_globals_file: "{{ config_path }}/globals.d/kolla.yml"
+kolla_globals_file: "{{ config_path }}/kolla/target.yml"
 kolla_passwords_file: "{{ config_path }}/globals.d/passwords.yml"
 
 kolla_ceph_keyrings:

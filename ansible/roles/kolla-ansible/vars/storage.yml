@@ -1,0 +1,6 @@
+---
+cinder_backend_ceph: "yes"
+enable_cinder_backup: "yes"
+cinder_backup_driver: "ceph"
+glance_backend_ceph: 'yes'
+nova_backend_ceph: 'yes'

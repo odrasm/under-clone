@@ -1,11 +1,11 @@
 ---
-- hosts: localhost
+- hosts: deployment
   gather_facts: false
   tasks:
     - debug:
         msg: |-
           WARNING: Ceph Ansible disabled... skipping.
-          To enable Ceph, add "ceph" to Fluctus modules via fluctus_enable_modules
-          or by using "fluctus bootstrap -m ceph,..." command.
+          To enable Ceph, add "ceph" to Underground modules via underground_enable_modules
+          or by using "underground init -m ceph,..." command.
     - pause:
         seconds: 5

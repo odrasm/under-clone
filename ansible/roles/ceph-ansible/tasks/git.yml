@@ -1,6 +1,8 @@
 - name: Cloning ceph-ansible source repository
   git:
     repo: "{{ ceph_ansible_git_repository }}"
-    dest: "{{ ceph_ansible_path }}"
+    dest: "{{ git_repos_directory }}/{{ project_name }}"
     update: yes
     version: "{{ ceph_ansible_source_version }}"
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true

@@ -17,15 +17,16 @@
   roles:
     - { role: common, tags: always }
 
-      #- name: "Ceph Ansible (action: {{ underground_action }})"
-      #  hosts: ceph
-      #  gather_facts: false
-      #  vars:
-      #    ansible_python_interpreter: "{{ kolla_python }}"
-      #  roles:
-      #    - { role: ceph-ansible, tags: always, when: "'ceph' in underground_list_modules" }
+- name: "Ceph Ansible (action: {{ underground_action }})"
+  hosts: ceph
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ kolla_python }}"
+  roles:
+    - { role: ceph-ansible, tags: always, when: "'storage' in underground_list_modules" }
 
-      #- import_playbook: "{{ ceph_ansible_path }}/site.yml"
+- import_playbook: "{{ ceph_ansible_path }}/site.yml"
+  when: "underground_action in ['deploy', 'reconfigure']"
 
 - name: "Networking (action: {{ underground_action }})"
   hosts: baremetal
@@ -36,14 +37,14 @@
   roles:
     - { role: networking, tags: always }
 
-      #- name: "Kolla (action: {{ underground_action }})"
-      #  hosts: builder
-      #  serial: '{{ kolla_serial|default("0") }}'
-      #  gather_facts: false
-      #  vars:
-      #    ansible_python_interpreter: "{{ kolla_python }}"
-      #  roles:
-      #    - { role: kolla-build, tags: always }
+#- name: "Kolla (action: {{ underground_action }})"
+#  hosts: builder
+#  serial: '{{ kolla_serial|default("0") }}'
+#  gather_facts: false
+#  vars:
+#    ansible_python_interpreter: "{{ kolla_python }}"
+#  roles:
+#    - { role: kolla-build, tags: always }
 
 - name: "Disk Image Builder (action: {{ underground_action }})"
   hosts: builder

@@ -133,7 +133,7 @@ function find_base_dir {
 
 function install_deps {
     echo "Installing Ansible Galaxy dependencies"
-    ansible-galaxy collection install -r ${BASEDIR}/requirements.yml --force
+    ansible-galaxy collection install -r ${BASEDIR}/requirements.yml --force &> /dev/null
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Failed to install Ansible Galaxy dependencies" >&2
         exit 1
@@ -515,7 +515,7 @@ CONFIG_OPTS="${CONFIG_OPTS} ${EXTRA_GLOBALS} -e CONFIG_DIR=${CONFIG_DIR} -e conf
 #CONFIG_OPTS="${CONFIG_OPTS} ${EXTRA_GLOBALS[@]/#/-e @} -e CONFIG_DIR=${CONFIG_DIR}"
 test -e "${CONFIG_DIR}/globals.yml" && CONFIG_OPTS="${CONFIG_OPTS} -e @${CONFIG_DIR}/globals.yml"
 test -e "${CONFIG_DIR}/globals.yml" && : ${OPENSTACK_RELEASE:=$(awk -F': ' '/^\s*underground_openstack_release\s*:/{ print $2 }' "${CONFIG_DIR}/globals.yml")}
-test -e "${CONFIG_DIR}/hosts" && INVENTORY="${INVENTORY} -i ${CONFIG_DIR}/hosts"
+test -e "${CONFIG_DIR}/inventory/hosts" && INVENTORY="${INVENTORY} -i ${CONFIG_DIR}/inventory/hosts"
 test -n "$OPENSTACK_RELEASE" && INVENTORY="${INVENTORY} -i ${BASEDIR}/ansible/inventory/kolla.${OPENSTACK_RELEASE}"
 
 CMD="ansible-playbook $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
@@ -523,6 +523,6 @@ CMD="ansible-playbook $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
 for INVENTORY in ${INVENTORIES[@]}; do
     CMD="${CMD} --inventory $INVENTORY"
 done
-CMD="${CMD} --inventory ${BASEDIR}/ansible/inventory/kolla.${OPENSTACK_RELEASE}"
+CMD="${CMD} --inventory ${BASEDIR}/ansible/inventory/kolla.${OPENSTACK_RELEASE} --inventory ${CONFIG_DIR}/inventory/"
 
 process_cmd

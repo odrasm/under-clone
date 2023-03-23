@@ -104,7 +104,7 @@ kolla_python: "{{ kolla_releases[openstack_release]['python_interpreter'] }}"
 kolla_python_version: "{{ kolla_releases[openstack_release]['python_version'] }}"
 
 # Valid options are: ['git', 'pip']
-ceph_install_source: "curl"
+#ceph_install_source: "curl"
 install_source: "git"
 
 #git_server: "https://git.cloud.e4.lan"
@@ -191,17 +191,18 @@ underground_modules:
     parent: minimal
     vars: {}
     opts: {}
-  ceph:
+  storage:
     enable:
-      - cinder
-      - manila_backend_cephfs_native
+      - ceph
+      #- manila_backend_cephfs_native
     parent: base
     vars:
       ceph_config_path: "{{ ceph_config_path }}"
       underground_ceph_release: "{{ underground_ceph_release }}"
       underground_storage_interface: "{{ underground_internal_interface }}"
-      underground_replica_interface: null
-    opts: {}  
+    opts:
+      underground_replica_interface: "{{ underground_internal_interface }}"
+      underground_storage_single: null
   baremetal:
     enable:
       - ironic

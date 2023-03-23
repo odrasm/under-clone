@@ -1,12 +1,11 @@
 ---
-fluctus_list_modules: "{{ hostvars['localhost']['fluctus_list_modules'] }}"
+underground_list_modules: "{{ hostvars['localhost']['underground_list_modules'] }}"
 
 packages_all: []
 packages_custom: []
 packages_python:
-  - netaddr
-  - psutil
-  - pyudev
+    - netaddr
+    - six
 
 ceph_conf_defaults:
   global:

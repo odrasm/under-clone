@@ -24,7 +24,7 @@
 - block:
   - name: Read configuration variables from file
     slurp:
-      path: "{{ config_path }}/host_vars/{{ inventory_hostname }}"
+      path: "{{ config_path }}/inventory/host_vars/{{ inventory_hostname }}.yml"
     register: ceph_node_yaml
     failed_when: false
   - name: Decode variables from file
@@ -44,6 +44,8 @@
   - name: Write back node configuration
     copy:
       content: "{{ ceph_node|to_nice_yaml() }}"
-      dest: "{{ config_path }}/host_vars/{{ inventory_hostname }}"
+      dest: "{{ config_path }}/inventory/host_vars/{{ inventory_hostname }}.yml"
       mode: '0644'
-  delegate_to: localhost
+      force: false
+      #force: "{{ underground_force|default('false')|bool }}"
+    delegate_to: "{{ groups['deployment'][0] }}"

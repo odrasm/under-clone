@@ -14,17 +14,17 @@
     - { role: common,
         tags: common }
 
-          #- name: "Ceph Ansible (action: {{ underground_action }})"
-          #  hosts: deployment
-          #  roles:
-          #    - { role: ceph-ansible,
-          #        tags: ceph-ansible }
+- name: "Ceph Ansible (action: {{ underground_action }})"
+  hosts: deployment
+  roles:
+    - { role: ceph-ansible,
+        tags: ceph-ansible }
 
-          #- name: "Kolla (action: {{ underground_action }})"
-          #  hosts: deployment
-          #  roles:
-          #    - { role: kolla-build,
-          #        tags: kolla-build }
+#- name: "Kolla (action: {{ underground_action }})"
+#  hosts: deployment
+#  roles:
+#    - { role: kolla-build,
+#        tags: kolla-build }
 
 - name: "Kolla Ansible (action: {{ underground_action }})"
   hosts: deployment

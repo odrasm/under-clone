@@ -2,7 +2,7 @@
 - name: Create Underground configuration directories
   become: true
   file:
-    path: "{{ config_path }}/host_vars"
+    path: "{{ config_path }}/inventory/host_vars"
     state: directory
     mode: '0755'
     owner: "{{ ansible_effective_user_id }}"
@@ -11,7 +11,7 @@
 - name: Initialize inventory hosts file
   copy:
     src: "{{ inventory_file }}"
-    dest: "{{ config_path }}/hosts"
+    dest: "{{ config_path }}/inventory/hosts"
     mode: '0644'
     force: "{{ underground_force|default('false')|bool }}"
 

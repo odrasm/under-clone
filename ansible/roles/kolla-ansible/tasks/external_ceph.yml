@@ -1,4 +1,6 @@
 ---
+- include_vars: "{{ kolla_config_path }}/target.yml"
+
 - name: Create config directory
   run_once: true
   file:

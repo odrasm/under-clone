@@ -1,0 +1,19 @@
+ceph_conf_overrides:
+  global:
+  "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}.rgw0":
+    "rgw keystone api version": "3"
+    "rgw keystone url": "{{ kolla_keystone_url }}"
+    "rgw keystone admin user": "ceph_rgw"
+    "rgw keystone admin password": "jf8sm7MQJnBebYKh4HVKDNm8eLIaEZYPEmziKzBS"
+    "rgw keystone admin project": "service"
+    "rgw keystone admin domain": "default"
+    "rgw keystone accepted roles": "Member, _member_, admin"
+    "rgw keystone accepted admin roles": "ResellerAdmin"
+    "rgw keystone verify ssl": "false"
+    "rgw swift compatibility": "false"
+    "nss db path": "/var/lib/ceph/radosgw/ceph-radosgw.{{ ansible_facts['hostname'] }}/nss"
+    "rgw s3 auth use keystone": "true"
+    "rgw enable apis": "s3,swift,swift_auth,admin"
+    "rgw swift account in url": "true"
+    "rgw keystone make new tenants": "true"
+    "rgw swift versioning enabled": "true"

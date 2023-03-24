@@ -5,14 +5,14 @@
 
 class FilterModule(object):
 
-  def filters(self):
-    return { 'map_attributes': self.map_attributes }
+    def filters(self):
+        return {'map_attributes': self.map_attributes}
 
-  def map_attributes(self, list_of_dicts, list_of_keys):
-    l = []
-    for di in list_of_dicts:
-      ret = {}
-      for key in list_of_keys:
-        ret[key] = di[key]
-      l.append(ret)
-    return l
+    def map_attributes(self, list_of_dicts, list_of_keys):
+        lll = []
+        for di in list_of_dicts:
+            ret = {}
+        for key in list_of_keys:
+            ret[key] = di[key]
+        lll.append(ret)
+        return lll

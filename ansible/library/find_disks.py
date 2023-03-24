@@ -18,7 +18,8 @@
 # This module has been relicensed from the source below:
 # https://github.com/SamYaple/yaodu/blob/master/ansible/library/ceph_osd_list
 
-import json
+# import json
+
 import pyudev
 import psutil
 import re
@@ -161,7 +162,6 @@ def extract_disk_info(ct, dev, name, use_udev):
         for mount in psutil.disk_partitions():
             if mount.device == kwargs['device']:
                 kwargs['mount_point'] = mount.mountpoint
-    
     yield kwargs
 
 

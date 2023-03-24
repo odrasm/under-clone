@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # Copyright (c) 2012, Marco Vito Moscaritolo <marco@agavee.com>
 # Copyright (c) 2013, Jesse Keating <jesse.keating@rackspace.com>
@@ -57,18 +57,18 @@ import os
 import sys
 import time
 from distutils.version import StrictVersion
-from io import StringIO
 
-import json
+try:
+    import json
+except:
+    import simplejson as json
 
 import openstack as sdk
 from openstack.cloud import inventory as sdk_inventory
 from openstack.config import loader as cloud_config
 
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+CONFIG_FILES = ['/etc/ansible/openstack.yaml', '/etc/ansible/openstack.yml']
 
-CONFIG_FILES = ['/etc/ansible/openstack.yaml', '/etc/ansible/openstack.yml', '/etc/openstack/clouds.yml']
 
 def get_groups_from_server(server_vars, namegroup=True):
     groups = []
@@ -81,8 +81,7 @@ def get_groups_from_server(server_vars, namegroup=True):
     groups.append(cloud)
 
     # Create a group on region
-    if region:
-        groups.append(region)
+    groups.append(region)
 
     # And one by cloud_region
     groups.append("%s_%s" % (cloud, region))
@@ -236,8 +235,6 @@ def parse_args():
 def main():
     args = parse_args()
     try:
-        # openstacksdk library may write to stdout, so redirect this
-        sys.stdout = StringIO()
         config_files = cloud_config.CONFIG_FILES + CONFIG_FILES
         sdk.enable_logging(debug=args.debug)
         inventory_args = dict(
@@ -258,7 +255,6 @@ def main():
 
         inventory = sdk_inventory.OpenStackInventory(**inventory_args)
 
-        sys.stdout = sys.__stdout__
         if args.list:
             output = get_host_groups(inventory, refresh=args.refresh, cloud=args.cloud)
         elif args.host:

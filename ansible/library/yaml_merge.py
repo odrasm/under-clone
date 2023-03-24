@@ -17,6 +17,7 @@
 # This module has been relicensed from the source below:
 # https://github.com/SamYaple/yaodu/blob/master/ansible/library/ceph_osd_list
 
+import os
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 

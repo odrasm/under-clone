@@ -12,6 +12,7 @@ def ini_dict_flatten(arg):
                             value=value))
     return ret
 
+
 class FilterModule(object):
     ''' Ansible INI filters '''
 
@@ -20,4 +21,3 @@ class FilterModule(object):
             'ini_dict_flatten': ini_dict_flatten,
         }
         return filters
-

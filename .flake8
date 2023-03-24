@@ -1,7 +1,2 @@
 [flake8]
-exclude =
-    .git,
-    __pycache__,
-    ansible/library/yaml_merge.py,
-    ansible/library/json_merge.py,
-    ansible/plugins/lookup/ini_file.py
+exclude = ansible/library/yaml_merge.py,ansible/library/json_merge.py,ansible/plugins/lookup/ini_file.py,/ansible/inventory/openstack_inventory.py

@@ -1,0 +1,50 @@
+[deployment]
+localhost ansible_connection=local
+
+[builder:children]
+deployment
+
+[bifrost:children]
+deployment
+
+[control]
+qa01 ansible_host=172.18.36.41 ansible_connection=ssh ansible_user=ubuntu
+qa02 ansible_host=172.18.36.42 ansible_connection=ssh ansible_user=ubuntu
+qa03 ansible_host=172.18.36.43 ansible_connection=ssh ansible_user=ubuntu
+
+[baremetal:children]
+control
+network
+compute
+storage
+monitoring
+
+[monitoring:children]
+control
+
+[network:children]
+control
+
+[compute:children]
+control
+
+[storage:children]
+control
+
+[mons:children]
+control
+
+[mgrs:children]
+control
+
+[osds:children]
+compute
+
+[grafana-server:children]
+control
+
+[ceph:children]
+mons
+mgrs
+osds
+grafana-server

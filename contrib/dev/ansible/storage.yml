@@ -1,31 +1,31 @@
- ---
- - name: dev cinder block check
-   stat:
-     path: "/var/lib/cinder_data.img"
-   register: block_check
-   become: true
- 
- - block:
- 
-   - name: dev cinder block free device
-     command: 'losetup -f'
-     register: free_device
- 
-   - name: dev cinder block allocate device
-     command: 'fallocate -l 20G /var/lib/cinder_data.img'
- 
-   - name: dev cinder block losetup
-     command: "losetup  {{ free_device.stdout }} /var/lib/cinder_data.img"
- 
-   - name: dev cinder block volume group
-     lvg:
-       vg: "cinder-volumes"
-       pvs: "{{ free_device.stdout }}"
- 
-   become: true
-   when:
-     - "underground_deployment == 'aio'"
-     - "'baremetal' in underground_list_modules"
-     - "cinder_backend_lvm == 'yes'"
-     - "not block_check.stat.exists"
-     - "enable_cinder is defined"
+---
+- name: dev cinder block check
+  stat:
+    path: "/var/lib/cinder_data.img"
+  register: block_check
+  become: true
+
+- block:
+
+  - name: dev cinder block free device
+    command: 'losetup -f'
+    register: free_device
+
+  - name: dev cinder block allocate device
+    command: 'fallocate -l 20G /var/lib/cinder_data.img'
+
+  - name: dev cinder block losetup
+    command: "losetup  {{ free_device.stdout }} /var/lib/cinder_data.img"
+
+  - name: dev cinder block volume group
+    lvg:
+      vg: "cinder-volumes"
+      pvs: "{{ free_device.stdout }}"
+
+  become: true
+  when:
+    - "underground_deployment == 'aio'"
+    - "'baremetal' in underground_list_modules"
+    - "cinder_backend_lvm == 'yes'"
+    - "not block_check.stat.exists"
+    - "enable_cinder is defined"

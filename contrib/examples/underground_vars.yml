@@ -1,0 +1,28 @@
+---
+
+#####neutron host
+#underground_external_interface_vlanaware: yes
+underground_external_interface: physnet1
+#####openstack provider network
+underground_external_network: '172.18.34.0/24'
+underground_external_allocation_pool_start: '172.18.34.100'
+underground_external_allocation_pool_end: '172.18.34.200'
+#underground_external_vlanid: '1834'
+underground_external_gateway: '172.18.34.1'
+
+
+####ironic host
+#underground_baremetal_interface: baremetal
+#underground_baremetal_network: '100.127.102.40/24'
+####openstack neutron ironic network
+#underground_baremetal_allocation_pool_start: '100.127.102.205'
+#underground_baremetal_allocation_pool_end: '100.127.102.210'
+#underground_baremetal_dns: '172.18.36.3'
+ 
+####api private host
+underground_internal_interface: blue
+underground_internal_address: '100.127.102.40'
+
+####api public host
+underground_public_interface: public
+underground_public_address: '172.18.36.40'

@@ -43,9 +43,15 @@ function get_python_bin {
 
 function check_environment_coherence {
     local ansible_python_cmdline
-    ansible_python_cmdline=$(get_python_bin)
-    ansible_python_version=$($ansible_python_cmdline -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))')
-
+    # GITHUB WORKFLOW
+    if [[ -n "$GITHUB_WORKSPACE" ]]; then
+	echo "We are running on github workflow"
+        ansible_python_cmdline="$(pythonLocation)/bin/python"
+        ansible_python_version=$($ansible_python_cmdline -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))')
+    else
+        ansible_python_cmdline=$(get_python_bin)
+        ansible_python_version=$($ansible_python_cmdline -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))')
+    fi
     if ! $ansible_python_cmdline --version &>/dev/null; then
         echo "ERROR: Ansible Python is not functional." >&2
         echo "Tried '$ansible_python_cmdline'" >&2
@@ -122,7 +128,7 @@ function find_base_dir {
             else
                 BASEDIR="${VIRTUAL_ENV}/share/underground"
             fi
-	#GITHUB WORKFLOW
+	# GITHUB WORKFLOW
         elif [[ -n "$GITHUB_WORKSPACE" ]]; then
             if test -f "${dir_name}/../share/underground/requirements.yml"; then
                 BASEDIR="${dir_name}/../share/underground"
@@ -244,7 +250,7 @@ function version {
     local python_bin
     python_bin=$(get_python_bin)
 
-    $python_bin -c 'from kolla_ansible.version import version_info; print(version_info)'
+    $python_bin -c 'from underground.version import version_info; print(version_info)'
 }
 
 check_environment_coherence

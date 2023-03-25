@@ -122,6 +122,12 @@ function find_base_dir {
             else
                 BASEDIR="${VIRTUAL_ENV}/share/underground"
             fi
+	#GITHUB WORKFLOW
+        elif [[ -n "$GITHUB_WORKSPACE" ]]; then
+            if test -f "${dir_name}/../share/underground/requirements.yml"; then
+                BASEDIR="${dir_name}/../share/underground"
+		echo "We are running on github workflow"
+            fi
         else
             # Running from sources (repo).
             BASEDIR="$(dirname ${dir_name})"
@@ -133,7 +139,7 @@ function find_base_dir {
 
 function install_deps {
     echo "Installing Ansible Galaxy dependencies"
-    ansible-galaxy collection install -r ${BASEDIR}/requirements.yml --force #&> /dev/null
+    ansible-galaxy collection install -r ${BASEDIR}/requirements.yml --force &> /dev/null
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Failed to install Ansible Galaxy dependencies" >&2
         exit 1

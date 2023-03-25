@@ -45,8 +45,7 @@ function check_environment_coherence {
     local ansible_python_cmdline
     # GITHUB WORKFLOW
     if [[ -n "$GITHUB_WORKSPACE" ]]; then
-	echo "We are running on github workflow"
-	echo "$pythonLocation"
+	echo "We are running on github workflow for python location"
 	ansible_python_cmdline="${pythonLocation}/bin/python"
         ansible_python_version=$($ansible_python_cmdline -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))')
     else
@@ -131,9 +130,9 @@ function find_base_dir {
             fi
 	# GITHUB WORKFLOW
         elif [[ -n "$GITHUB_WORKSPACE" ]]; then
+	    echo "We are running on github workflow for basedir"
             if test -f "${dir_name}/../share/underground/requirements.yml"; then
                 BASEDIR="${dir_name}/../share/underground"
-		echo "We are running on github workflow"
             fi
         else
             # Running from sources (repo).
@@ -146,7 +145,14 @@ function find_base_dir {
 
 function install_deps {
     echo "Installing Ansible Galaxy dependencies"
-    ansible-galaxy collection install -r ${BASEDIR}/requirements.yml --force &> /dev/null
+    # GITHUB WORKFLOW
+    if [[ -n "$GITHUB_WORKSPACE" ]]; then
+	echo "We are running on github workflow for ansible-galaxy"
+	ansible_galaxy_cmdline="${pythonLocation}/bin/ansible-galaxy"
+        ${ansible_galaxy_cmdline} collection install -r ${BASEDIR}/requirements.yml --force
+    else
+       ansible-galaxy collection install -r ${BASEDIR}/requirements.yml --force &> /dev/null
+    fi
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Failed to install Ansible Galaxy dependencies" >&2
         exit 1

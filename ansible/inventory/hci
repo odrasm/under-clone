@@ -2,15 +2,15 @@
 localhost	ansible_connection=local
 
 [builder:children]
-control
+deployment
 
 [bifrost:children]
 deployment
 
 [control]
-node1	ansible_host=172.18.36.41
-node2	ansible_host=172.18.36.42
-node3	ansible_host=172.18.36.43
+qa01	ansible_host=172.18.36.41
+qa02	ansible_host=172.18.36.42
+qa03	ansible_host=172.18.36.43
 
 [monitoring:children]
 control

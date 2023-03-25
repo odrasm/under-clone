@@ -2,13 +2,13 @@
 localhost	ansible_connection=local
 
 [builder:children]
-control
+deployment
+
+[bifrost:children]
+deployment
 
 [control]
-qa01	ansible_host=172.18.36.41
-
-[control:children]
-control
+localhost	ansible_connection=local
 
 [monitoring:children]
 control
@@ -22,7 +22,7 @@ control
 [storage:children]
 control
 
-[kolla:children]
+[baremetal:children]
 control
 monitoring
 network
@@ -40,6 +40,7 @@ compute
 
 [grafana-server:children]
 control
+
 [ceph:children]
 mons
 mgrs

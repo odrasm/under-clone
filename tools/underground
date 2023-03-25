@@ -46,7 +46,8 @@ function check_environment_coherence {
     # GITHUB WORKFLOW
     if [[ -n "$GITHUB_WORKSPACE" ]]; then
 	echo "We are running on github workflow"
-        ansible_python_cmdline="$(pythonLocation)/bin/python"
+	echo "$pythonLocation"
+	ansible_python_cmdline="${pythonLocation}/bin/python"
         ansible_python_version=$($ansible_python_cmdline -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))')
     else
         ansible_python_cmdline=$(get_python_bin)

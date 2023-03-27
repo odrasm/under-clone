@@ -34,5 +34,5 @@
 	"workspaceMount": "source=remote-workspace-${localEnv:USER},target=/workspace,type=volume",
 	"workspaceFolder": "/workspace",
 
-	"postStartCommand": "chown 1000:1000 /workspace"
+	"postStartCommand": "sudo chown 1000:1000 /workspace"
 }

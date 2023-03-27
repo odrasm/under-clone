@@ -23,7 +23,16 @@
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
-			"extensions": ["redhat.ansible","GitHub.vscode-pull-request-github","ms-python.python","redhat.vscode-yaml"]
+			"extensions": [
+				"redhat.ansible",
+				"GitHub.vscode-pull-request-github",
+				"ms-python.python",
+				"redhat.vscode-yaml",
+				"github.vscode-github-actions",
+				"ms-python.vscode-pylance",
+				"GitHub.remotehub",
+				"ms-vscode.remote-repositories"
+			]
 		}
 	},
 

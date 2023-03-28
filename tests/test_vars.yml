@@ -1,0 +1,25 @@
+---
+
+#####neutron host
+underground_external_interface: neutron
+#####openstack provider network
+underground_external_network: '192.168.2.0/24'
+underground_external_allocation_pool_start: '192.168.2.100'
+underground_external_allocation_pool_end: '192.168.2.200'
+underground_external_gateway: '192.168.2.1'
+
+####ironic host
+underground_baremetal_interface: api
+underground_baremetal_network: '192.168.1.0/24'
+####openstack neutron ironic network
+underground_baremetal_allocation_pool_start: '192.168.1.201'
+underground_baremetal_allocation_pool_end: '192.168.1.210'
+underground_baremetal_dns: '192.168.1.100'
+ 
+####api private host
+underground_internal_interface: api
+underground_internal_address: '192.168.1.100'
+
+####api public host
+underground_public_interface: public
+underground_public_address: '192.168.0.100'

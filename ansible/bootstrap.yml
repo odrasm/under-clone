@@ -67,4 +67,4 @@
     - { role: openstack-client, tags: always }
 
 - import_playbook: "{{ kolla_ansible_path }}/ansible/certificates.yml"
-  when: "underground_action in ['configure', 'reconfigure']"
+  when: "underground_action in ['bootstrap', 'reconfigure']"

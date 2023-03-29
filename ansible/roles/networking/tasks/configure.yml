@@ -17,6 +17,17 @@
       - '!any'
       - network
 
+- name: Check if we are inside a container
+  stat:
+    path: "/.dockerenv"
+  register: dockerin
+  delegate_to: "{{ groups['deployment'][0] }}"
+  run_once: true
+
+- name: Debug Conditions in container
+  debug:
+    msg: "{{ dockerin.stat.exists }}"
+
 - name: Ensure hostname match IP address
   become: true
   lineinfile:
@@ -24,5 +35,6 @@
     regexp: '.*\s+{{ ansible_hostname }}(\s|$)'
     line: "{{ hostvars[inventory_hostname]['ansible_'+underground_internal_interface]['ipv4']['address'] }}\t{{ ansible_hostname }}"
     state: present
+    unsafe_writes: "{{ dockerin.stat.exists|default('false')|bool }}"
   vars:
     kolla_globals: "{{ hostvars['localhost']['kolla_globals'] }}"

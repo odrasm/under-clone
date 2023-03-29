@@ -6,6 +6,7 @@ packages_custom: []
 packages_python:
     - netaddr
     - six
+    - pyudev
 
 ceph_conf_defaults:
   global:

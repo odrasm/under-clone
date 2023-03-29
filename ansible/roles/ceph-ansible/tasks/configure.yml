@@ -9,4 +9,6 @@
     - osds
   loop_control:
     loop_var: module
-  when: "module in group_names"
+  when:
+    - "module in group_names"
+    - "'storage' in underground_list_modules"

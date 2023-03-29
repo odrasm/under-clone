@@ -12,6 +12,10 @@
   delegate_to: "{{groups['baremetal'][0]}}"
 
 - block:
+  - name: Create node custom config
+    file:
+      path: "{{ kolla_config_path }}/config/nova/{{ inventory_hostname }}"
+      state: directory
   - name: Create Kolla Ansible main config file for Nova
     template:
       src: "{{ openstack_release }}/nova.conf"
@@ -23,12 +27,6 @@
     with_filetree: "../templates/{{ openstack_release }}/nova"
     when: item.state == 'file'
   run_once: true
-  delegate_to: "{{ groups['deployment'][0] }}"
-
-- name: Create node custom config
-  file:
-    path: "{{ kolla_config_path }}/config/nova/{{ inventory_hostname }}"
-    state: directory
   delegate_to: "{{ groups['deployment'][0] }}"
 
 - name: Define virtualization method

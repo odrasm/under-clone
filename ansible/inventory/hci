@@ -1,7 +1,7 @@
 [deployment]
 localhost	ansible_connection=local
 
-[builder:children]
+[builder]
 deployment
 
 [bifrost:children]

@@ -10,6 +10,7 @@
     - deployment
     - compute
     - storage
+    - control
   loop_control:
     loop_var: module
   when: "module in group_names"

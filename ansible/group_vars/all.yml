@@ -9,6 +9,7 @@ openstack_source_version: "{{ 'stable/' if openstack_release != 'master' }}{{ op
 underground_ceph_release: quincy
 ceph_release: quincy
 
+virtualenv:
 ceph_releases:
   nautilus:
     branch: stable-4.0
@@ -106,7 +107,6 @@ kolla_python_version: "{{ kolla_releases[openstack_release]['python_version'] }}
 # Valid options are: ['git', 'pip']
 #ceph_install_source: "curl"
 install_source: "git"
-virtualenv:
 virtualenv_site_packages: false
 #git_server: "https://git.cloud.e4.lan"
 git_server: "https://github.com"

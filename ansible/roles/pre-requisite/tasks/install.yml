@@ -6,7 +6,7 @@
 - include_tasks: overwrite_defaults.yml
 
 - name: Manages Python dependencies
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
     name: "{{ query('lines', [\"awk '/^[[:alnum:]]+/{ print $1 }' {{ playbook_dir }}/../requirements.txt\"]) }}"
     executable: "{{ virtualenv is none | ternary('pip3', omit) }}"
@@ -25,7 +25,7 @@
     name: "{{ packages_custom }}"
 
 - name: Install custom Python packages
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
     name: "{{ packages_python }}"
     executable: "{{ virtualenv is none | ternary('pip3', omit) }}"

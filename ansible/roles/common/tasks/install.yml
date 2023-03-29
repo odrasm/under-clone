@@ -10,7 +10,7 @@
     name: "{{ packages_custom }}"
 
 - name: Install Python packages
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
     name: "{{ packages_python }}"
     executable: "{{ virtualenv is none | ternary('pip3', omit) }}"

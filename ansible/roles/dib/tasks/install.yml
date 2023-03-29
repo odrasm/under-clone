@@ -12,7 +12,7 @@
   when: packages_custom is defined
 
 - name: Manages Python library dependencies
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
     name: "{{ packages_python }}"
     executable: "{{ virtualenv is none | ternary('pip3', omit) }}"

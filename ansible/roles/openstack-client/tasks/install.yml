@@ -1,6 +1,6 @@
 ---
 - name: Install OpenStack client
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
       name:  "python-openstackclient "
       extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 
@@ -13,7 +13,7 @@
 
 
 - name: Install Ironic Inspector OpenStack client
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
       name:  "python-ironic-inspector-client"
       extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 
@@ -26,7 +26,7 @@
   when: "'baremetal' in underground_list_modules"
 
 - name: Install Placemente OpenStack client
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
       name:  "osc-placement"
       extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 
@@ -39,7 +39,7 @@
   when: "'baremetal' in underground_list_modules"
 
 - name: Install Heat OpenStack client
-  become: "{{ virtualenv is undefined }}"
+  become: "{{ virtualenv is none }}"
   pip:
       name:  "python-heatclient"
       extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 

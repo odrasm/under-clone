@@ -123,9 +123,8 @@ config_owner_user: "{{ ansible_effective_user_id }}"
 config_owner_group: "{{ ansible_effective_group_id }}"
 ceph_ansible_path: "/usr/local/src/ceph-ansible"
 ceph_config_path: "{{ config_path }}/ceph"
-kolla_ansible_path: "/usr/local/share/kolla-ansible"
+kolla_ansible_path:  "{{ virtualenv is none | ternary('/usr/local', virtualenv) }}//{{'/share/kolla-ansible'}}"
 kolla_config_path: "{{ config_path }}/kolla"
-
 underground_dryrun: false
 
 underground_deployment: aio

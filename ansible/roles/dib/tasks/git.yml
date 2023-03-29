@@ -1,23 +1,25 @@
 ---
 - name: Cloning ironic-python-agent-builder source repository
+  become: "{{ virtualenv is undefined }}"
   git:
     repo: "{{ ipa_build_git_repository }}"
-    dest: "{{ git_repos_directory }}/{{ project_name_ipa }}"
+    dest: "{{ virtualenv is none | ternary ( git_repos_directory, virtualenv) }}/{{ project_name_ipa }}"
     update: yes
     version: "{{ ipa_build_source_version }}"
 
 - name: Install ironic-python-agent-builder
-  become: true
-  command: "{{ kolla_python }} -m pip install {{ git_repos_directory }}/{{ project_name_ipa }}"
+  become: "{{ virtualenv is undefined }}"
+  command: "{{ kolla_python }} -m pip install {{virtualenv is none | ternary ( git_repos_directory, virtualenv) }}//{{ project_name_ipa }}"
 
 
 - name: Cloning diskimage-builder source repository
+  become: "{{ virtualenv is undefined }}"
   git:
     repo: "{{ dib_build_git_repository }}"
-    dest: "{{ git_repos_directory }}/{{ project_name }}"
+    dest: "{{ virtualenv is none | ternary ( git_repos_directory, virtualenv) }}/{{ project_name }}"
     update: yes
     version: "{{ dib_build_source_version }}"
 
 - name: Install diskimage-builder
-  become: true
-  command: "{{ kolla_python }} -m pip install {{ git_repos_directory }}/{{ project_name }}"
+  become: "{{ virtualenv is undefined }}"
+  command: "{{ kolla_python }} -m pip install {{virtualenv is none | ternary ( git_repos_directory, virtualenv) }}//{{ project_name }}"

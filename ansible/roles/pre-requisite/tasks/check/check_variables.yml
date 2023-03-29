@@ -5,7 +5,8 @@
   stat:
     path: "{{ config_path }}/globals.yml"
   register: underground_globals
-
+- debug:
+    msg: "{{ config_path }}"
 - fail:
     msg: "ERROR: Underground seems not initialised. Run \"underground init <deployment>\" to fix it."
   when: not underground_globals.stat.exists

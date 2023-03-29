@@ -98,7 +98,7 @@ kolla_releases:
   zed:
     version: 15
     python_version: 3
-    python_interpreter: python3
+    python_interpreter: "{{ virtualenv is none | ternary('python3', virtualenv ~ '/bin/python3') }}"
 
 kolla_python: "{{ kolla_releases[openstack_release]['python_interpreter'] }}"
 kolla_python_version: "{{ kolla_releases[openstack_release]['python_version'] }}"
@@ -106,7 +106,8 @@ kolla_python_version: "{{ kolla_releases[openstack_release]['python_version'] }}
 # Valid options are: ['git', 'pip']
 #ceph_install_source: "curl"
 install_source: "git"
-
+virtualenv:
+virtualenv_site_packages: false
 #git_server: "https://git.cloud.e4.lan"
 git_server: "https://github.com"
 git_repos_directory: "/usr/local/src"

@@ -1,7 +1,7 @@
 ---
 packages_all:
   - git
-  - "{{ kolla_python }}-pip"
+  - "{{ kolla_python | basename }}-pip"
   - sshpass
 
 packages_python: []

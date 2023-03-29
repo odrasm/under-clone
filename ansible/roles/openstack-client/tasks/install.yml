@@ -1,34 +1,52 @@
 ---
 - name: Install OpenStack client
-  become: true
-  command: "{{ kolla_python }} -m pip install python-openstackclient -c https://releases.openstack.org/constraints/upper/{{ openstack_release }}"
+  become: "{{ virtualenv is undefined }}"
+  pip:
+      name:  "python-openstackclient "
+      extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 
+      executable: "{{ virtualenv is none | ternary('pip3', omit) }}"
+      virtualenv: "{{ virtualenv is none | ternary(omit, virtualenv) }}"
+      virtualenv_site_packages: "{{ virtualenv is none | ternary(omit, virtualenv_site_packages) }}"
+      virtualenv_command: "{{ virtualenv is none |  ternary(omit, 'python' ~  kolla_releases[openstack_release]['python_version'] ~ ' -m venv') }}" 
   register: install_openstack_client
   changed_when: "'Successfully installed' in install_openstack_client.stdout"
 
-- name: Install Ironic OpenStack client
-  become: true
-  command: "{{ kolla_python }} -m pip install python-ironicclient -c https://releases.openstack.org/constraints/upper/{{ openstack_release }}"
-  register: install_ironic_client
-  changed_when: "'Successfully installed' in install_ironic_client.stdout"
-  when: "'baremetal' in underground_list_modules"
 
 - name: Install Ironic Inspector OpenStack client
-  become: true
-  command: "{{ kolla_python }} -m pip install python-ironic-inspector-client -c https://releases.openstack.org/constraints/upper/{{ openstack_release }}"
+  become: "{{ virtualenv is undefined }}"
+  pip:
+      name:  "python-ironic-inspector-client"
+      extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 
+      executable: "{{ virtualenv is none | ternary('pip3', omit) }}"
+      virtualenv: "{{ virtualenv is none | ternary(omit, virtualenv) }}"
+      virtualenv_site_packages: "{{ virtualenv is none | ternary(omit, virtualenv_site_packages) }}"
+      virtualenv_command: "{{ virtualenv is none |  ternary(omit, 'python' ~  kolla_releases[openstack_release]['python_version'] ~ ' -m venv') }}" 
   register: install_inspector_client
   changed_when: "'Successfully installed' in install_inspector_client.stdout"
   when: "'baremetal' in underground_list_modules"
 
 - name: Install Placemente OpenStack client
-  become: true
-  command: "{{ kolla_python }} -m pip install osc-placement -c https://releases.openstack.org/constraints/upper/{{ openstack_release }}"
+  become: "{{ virtualenv is undefined }}"
+  pip:
+      name:  "osc-placement"
+      extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 
+      executable: "{{ virtualenv is none | ternary('pip3', omit) }}"
+      virtualenv: "{{ virtualenv is none | ternary(omit, virtualenv) }}"
+      virtualenv_site_packages: "{{ virtualenv is none | ternary(omit, virtualenv_site_packages) }}"
+      virtualenv_command: "{{ virtualenv is none |  ternary(omit, 'python' ~  kolla_releases[openstack_release]['python_version'] ~ ' -m venv') }}" 
   register: install_placement_client
   changed_when: "'Successfully installed' in install_placement_client.stdout"
   when: "'baremetal' in underground_list_modules"
 
 - name: Install Heat OpenStack client
-  become: true
-  command: "{{ kolla_python }} -m pip install python-heatclient -c https://releases.openstack.org/constraints/upper/{{ openstack_release }}"
+  become: "{{ virtualenv is undefined }}"
+  pip:
+      name:  "python-heatclient"
+      extra_args: "-c https://releases.openstack.org/constraints/upper/{{ openstack_release }}" 
+      executable: "{{ virtualenv is none | ternary('pip3', omit) }}"
+      virtualenv: "{{ virtualenv is none | ternary(omit, virtualenv) }}"
+      virtualenv_site_packages: "{{ virtualenv is none | ternary(omit, virtualenv_site_packages) }}"
+      virtualenv_command: "{{ virtualenv is none |  ternary(omit, 'python' ~  kolla_releases[openstack_release]['python_version'] ~ ' -m venv') }}" 
   register: install_heat_client
   changed_when: "'Successfully installed' in install_heat_client.stdout"
   when: "'base' in underground_list_modules"

@@ -10,6 +10,12 @@
     name: "{{ packages_custom }}"
 
 - name: Install Python packages
-  become: true
+  become: "{{ virtualenv is undefined }}"
   pip:
     name: "{{ packages_python }}"
+    executable: "{{ virtualenv is none | ternary('pip3', omit) }}"
+    virtualenv: "{{ virtualenv is none | ternary(omit, virtualenv) }}"
+    virtualenv_site_packages: "{{ virtualenv is none | ternary(omit, virtualenv_site_packages) }}"
+    virtualenv_command: "{{ virtualenv is none |  ternary(omit, 'python' ~  kolla_releases[openstack_release]['python_version'] ~ ' -m venv') }}" 
+ 
+ 

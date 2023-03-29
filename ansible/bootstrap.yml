@@ -65,3 +65,6 @@
     ansible_python_interpreter: "{{ kolla_python }}"
   roles:
     - { role: openstack-client, tags: always }
+
+- import_playbook: "{{ kolla_ansible_path }}/ansible/certificates.yml"
+  when: "underground_action in ['configure', 'reconfigure']"

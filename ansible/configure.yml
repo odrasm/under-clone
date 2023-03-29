@@ -75,3 +75,6 @@
     save_all: enabled
   roles:
     - { role: kolla-ansible, tags: always, save_all: enabled }
+
+- import_playbook: "{{ kolla_ansible_path }}/ansible/certificates.yml"
+  when: "underground_action in ['configure', 'reconfigure']"

@@ -11,7 +11,14 @@
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/devcontainers/features/python:1": {},
 		"ghcr.io/devcontainers-contrib/features/tox:2": {},
-		"ghcr.io/guiyomh/features/vim:0": {}
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"moby": false,
+			"installDockerBuildx": true,
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers-contrib/features/nmap-apt-get:1": {},
+		"ghcr.io/devcontainers-contrib/features/curl-apt-get:1": {},
+		"ghcr.io/devcontainers-contrib/features/wget-apt-get:1": {}
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -23,7 +30,16 @@
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
-			"extensions": ["redhat.ansible","GitHub.vscode-pull-request-github","ms-python.python","redhat.vscode-yaml"]
+			"extensions": [
+				"redhat.ansible",
+				"GitHub.vscode-pull-request-github",
+				"ms-python.python",
+				"redhat.vscode-yaml",
+				"github.vscode-github-actions",
+				"ms-python.vscode-pylance",
+				"GitHub.remotehub",
+				"ms-vscode.remote-repositories"
+			]
 		}
 	},
 
@@ -34,5 +50,5 @@
 	"workspaceMount": "source=remote-workspace-${localEnv:USER},target=/workspace,type=volume",
 	"workspaceFolder": "/workspace",
 
-	"postStartCommand": "chown 1000:1000 /workspace"
+	"postStartCommand": "sudo chown 1000:1000 /workspace ;  git config --global --add url.'git@github.com:'.insteadOf 'https://github.com/'; sudo apt-get update -qq ; sudo apt-get install -y -qq inetutils-ping vim bash-completion bats jq"
 }

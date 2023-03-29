@@ -11,3 +11,4 @@
     - "{{ data_path }}/baremetal/cache"
   become: true
 
+- include_tasks: install.yml

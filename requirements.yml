@@ -1,12 +1,9 @@
 ---
-# These are Ansible requirements needed to run kolla-ansible master
+# These are Ansible requirements needed to run kolla-ansible master and ceph-ansible master
 collections:
   - name: https://opendev.org/openstack/ansible-collection-kolla
     type: git
     version: stable/zed
-
-# These are Ansible requirements needed to run ceph-ansible master
-collections:
   - name: https://opendev.org/openstack/ansible-config_template
     version: 1.2.1
     type: git

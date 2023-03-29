@@ -1,0 +1,16 @@
+{
+    "recommendations": [
+        "redhat.ansible",
+        "ms-vscode-remote.remote-containers",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "redhat.vscode-yaml",
+        "ms-python.vscode-pylance",
+        "github.remotehub",
+        "ms-vscode-remote.remote-ssh",
+        "ms-vscode-remote.remote-ssh-edit",
+        "ms-vscode.remote-explorer",
+        "ms-vscode.remote-repositories",
+        "ms-azuretools.vscode-docker"
+    ]
+}

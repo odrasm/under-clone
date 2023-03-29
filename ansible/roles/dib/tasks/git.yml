@@ -3,15 +3,13 @@
   #become: "{{ virtualenv is none  }}"
   git:
     repo: "{{ ipa_build_git_repository }}"
-    dest: "{{
-    
-     | ternary ( git_repos_directory, virtualenv) }}/{{ project_name_ipa }}"
+    dest: "{{ virtualenv is none | ternary ( git_repos_directory, virtualenv) }}/{{ project_name_ipa }}"
     update: yes
     version: "{{ ipa_build_source_version }}"
 
 - name: Install ironic-python-agent-builder
   become: "{{ virtualenv is none }}"
-  command: "{{ kolla_python }} -m pip install {{virtualenv is none | ternary ( git_repos_directory, virtualenv) }}//{{ project_name_ipa }}"
+  command: "{{ kolla_python }} -m pip install {{ virtualenv is none | ternary ( git_repos_directory, virtualenv) }}//{{ project_name_ipa }}"
 
 
 - name: Cloning diskimage-builder source repository
@@ -23,4 +21,4 @@
 
 - name: Install diskimage-builder
   become: "{{ virtualenv is none }}"
-  command: "{{ kolla_python }} -m pip install {{virtualenv is none | ternary ( git_repos_directory, virtualenv) }}//{{ project_name }}"
+  command: "{{ kolla_python }} -m pip install {{ virtualenv is none | ternary ( git_repos_directory, virtualenv) }}//{{ project_name }}"

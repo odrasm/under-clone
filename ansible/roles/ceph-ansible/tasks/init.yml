@@ -10,6 +10,6 @@
     name: "{{ packages_custom }}"
 
 - name: Install Python packages
-  become: true
+  become: "{{ virtualenv is none }}" 
   pip:
     name: "{{ packages_python }}"

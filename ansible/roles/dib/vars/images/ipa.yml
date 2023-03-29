@@ -16,7 +16,7 @@ dib_env_vars:
   DIB_REPOREF_ironic_lib: "stable/{{ openstack_release }}"
   DIB_BOOTLOADER_SERIAL_CONSOLE: "ttyS1,115200"
 
-dib_ipa_elements_path: "{{ virtualenv is none | ternary ('/usr/local/share/ironic-python-agent-builder}', virtualenv ~ '/share/ironic-python-agent-builder}') }}"
+dib_ipa_elements_path: "{{ virtualenv is none | ternary('/usr/local', virtualenv) }}//{{ '/share/ironic-python-agent-builder' }}"
 dib_trace: "false"
 dib_uncompressed: "false"
 dib_clearenv: "false"
